@@ -64,11 +64,6 @@ class Application implements ApplicationInterface
         return $httpResponse;
     }
 
-    /**
-     * @param   string $message
-     * @param   string $level
-     * @return  void
-     */
     protected function log($message, $level)
     {
         $this->logger->log($level, '[Application] ' . $message);

@@ -19,10 +19,6 @@ class RequestBus implements RequestBusInterface
     /** @var  LoggerInterface */
     private $logger;
 
-    /**
-     * @param  callable[] $executors
-     * @param  LoggerInterface $logger
-     */
     public function __construct(array $executors = [], LoggerInterface $logger)
     {
         foreach ($executors as $name => $executor) {
