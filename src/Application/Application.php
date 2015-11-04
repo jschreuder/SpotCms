@@ -3,16 +3,16 @@
 namespace Spot\Cms\Application;
 
 use Psr\Http\Message\ServerRequestInterface as HttpRequest;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Cms\Application\Request\HttpRequestParserInterface;
 use Spot\Cms\Application\Request\RequestBusInterface;
 use Spot\Cms\Application\Request\RequestException;
+use Spot\Cms\Application\Response\Message\ResponseInterface;
 use Spot\Cms\Application\Response\ResponseBusInterface;
 use Spot\Cms\Application\Response\ResponseException;
 
-class Application
+class Application implements ApplicationInterface
 {
     /** @var  HttpRequestParserInterface */
     private $requestParser;
@@ -38,11 +38,8 @@ class Application
         $this->logger = $logger;
     }
 
-    /**
-     * @param   HttpRequest $httpRequest
-     * @return  ResponseInterface
-     */
-    public function execute(HttpRequest $httpRequest)
+    /** {@inheritdoc} */
+    public function execute(HttpRequest $httpRequest) : ResponseInterface
     {
         $this->log(LogLevel::INFO, 'Starting execution.');
         try {

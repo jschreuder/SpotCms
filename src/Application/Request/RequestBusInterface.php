@@ -9,19 +9,12 @@ use Spot\Cms\Application\Response\ResponseException;
 
 interface RequestBusInterface
 {
-    /**
-     * @param   RequestInterface $request
-     * @return  bool
-     */
-    public function supports(RequestInterface $request);
+    public function supports(RequestInterface $request) : bool;
 
     /**
      * MUST catch all exceptions internally and throw ONLY ResponseException instances
      *
-     * @param   HttpRequest $httpRequest
-     * @param   RequestInterface $requestMessage
-     * @return  ResponseInterface
      * @throws  ResponseException
      */
-    public function execute(HttpRequest $httpRequest, RequestInterface $requestMessage);
+    public function execute(HttpRequest $httpRequest, RequestInterface $requestMessage) : ResponseInterface;
 }

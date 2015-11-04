@@ -11,9 +11,7 @@ interface HttpRequestParserInterface
      * MUST catch all exceptions internally and throw only RequestException
      * instances.
      *
-     * @param   ServerRequestInterface $httpRequest
-     * @return  RequestInterface
      * @throws  RequestException
      */
-    public function parse(ServerRequestInterface $httpRequest);
+    public function parse(ServerRequestInterface $httpRequest) : RequestInterface;
 }

@@ -29,34 +29,25 @@ class ResponseBus implements ResponseBusInterface
         $this->logger = $logger;
     }
 
-    /**
-     * @param   string $name
-     * @param   callable $generator
-     * @return  self
-     */
-    public function setGenerator($name, callable $generator)
+    public function setGenerator(string $name, callable $generator) : self
     {
         $this->generators[strval($name)] = $generator;
         return $this;
     }
 
-    /**
-     * @param   ResponseInterface $response
-     * @return  callable
-     */
-    protected function getGenerator(ResponseInterface $response)
+    protected function getGenerator(ResponseInterface $response) : callable
     {
         return $this->generators[$response->getName()];
     }
 
     /** {@inheritdoc} */
-    public function supports(ResponseInterface $response)
+    public function supports(ResponseInterface $response) : bool
     {
         return array_key_exists($response->getName(), $this->generators);
     }
 
     /** {@inheritdoc} */
-    public function execute(HttpRequest $httpRequest, ResponseInterface $responseMessage)
+    public function execute(HttpRequest $httpRequest, ResponseInterface $responseMessage) : HttpResponse
     {
         if (!$this->supports($responseMessage)) {
             $this->log('Unsupported request: ' . $responseMessage->getName(), LogLevel::WARNING);
@@ -74,12 +65,7 @@ class ResponseBus implements ResponseBusInterface
         return $httpResponse;
     }
 
-    /**
-     * @param   string $message
-     * @param   string $level
-     * @return  void
-     */
-    protected function log($message, $level)
+    protected function log(string $message, string $level)
     {
         $this->logger->log($level, '[ResponseBus] ' . $message);
     }

@@ -6,14 +6,12 @@ use Spot\Cms\Application\Request\RequestException;
 
 interface RequestInterface
 {
-    /** @return  string */
-    public function getName();
+    public function getName() : string;
 
     /**
      * MUST throw a RequestException on failure to validate the data, may not
      * throw any other type of Exception
      *
-     * @return  void
      * @throws  RequestException
      */
     public function validate();

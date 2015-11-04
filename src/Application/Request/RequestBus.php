@@ -31,34 +31,25 @@ class RequestBus implements RequestBusInterface
         $this->logger = $logger;
     }
 
-    /**
-     * @param   string $name
-     * @param   callable $executor
-     * @return  self
-     */
-    public function setExecutor($name, callable $executor)
+    public function setExecutor(string $name, callable $executor) : self
     {
         $this->executors[strval($name)] = $executor;
         return $this;
     }
 
-    /**
-     * @param   RequestInterface $request
-     * @return  callable
-     */
-    protected function getExecutor(RequestInterface $request)
+    protected function getExecutor(RequestInterface $request) : callable
     {
         return $this->executors[$request->getName()];
     }
 
     /** {@inheritdoc} */
-    public function supports(RequestInterface $request)
+    public function supports(RequestInterface $request) : bool
     {
         return array_key_exists($request->getName(), $this->executors);
     }
 
     /** {@inheritdoc} */
-    public function execute(HttpRequest $httpRequest, RequestInterface $requestMessage)
+    public function execute(HttpRequest $httpRequest, RequestInterface $requestMessage) : ResponseInterface
     {
         if (!$this->supports($requestMessage)) {
             $this->log('Unsupported request: ' . $requestMessage->getName(), LogLevel::WARNING);
@@ -76,12 +67,7 @@ class RequestBus implements RequestBusInterface
         return $responseMessage;
     }
 
-    /**
-     * @param   string $message
-     * @param   string $level
-     * @return  void
-     */
-    protected function log($message, $level)
+    protected function log(string $message, string $level)
     {
         $this->logger->log($level, '[RequestBus] ' . $message);
     }

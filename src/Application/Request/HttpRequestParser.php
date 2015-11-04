@@ -25,7 +25,7 @@ class HttpRequestParser implements HttpRequestParserInterface
     }
 
     /** {@inheritdoc} */
-    public function parse(ServerRequestInterface $httpRequest)
+    public function parse(ServerRequestInterface $httpRequest) : RequestInterface
     {
         $method = $httpRequest->getMethod();
         $path = $httpRequest->getUri()->getPath();
@@ -58,12 +58,7 @@ class HttpRequestParser implements HttpRequestParserInterface
         return $request;
     }
 
-    /**
-     * @param   string $message
-     * @param   string $level
-     * @return  void
-     */
-    protected function log($message, $level)
+    protected function log(string $message, string $level)
     {
         $this->logger->log($level, '[HttpRequestParser] ' . $message);
     }

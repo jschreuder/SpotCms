@@ -5,7 +5,7 @@ namespace Spot\Cms\Application\Request\Message;
 class ServerError implements RequestInterface
 {
     /** {@inheritdoc} */
-    public function getName()
+    public function getName() : string
     {
         return 'error.serverError';
     }
@@ -13,6 +13,5 @@ class ServerError implements RequestInterface
     /** {@inheritdoc} */
     public function validate()
     {
-        return true;
     }
 }
