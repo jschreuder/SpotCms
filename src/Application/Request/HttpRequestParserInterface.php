@@ -3,6 +3,7 @@
 namespace Spot\Cms\Application\Request;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Spot\Cms\Application\Request\Message\RequestInterface;
 
 interface HttpRequestParserInterface
 {

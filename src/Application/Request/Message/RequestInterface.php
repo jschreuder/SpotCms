@@ -1,6 +1,8 @@
 <?php
 
-namespace Spot\Cms\Application\Request;
+namespace Spot\Cms\Application\Request\Message;
+
+use Spot\Cms\Application\Request\RequestException;
 
 interface RequestInterface
 {

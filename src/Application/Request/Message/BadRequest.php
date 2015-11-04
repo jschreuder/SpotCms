@@ -1,6 +1,6 @@
 <?php
 
-namespace Spot\Cms\Application\Request;
+namespace Spot\Cms\Application\Request\Message;
 
 class BadRequest implements RequestInterface
 {

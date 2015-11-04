@@ -1,13 +1,13 @@
 <?php
 
-namespace Spot\Cms\Application\Request;
+namespace Spot\Cms\Application\Request\Message;
 
-class RequestError implements RequestInterface
+class NotFound implements RequestInterface
 {
     /** {@inheritdoc} */
     public function getName()
     {
-        return 'error.serverError';
+        return 'error.notFound';
     }
 
     /** {@inheritdoc} */

@@ -2,6 +2,9 @@
 
 namespace Spot\Cms\Application\Request;
 
+use Spot\Cms\Application\Request\Message\RequestInterface;
+use Spot\Cms\Application\Request\Message\ServerError;
+
 class RequestException extends \RuntimeException
 {
     /** @var  RequestInterface */
@@ -13,7 +16,7 @@ class RequestException extends \RuntimeException
      */
     public function __construct(RequestInterface $errorRequest = null, $code = 0)
     {
-        $this->errorRequest = $errorRequest ?: new RequestError();
+        $this->errorRequest = $errorRequest ?: new ServerError();
         parent::__construct($this->errorRequest->getName(), $code ?: 500);
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spot\Cms\Application\Response;
+namespace Spot\Cms\Application\Response\Message;
 
 interface ResponseInterface
 {
