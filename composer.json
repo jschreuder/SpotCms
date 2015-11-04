@@ -1,0 +1,32 @@
+{
+    "name": "spot/cms",
+    "description": "Content management system",
+    "type": "Application",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jelmer Schreuder",
+            "email": "j.schreuder@mijnpraktijk.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "config": {
+        "bin-dir": "bin"
+    },
+    "require": {
+        "zendframework/zend-diactoros": "^1.1",
+        "monolog/monolog": "^1.17",
+        "pimple/pimple": "^3.0",
+        "nikic/fast-route": "^0.6.0",
+        "particle/validator": "^2.0",
+        "particle/filter": "^1.0"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "^2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Spot\\Cms\\": "src"
+        }
+    }
+}
