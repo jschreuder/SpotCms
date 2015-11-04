@@ -4,6 +4,8 @@ namespace Spot\Cms\Application;
 
 use Psr\Http\Message\ServerRequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Spot\Cms\Application\Request\HttpRequestParserInterface;
 use Spot\Cms\Application\Request\RequestBusInterface;
 use Spot\Cms\Application\Request\RequestException;
@@ -21,14 +23,19 @@ class Application
     /** @var  ResponseBusInterface */
     private $responseBus;
 
+    /** @var  LoggerInterface */
+    private $logger;
+
     public function __construct(
         HttpRequestParserInterface $requestParser,
         RequestBusInterface $requestBus,
-        ResponseBusInterface $responseBus
+        ResponseBusInterface $responseBus,
+        LoggerInterface $logger
     ) {
         $this->requestParser = $requestParser;
         $this->requestBus = $requestBus;
         $this->responseBus = $responseBus;
+        $this->logger = $logger;
     }
 
     /**
@@ -37,19 +44,36 @@ class Application
      */
     public function execute(HttpRequest $httpRequest)
     {
+        $this->log(LogLevel::INFO, 'Starting execution.');
         try {
             $requestMessage = $this->requestParser->parse($httpRequest);
             $requestMessage->validate();
+            $this->log(LogLevel::INFO, 'Successfully parsed HTTP request into Request message.');
         } catch (RequestException $requestException) {
+            $this->log(LogLevel::ERROR, 'Request parsing ended in exception: ' . $requestException->getMessage());
             $requestMessage = $requestException->getRequestObject();
         }
 
         try {
             $responseMessage = $this->requestBus->execute($httpRequest, $requestMessage);
         } catch (ResponseException $responseException) {
+            $this->log(LogLevel::ERROR, 'Request execution ended in exception: ' . $responseException->getMessage());
             $responseMessage = $responseException->getResponseObject();
         }
 
-        return $this->responseBus->execute($httpRequest, $responseMessage);
+        $httpResponse = $this->responseBus->execute($httpRequest, $responseMessage);
+        $this->log(LogLevel::INFO, 'Successfully generated HTTP response.');
+
+        return $httpResponse;
+    }
+
+    /**
+     * @param   string $message
+     * @param   string $level
+     * @return  void
+     */
+    protected function log($message, $level)
+    {
+        $this->logger->log($level, '[Application] ' . $message);
     }
 }
