@@ -1,0 +1,4 @@
+suites:
+    acme_suite:
+        namespace: Spot\Cms
+        psr4_prefix: Spot\Cms
