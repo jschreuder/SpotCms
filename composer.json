@@ -19,7 +19,9 @@
         "pimple/pimple": "^3.0",
         "nikic/fast-route": "^0.6.0",
         "particle/validator": "^2.0",
-        "particle/filter": "^1.0"
+        "particle/filter": "^1.0",
+        "robmorgan/phinx": "^0.4.6",
+        "ramsey/uuid": "^3.0"
     },
     "require-dev": {
         "phpspec/phpspec": "^2.3"
