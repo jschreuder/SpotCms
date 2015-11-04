@@ -10,7 +10,8 @@ interface RequestInterface
     public function getName();
 
     /**
-     * Must throw a RequestException on failure to validate the data
+     * MUST throw a RequestException on failure to validate the data, may not
+     * throw any other type of Exception
      *
      * @return  void
      * @throws  RequestException

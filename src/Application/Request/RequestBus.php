@@ -83,6 +83,6 @@ class RequestBus implements RequestBusInterface
      */
     protected function log($message, $level)
     {
-        $this->logger->log($level, $message);
+        $this->logger->log($level, '[RequestBus] ' . $message);
     }
 }

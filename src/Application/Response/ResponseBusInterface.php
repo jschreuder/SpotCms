@@ -15,6 +15,8 @@ interface ResponseBusInterface
     public function supports(ResponseInterface $response);
 
     /**
+     * MUST result in a HttpResponse, it may never result in an Exception or error.
+     *
      * @param   HttpRequest $httpRequest
      * @param   ResponseInterface $response
      * @return  HttpResponse

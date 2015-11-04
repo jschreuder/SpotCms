@@ -81,6 +81,6 @@ class ResponseBus implements ResponseBusInterface
      */
     protected function log($message, $level)
     {
-        $this->logger->log($level, $message);
+        $this->logger->log($level, '[ResponseBus] ' . $message);
     }
 }
