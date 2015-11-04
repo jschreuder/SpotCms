@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Spot\Cms\Application\Response;
 
@@ -24,14 +24,14 @@ class ResponseBus implements ResponseBusInterface
     public function __construct(array $generators = [], LoggerInterface $logger)
     {
         foreach ($generators as $name => $generator) {
-            $this->setGenerator($name, $generator);
+            $this->setGenerator(strval($name), $generator);
         }
         $this->logger = $logger;
     }
 
     public function setGenerator(string $name, callable $generator) : self
     {
-        $this->generators[strval($name)] = $generator;
+        $this->generators[$name] = $generator;
         return $this;
     }
 

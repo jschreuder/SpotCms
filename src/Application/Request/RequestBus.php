@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Spot\Cms\Application\Request;
 
@@ -26,14 +26,14 @@ class RequestBus implements RequestBusInterface
     public function __construct(array $executors = [], LoggerInterface $logger)
     {
         foreach ($executors as $name => $executor) {
-            $this->setExecutor($name, $executor);
+            $this->setExecutor(strval($name), $executor);
         }
         $this->logger = $logger;
     }
 
     public function setExecutor(string $name, callable $executor) : self
     {
-        $this->executors[strval($name)] = $executor;
+        $this->executors[$name] = $executor;
         return $this;
     }
 
