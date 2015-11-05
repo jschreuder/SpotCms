@@ -3,7 +3,7 @@
 namespace Spot\Cms\Application\Response;
 
 use Spot\Cms\Application\Response\Message\ResponseInterface;
-use Spot\Cms\Application\Response\Message\ServerError;
+use Spot\Cms\Application\Response\Message\ServerErrorResponse;
 
 class ResponseException extends \RuntimeException
 {
@@ -12,7 +12,7 @@ class ResponseException extends \RuntimeException
 
     public function __construct(ResponseInterface $errorResponse = null, int $code = 0)
     {
-        $this->errorResponse = $errorResponse ?: new ServerError();
+        $this->errorResponse = $errorResponse ?: new ServerErrorResponse();
         parent::__construct($this->errorResponse->getName(), $code ?: 500);
     }
 

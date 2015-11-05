@@ -2,7 +2,7 @@
 
 namespace Spot\Cms\Application\Request\Message;
 
-class NotFound implements RequestInterface
+class NotFoundRequest implements RequestInterface
 {
     /** {@inheritdoc} */
     public function getRequestName() : string

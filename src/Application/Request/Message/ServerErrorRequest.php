@@ -2,7 +2,7 @@
 
 namespace Spot\Cms\Application\Request\Message;
 
-class ServerError implements RequestInterface
+class ServerErrorRequest implements RequestInterface
 {
     /** {@inheritdoc} */
     public function getRequestName() : string

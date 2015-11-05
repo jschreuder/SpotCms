@@ -2,7 +2,7 @@
 
 namespace Spot\Cms\Application\Response\Message;
 
-class ServerError implements ResponseInterface
+class ServerErrorResponse implements ResponseInterface
 {
     /** {@inheritdoc} */
     public function getResponseName() : string

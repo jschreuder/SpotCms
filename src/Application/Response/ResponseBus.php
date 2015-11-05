@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Cms\Application\Response\Generator\GeneratorInterface;
-use Spot\Cms\Application\Response\Message\ServerError;
+use Spot\Cms\Application\Response\Message\ServerErrorResponse;
 use Spot\Cms\Application\Response\Message\ResponseInterface;
 
 class ResponseBus implements ResponseBusInterface
@@ -48,7 +48,7 @@ class ResponseBus implements ResponseBusInterface
     {
         if (!$this->supports($responseMessage)) {
             $this->log('Unsupported request: ' . $responseMessage->getResponseName(), LogLevel::WARNING);
-            throw new ResponseException(new ServerError(), 500);
+            throw new ResponseException(new ServerErrorResponse(), 500);
         }
 
         $requestGenerator = $this->getGenerator($responseMessage);
@@ -56,7 +56,7 @@ class ResponseBus implements ResponseBusInterface
 
         if (!$httpResponse instanceof HttpResponse) {
             $this->log('Generator for ' . $responseMessage->getResponseName() . ' did not return Response.', LogLevel::ERROR);
-            throw new ResponseException(new ServerError(), 500);
+            throw new ResponseException(new ServerErrorResponse(), 500);
         }
 
         return $httpResponse;

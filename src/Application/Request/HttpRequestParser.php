@@ -6,9 +6,9 @@ use FastRoute\Dispatcher as Router;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Spot\Cms\Application\Request\Message\NotFound;
+use Spot\Cms\Application\Request\Message\NotFoundRequest;
 use Spot\Cms\Application\Request\Message\RequestInterface;
-use Spot\Cms\Application\Request\Message\ServerError;
+use Spot\Cms\Application\Request\Message\ServerErrorRequest;
 
 class HttpRequestParser implements HttpRequestParserInterface
 {
@@ -35,7 +35,7 @@ class HttpRequestParser implements HttpRequestParserInterface
                 case Router::NOT_FOUND:
                 case Router::METHOD_NOT_ALLOWED:
                     $this->log(LogLevel::INFO, 'No route found for ' . $method . ' ' . $path);
-                    $request = new NotFound();
+                    $request = new NotFoundRequest();
                     break;
                 case Router::FOUND:
                     $parser = $routeInfo[1];
@@ -48,12 +48,12 @@ class HttpRequestParser implements HttpRequestParserInterface
             }
         } catch (\Exception $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
-            $request = new ServerError();
+            $request = new ServerErrorRequest();
         }
 
         if (!$request instanceof RequestInterface) {
             $this->log(LogLevel::ERROR, 'HttpRequestParser did not result in a Request message.');
-            return new ServerError();
+            return new ServerErrorRequest();
         }
         return $request;
     }
