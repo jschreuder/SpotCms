@@ -9,9 +9,4 @@ class ServerError implements RequestInterface
     {
         return 'error.serverError';
     }
-
-    /** {@inheritdoc} */
-    public function validateRequest()
-    {
-    }
 }

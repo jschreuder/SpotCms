@@ -9,9 +9,4 @@ class NotFound implements RequestInterface
     {
         return 'error.notFound';
     }
-
-    /** {@inheritdoc} */
-    public function validateRequest()
-    {
-    }
 }

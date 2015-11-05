@@ -43,7 +43,6 @@ class Application implements ApplicationInterface
     {
         $this->log(LogLevel::INFO, 'Starting execution.');
         try {
-            $this->requestParser->validateHttpRequest($httpRequest);
             $requestMessage = $this->requestParser->parseHttpRequest($httpRequest);
             $this->log(LogLevel::INFO, 'Successfully parsed HTTP request into Request message.');
         } catch (RequestException $requestException) {

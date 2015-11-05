@@ -8,16 +8,11 @@ use Spot\Cms\Application\Request\Message\RequestInterface;
 interface HttpRequestParserInterface
 {
     /**
-     * MUST throw a RequestException on failure to validate the data, may not
-     * throw any other type of Exception
-     *
-     * @throws  RequestException
-     */
-    public function validateHttpRequest(HttpRequest $httpRequest);
-
-    /**
      * MUST catch all exceptions internally and throw only RequestException
      * instances.
+     *
+     * SHOULD also validate & filter the request's content, and throw a
+     * RequestException when validation fails.
      *
      * @throws  RequestException
      */

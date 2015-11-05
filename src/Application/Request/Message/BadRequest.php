@@ -9,9 +9,4 @@ class BadRequest implements RequestInterface
     {
         return 'error.badRequest';
     }
-
-    /** {@inheritdoc} */
-    public function validateRequest()
-    {
-    }
 }
