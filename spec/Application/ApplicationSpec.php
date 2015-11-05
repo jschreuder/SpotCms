@@ -4,30 +4,32 @@ namespace spec\Spot\Cms\Application;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Psr\Log\LoggerInterface;
 use Spot\Cms\Application\Application;
+use Spot\Cms\Application\Request\HttpRequestParserInterface;
+use Spot\Cms\Application\Request\RequestBusInterface;
+use Spot\Cms\Application\Response\ResponseBusInterface;
 
 class ApplicationSpec extends ObjectBehavior
 {
-    /** @var  \Spot\Cms\Application\Request\HttpRequestParserInterface $requestParser */
+    /** @var  HttpRequestParserInterface $requestParser */
     private $requestParser;
 
-    /** @var  \Spot\Cms\Application\Request\RequestBusInterface $requestBus */
+    /** @var  RequestBusInterface $requestBus */
     private $requestBus;
 
-    /** @var  \Spot\Cms\Application\Response\ResponseBusInterface $responseBus */
+    /** @var  ResponseBusInterface $responseBus */
     private $responseBus;
 
-    /** @var  \Psr\Log\LoggerInterface $logger */
+    /** @var  LoggerInterface $logger */
     private $logger;
 
-    /**
-     * @param  \Spot\Cms\Application\Request\HttpRequestParserInterface $requestParser
-     * @param  \Spot\Cms\Application\Request\RequestBusInterface $requestBus
-     * @param  \Spot\Cms\Application\Response\ResponseBusInterface $responseBus
-     * @param  \Psr\Log\LoggerInterface $logger
-     */
-    public function let($requestParser, $requestBus, $responseBus, $logger)
-    {
+    public function let(
+        HttpRequestParserInterface $requestParser,
+        RequestBusInterface $requestBus,
+        ResponseBusInterface $responseBus,
+        LoggerInterface $logger
+    ) {
         $this->requestParser = $requestParser;
         $this->requestBus = $requestBus;
         $this->responseBus = $responseBus;
