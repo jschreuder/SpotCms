@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /** @var  Pimple\Container $container */
 $container = require __DIR__.'/../env_init.php';
