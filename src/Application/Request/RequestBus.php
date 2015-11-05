@@ -23,11 +23,8 @@ class RequestBus implements RequestBusInterface
     /** @var  LoggerInterface */
     private $logger;
 
-    public function __construct(array $executors = [], LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger)
     {
-        foreach ($executors as $name => $executor) {
-            $this->setExecutor(strval($name), $executor);
-        }
         $this->logger = $logger;
     }
 

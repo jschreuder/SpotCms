@@ -21,11 +21,8 @@ class ResponseBus implements ResponseBusInterface
     /** @var  LoggerInterface */
     private $logger;
 
-    public function __construct(array $generators = [], LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger)
     {
-        foreach ($generators as $name => $generator) {
-            $this->setGenerator(strval($name), $generator);
-        }
         $this->logger = $logger;
     }
 

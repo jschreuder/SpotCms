@@ -2,7 +2,7 @@
 
 namespace Spot\Cms\Application\Request;
 
-use Psr\Http\Message\ServerRequestInterface as HttpRequest;
+use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Spot\Cms\Application\Request\Message\RequestInterface;
 
 interface HttpRequestParserInterface
@@ -13,8 +13,6 @@ interface HttpRequestParserInterface
      *
      * SHOULD also validate & filter the request's content, and throw a
      * RequestException when validation fails.
-     *
-     * @throws  RequestException
      */
-    public function parseHttpRequest(HttpRequest $httpRequest) : RequestInterface;
+    public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface;
 }

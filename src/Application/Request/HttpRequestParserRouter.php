@@ -3,7 +3,9 @@
 namespace Spot\Cms\Application\Request;
 
 use FastRoute\Dispatcher as Router;
-use Psr\Http\Message\ServerRequestInterface;
+use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
+use FastRoute\RouteCollector;
+use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Cms\Application\Request\Message\NotFoundRequest;
@@ -11,28 +13,39 @@ use Spot\Cms\Application\Request\Message\RequestInterface;
 use Spot\Cms\Application\Request\Message\ServerErrorRequest;
 use Spot\Cms\Common\LoggableTrait;
 
-class HttpRequestParser implements HttpRequestParserInterface
+class HttpRequestParserRouter implements HttpRequestParserInterface
 {
     use LoggableTrait;
 
-    /** @var  Router */
-    private $router;
+    /** @var  RouteCollector */
+    private $routeCollector;
 
     /** @var  LoggerInterface */
     private $logger;
 
-    public function __construct(Router $router, LoggerInterface $logger)
+    public function __construct(RouteCollector $routeCollector, LoggerInterface $logger)
     {
-        $this->router = $router;
+        $this->routeCollector = $routeCollector;
         $this->logger = $logger;
     }
 
+    public function addRoute(string $method, string $path, HttpRequestParserInterface $httpRequestParser) : self
+    {
+        $this->routeCollector->addRoute($method, $path, $httpRequestParser);
+        return $this;
+    }
+
+    private function getRouter() : Router
+    {
+        return new GroupCountBasedDispatcher($this->routeCollector->getData());
+    }
+
     /** {@inheritdoc} */
-    public function parseHttpRequest(ServerRequestInterface $httpRequest) : RequestInterface
+    public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
         $method = $httpRequest->getMethod();
         $path = $httpRequest->getUri()->getPath();
-        $routeInfo = $this->router->dispatch($method, $path);
+        $routeInfo = $this->getRouter()->dispatch($method, $path);
         try {
             switch ($routeInfo[0]) {
                 case Router::NOT_FOUND:
@@ -42,8 +55,10 @@ class HttpRequestParser implements HttpRequestParserInterface
                     break;
                 case Router::FOUND:
                     $parser = $routeInfo[1];
-                    $uriParameters = $routeInfo[2];
-                    $request = $parser($httpRequest, $uriParameters);
+                    if (!$parser instanceof HttpRequestParserInterface) {
+                        throw new \RuntimeException('No RequestParser configured for ' . $method . ' ' . $path);
+                    }
+                    $request = $parser->parseHttpRequest($httpRequest, array_merge($attributes, $routeInfo[2]));
                     $this->log(LogLevel::INFO, 'Found route found for ' . $method . ' ' . $path);
                     break;
                 default:

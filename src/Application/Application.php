@@ -46,7 +46,7 @@ class Application implements ApplicationInterface
     {
         $this->log(LogLevel::INFO, 'Starting execution.');
         try {
-            $requestMessage = $this->requestParser->parseHttpRequest($httpRequest);
+            $requestMessage = $this->requestParser->parseHttpRequest($httpRequest, []);
             $this->log(LogLevel::INFO, 'Successfully parsed HTTP request into Request message.');
         } catch (RequestException $requestException) {
             $this->log(LogLevel::ERROR, 'Request parsing ended in exception: ' . $requestException->getMessage());

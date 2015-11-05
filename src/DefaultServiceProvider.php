@@ -3,7 +3,6 @@
 namespace Spot\Cms;
 
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
-use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use Monolog\Formatter\LineFormatter;
@@ -12,9 +11,12 @@ use Monolog\Logger;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Spot\Cms\Application\Application;
-use Spot\Cms\Application\Request\HttpRequestParser;
+use Spot\Cms\Application\ApplicationBuilder;
+use Spot\Cms\Application\ApplicationBuilderInterface;
+use Spot\Cms\Application\Request\HttpRequestParserRouter;
 use Spot\Cms\Application\Request\RequestBus;
 use Spot\Cms\Application\Response\ResponseBus;
+use Spot\Cms\Content\ApiCall\CreatePageApiCall;
 
 class DefaultServiceProvider implements ServiceProviderInterface
 {
@@ -22,32 +24,35 @@ class DefaultServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['app'] = function () use ($container) {
+            /** @var  ApplicationBuilderInterface $builder */
+            $builder = $container['app.builder'];
+
             return new Application(
-                $container['app.requestParser'],
-                $container['app.requestBus'],
-                $container['app.responseBus'],
+                $builder->getHttpRequestParser(),
+                $builder->getRequestBus(),
+                $builder->getResponseBus(),
                 $container['logger']
             );
         };
 
-        $container['app.requestParser'] = function () use ($container) {
-            return new HttpRequestParser($container['app.router'], $container['logger']);
-        };
+        $container['app.builder'] = function () use ($container) {
+            $builder = new ApplicationBuilder(
+                new HttpRequestParserRouter(
+                    new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
+                    $container['logger']
+                ),
+                new RequestBus($container['logger']),
+                new ResponseBus($container['logger'])
+            );
 
-        $container['app.routeCollector'] = function () use ($container) {
-            return new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator());
-        };
+            $builder->addApiCall(
+                'POST',
+                '/pages',
+                CreatePageApiCall::MESSAGE,
+                new CreatePageApiCall($container['repository.pages'], $container['logger'])
+            );
 
-        $container['app.router'] = function () use ($container) {
-            return new GroupCountBasedDispatcher($container['app.routeCollector']->getData());
-        };
-
-        $container['app.requestBus'] = function () use ($container) {
-            return new RequestBus([], $container['logger']);
-        };
-
-        $container['app.responseBus'] = function () use ($container) {
-            return new ResponseBus([], $container['logger']);
+            return $builder;
         };
 
         $container['db'] = function () use ($container) {
