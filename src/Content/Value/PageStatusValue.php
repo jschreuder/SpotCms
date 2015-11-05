@@ -14,12 +14,17 @@ class PageStatusValue implements ValueInterface
         return new self($value);
     }
 
+    public static function getValidStatuses() : array
+    {
+        return [self::CONCEPT, self::PUBLISHED];
+    }
+
     /** @var  string */
     private $value;
 
     public function __construct(string $value)
     {
-        if (!in_array($value, [self::CONCEPT, self::PUBLISHED], true)) {
+        if (!in_array($value, self::getValidStatuses(), true)) {
             throw new \InvalidArgumentException('Invalid PageStatus given: ' . $value);
         }
         $this->value = $value;

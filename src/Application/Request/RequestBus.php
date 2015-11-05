@@ -11,9 +11,12 @@ use Spot\Cms\Application\Request\Message\RequestInterface;
 use Spot\Cms\Application\Response\Message\ResponseInterface;
 use Spot\Cms\Application\Response\Message\ServerErrorResponse;
 use Spot\Cms\Application\Response\ResponseException;
+use Spot\Cms\Common\LoggableTrait;
 
 class RequestBus implements RequestBusInterface
 {
+    use LoggableTrait;
+
     /** @var  ExecutorInterface[] */
     private $executors = [];
 
@@ -62,10 +65,5 @@ class RequestBus implements RequestBusInterface
         }
 
         return $responseMessage;
-    }
-
-    protected function log(string $message, string $level)
-    {
-        $this->logger->log($level, '[RequestBus] ' . $message);
     }
 }

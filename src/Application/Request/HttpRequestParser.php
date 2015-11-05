@@ -9,9 +9,12 @@ use Psr\Log\LogLevel;
 use Spot\Cms\Application\Request\Message\NotFoundRequest;
 use Spot\Cms\Application\Request\Message\RequestInterface;
 use Spot\Cms\Application\Request\Message\ServerErrorRequest;
+use Spot\Cms\Common\LoggableTrait;
 
 class HttpRequestParser implements HttpRequestParserInterface
 {
+    use LoggableTrait;
+
     /** @var  Router */
     private $router;
 
@@ -56,10 +59,5 @@ class HttpRequestParser implements HttpRequestParserInterface
             return new ServerErrorRequest();
         }
         return $request;
-    }
-
-    protected function log(string $message, string $level)
-    {
-        $this->logger->log($level, '[HttpRequestParser] ' . $message);
     }
 }

@@ -9,9 +9,12 @@ use Psr\Log\LogLevel;
 use Spot\Cms\Application\Response\Generator\GeneratorInterface;
 use Spot\Cms\Application\Response\Message\ServerErrorResponse;
 use Spot\Cms\Application\Response\Message\ResponseInterface;
+use Spot\Cms\Common\LoggableTrait;
 
 class ResponseBus implements ResponseBusInterface
 {
+    use LoggableTrait;
+
     /** @var  GeneratorInterface[] */
     private $generators = [];
 
@@ -60,10 +63,5 @@ class ResponseBus implements ResponseBusInterface
         }
 
         return $httpResponse;
-    }
-
-    protected function log(string $message, string $level)
-    {
-        $this->logger->log($level, '[ResponseBus] ' . $message);
     }
 }

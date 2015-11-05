@@ -14,5 +14,5 @@ interface GeneratorInterface
      *
      * MUST catch all exceptions internally and never throw any Exception.
      */
-    public function generateResponse(ResponseInterface $request, HttpRequest $httpRequest) : HttpResponse;
+    public function generateResponse(ResponseInterface $response, HttpRequest $httpRequest) : HttpResponse;
 }

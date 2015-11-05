@@ -11,9 +11,12 @@ use Spot\Cms\Application\Request\RequestException;
 use Spot\Cms\Application\Response\Message\ResponseInterface;
 use Spot\Cms\Application\Response\ResponseBusInterface;
 use Spot\Cms\Application\Response\ResponseException;
+use Spot\Cms\Common\LoggableTrait;
 
 class Application implements ApplicationInterface
 {
+    use LoggableTrait;
+
     /** @var  HttpRequestParserInterface */
     private $requestParser;
 
@@ -61,10 +64,5 @@ class Application implements ApplicationInterface
         $this->log(LogLevel::INFO, 'Successfully generated HTTP response.');
 
         return $httpResponse;
-    }
-
-    protected function log($message, $level)
-    {
-        $this->logger->log($level, '[Application] ' . $message);
     }
 }
