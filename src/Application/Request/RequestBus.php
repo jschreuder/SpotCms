@@ -5,6 +5,7 @@ namespace Spot\Cms\Application\Request;
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Spot\Cms\Application\Request\Executor\ExecutorInterface;
 use Spot\Cms\Application\Request\Message\NotFound;
 use Spot\Cms\Application\Request\Message\RequestInterface;
 use Spot\Cms\Application\Response\Message\ResponseInterface;
@@ -13,7 +14,7 @@ use Spot\Cms\Application\Response\ResponseException;
 
 class RequestBus implements RequestBusInterface
 {
-    /** @var  callable[] */
+    /** @var  ExecutorInterface[] */
     private $executors = [];
 
     /** @var  LoggerInterface */
@@ -27,13 +28,13 @@ class RequestBus implements RequestBusInterface
         $this->logger = $logger;
     }
 
-    public function setExecutor(string $name, callable $executor) : self
+    public function setExecutor(string $name, ExecutorInterface $executor) : self
     {
         $this->executors[$name] = $executor;
         return $this;
     }
 
-    protected function getExecutor(RequestInterface $request) : callable
+    protected function getExecutor(RequestInterface $request) : ExecutorInterface
     {
         return $this->executors[$request->getRequestName()];
     }
@@ -53,7 +54,7 @@ class RequestBus implements RequestBusInterface
         }
 
         $requestExecutor = $this->getExecutor($requestMessage);
-        $responseMessage = $requestExecutor($httpRequest, $requestMessage);
+        $responseMessage = $requestExecutor->executeRequest($requestMessage, $httpRequest);
 
         if (!$responseMessage instanceof ResponseInterface) {
             $this->log('Executor for ' . $requestMessage->getRequestName() . ' did not return Response.', LogLevel::ERROR);

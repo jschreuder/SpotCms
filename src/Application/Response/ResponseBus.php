@@ -6,12 +6,13 @@ use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Spot\Cms\Application\Response\Generator\GeneratorInterface;
 use Spot\Cms\Application\Response\Message\ServerError;
 use Spot\Cms\Application\Response\Message\ResponseInterface;
 
 class ResponseBus implements ResponseBusInterface
 {
-    /** @var  callable[] */
+    /** @var  GeneratorInterface[] */
     private $generators = [];
 
     /** @var  LoggerInterface */
@@ -25,13 +26,13 @@ class ResponseBus implements ResponseBusInterface
         $this->logger = $logger;
     }
 
-    public function setGenerator(string $name, callable $generator) : self
+    public function setGenerator(string $name, GeneratorInterface $generator) : self
     {
         $this->generators[$name] = $generator;
         return $this;
     }
 
-    protected function getGenerator(ResponseInterface $response) : callable
+    protected function getGenerator(ResponseInterface $response) : GeneratorInterface
     {
         return $this->generators[$response->getResponseName()];
     }
@@ -51,7 +52,7 @@ class ResponseBus implements ResponseBusInterface
         }
 
         $requestGenerator = $this->getGenerator($responseMessage);
-        $httpResponse = $requestGenerator($httpRequest, $responseMessage);
+        $httpResponse = $requestGenerator->generateResponse($httpRequest, $responseMessage);
 
         if (!$httpResponse instanceof HttpResponse) {
             $this->log('Generator for ' . $responseMessage->getResponseName() . ' did not return Response.', LogLevel::ERROR);
