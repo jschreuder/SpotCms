@@ -25,7 +25,7 @@ class HttpRequestParser implements HttpRequestParserInterface
     }
 
     /** {@inheritdoc} */
-    public function parse(ServerRequestInterface $httpRequest) : RequestInterface
+    public function parseHttpRequest(ServerRequestInterface $httpRequest) : RequestInterface
     {
         $method = $httpRequest->getMethod();
         $path = $httpRequest->getUri()->getPath();

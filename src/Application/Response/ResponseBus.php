@@ -33,20 +33,20 @@ class ResponseBus implements ResponseBusInterface
 
     protected function getGenerator(ResponseInterface $response) : callable
     {
-        return $this->generators[$response->getName()];
+        return $this->generators[$response->getResponseName()];
     }
 
     /** {@inheritdoc} */
     public function supports(ResponseInterface $response) : bool
     {
-        return array_key_exists($response->getName(), $this->generators);
+        return array_key_exists($response->getResponseName(), $this->generators);
     }
 
     /** {@inheritdoc} */
     public function execute(HttpRequest $httpRequest, ResponseInterface $responseMessage) : HttpResponse
     {
         if (!$this->supports($responseMessage)) {
-            $this->log('Unsupported request: ' . $responseMessage->getName(), LogLevel::WARNING);
+            $this->log('Unsupported request: ' . $responseMessage->getResponseName(), LogLevel::WARNING);
             throw new ResponseException(new ServerError(), 500);
         }
 
@@ -54,7 +54,7 @@ class ResponseBus implements ResponseBusInterface
         $httpResponse = $requestGenerator($httpRequest, $responseMessage);
 
         if (!$httpResponse instanceof HttpResponse) {
-            $this->log('Generator for ' . $responseMessage->getName() . ' did not return Response.', LogLevel::ERROR);
+            $this->log('Generator for ' . $responseMessage->getResponseName() . ' did not return Response.', LogLevel::ERROR);
             throw new ResponseException(new ServerError(), 500);
         }
 

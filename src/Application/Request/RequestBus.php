@@ -35,20 +35,20 @@ class RequestBus implements RequestBusInterface
 
     protected function getExecutor(RequestInterface $request) : callable
     {
-        return $this->executors[$request->getName()];
+        return $this->executors[$request->getRequestName()];
     }
 
     /** {@inheritdoc} */
     public function supports(RequestInterface $request) : bool
     {
-        return array_key_exists($request->getName(), $this->executors);
+        return array_key_exists($request->getRequestName(), $this->executors);
     }
 
     /** {@inheritdoc} */
     public function execute(HttpRequest $httpRequest, RequestInterface $requestMessage) : ResponseInterface
     {
         if (!$this->supports($requestMessage)) {
-            $this->log('Unsupported request: ' . $requestMessage->getName(), LogLevel::WARNING);
+            $this->log('Unsupported request: ' . $requestMessage->getRequestName(), LogLevel::WARNING);
             throw new ResponseException(new NotFound(), 404);
         }
 
@@ -56,7 +56,7 @@ class RequestBus implements RequestBusInterface
         $responseMessage = $requestExecutor($httpRequest, $requestMessage);
 
         if (!$responseMessage instanceof ResponseInterface) {
-            $this->log('Executor for ' . $requestMessage->getName() . ' did not return Response.', LogLevel::ERROR);
+            $this->log('Executor for ' . $requestMessage->getRequestName() . ' did not return Response.', LogLevel::ERROR);
             throw new ResponseException(new ServerError(), 500);
         }
 

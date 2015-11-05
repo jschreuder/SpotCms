@@ -5,7 +5,7 @@ namespace Spot\Cms\Application\Response\Message;
 class ServerError implements ResponseInterface
 {
     /** {@inheritdoc} */
-    public function getName() : string
+    public function getResponseName() : string
     {
         return 'error.serverError';
     }
