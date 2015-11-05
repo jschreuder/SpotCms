@@ -10,11 +10,11 @@ class AddPageTable extends AbstractMigration
             CREATE TABLE pages (
                 page_uuid BINARY(16) NOT NULL,
                 title VARCHAR(512) NOT NULL,
-                slug VARCHAR(50) NOT NULL,
+                slug VARCHAR(48) NOT NULL,
                 short_title VARCHAR(48) NOT NULL,
                 parent_uuid BINARY(16) NULL DEFAULT NULL,
                 sort_order INTEGER(11) NOT NULL DEFAULT 0,
-                status VARCHAR(15) NOT NULL DEFAULT 'concept',
+                status VARCHAR(16) NOT NULL DEFAULT 'concept',
                 PRIMARY KEY (page_uuid),
                 UNIQUE slug_UNQ (slug ASC),
                 INDEX parent_uuid_IDX (parent_uuid ASC)
