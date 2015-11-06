@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application;
+namespace Spot\Api\Application;
 
-use Spot\Cms\Application\Request\Executor\ExecutorInterface;
-use Spot\Cms\Application\Request\HttpRequestParserInterface;
-use Spot\Cms\Application\Request\RequestBusInterface;
-use Spot\Cms\Application\Response\Generator\GeneratorInterface;
-use Spot\Cms\Application\Response\ResponseBusInterface;
+use Spot\Api\Application\Request\Executor\ExecutorInterface;
+use Spot\Api\Application\Request\HttpRequestParserInterface;
+use Spot\Api\Application\Request\RequestBusInterface;
+use Spot\Api\Application\Response\Generator\GeneratorInterface;
+use Spot\Api\Application\Response\ResponseBusInterface;
 
 interface ApplicationBuilderInterface
 {

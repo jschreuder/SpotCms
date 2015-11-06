@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application\Request\Executor;
+namespace Spot\Api\Application\Request\Executor;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
-use Spot\Cms\Application\Request\Message\RequestInterface;
-use Spot\Cms\Application\Response\Message\ResponseInterface;
+use Spot\Api\Application\Request\Message\RequestInterface;
+use Spot\Api\Application\Response\Message\ResponseInterface;
 
 interface ExecutorInterface
 {

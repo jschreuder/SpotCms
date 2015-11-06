@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application\Request;
+namespace Spot\Api\Application\Request;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Spot\Cms\Application\Request\Executor\ExecutorInterface;
-use Spot\Cms\Application\Request\Message\NotFoundRequest;
-use Spot\Cms\Application\Request\Message\RequestInterface;
-use Spot\Cms\Application\Response\Message\ResponseInterface;
-use Spot\Cms\Application\Response\Message\ServerErrorResponse;
-use Spot\Cms\Application\Response\ResponseException;
-use Spot\Cms\Common\LoggableTrait;
+use Spot\Api\Application\Request\Executor\ExecutorInterface;
+use Spot\Api\Application\Request\Message\NotFoundRequest;
+use Spot\Api\Application\Request\Message\RequestInterface;
+use Spot\Api\Application\Response\Message\ResponseInterface;
+use Spot\Api\Application\Response\Message\ServerErrorResponse;
+use Spot\Api\Application\Response\ResponseException;
+use Spot\Api\Common\LoggableTrait;
 
 class RequestBus implements RequestBusInterface
 {

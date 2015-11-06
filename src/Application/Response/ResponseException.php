@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application\Response;
+namespace Spot\Api\Application\Response;
 
-use Spot\Cms\Application\Response\Message\ResponseInterface;
-use Spot\Cms\Application\Response\Message\ServerErrorResponse;
+use Spot\Api\Application\Response\Message\ResponseInterface;
+use Spot\Api\Application\Response\Message\ServerErrorResponse;
 
 class ResponseException extends \RuntimeException
 {

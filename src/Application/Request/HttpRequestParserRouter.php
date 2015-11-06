@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application\Request;
+namespace Spot\Api\Application\Request;
 
 use FastRoute\Dispatcher as Router;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
@@ -8,10 +8,10 @@ use FastRoute\RouteCollector;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Spot\Cms\Application\Request\Message\NotFoundRequest;
-use Spot\Cms\Application\Request\Message\RequestInterface;
-use Spot\Cms\Application\Request\Message\ServerErrorRequest;
-use Spot\Cms\Common\LoggableTrait;
+use Spot\Api\Application\Request\Message\NotFoundRequest;
+use Spot\Api\Application\Request\Message\RequestInterface;
+use Spot\Api\Application\Request\Message\ServerErrorRequest;
+use Spot\Api\Common\LoggableTrait;
 
 class HttpRequestParserRouter implements HttpRequestParserInterface
 {

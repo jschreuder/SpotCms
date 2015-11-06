@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application;
+namespace Spot\Api\Application;
 
 use Psr\Http\Message\ServerRequestInterface as HttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Spot\Cms\Application\Request\HttpRequestParserInterface;
-use Spot\Cms\Application\Request\RequestBusInterface;
-use Spot\Cms\Application\Request\RequestException;
-use Spot\Cms\Application\Response\Message\ResponseInterface;
-use Spot\Cms\Application\Response\ResponseBusInterface;
-use Spot\Cms\Application\Response\ResponseException;
-use Spot\Cms\Common\LoggableTrait;
+use Spot\Api\Application\Request\HttpRequestParserInterface;
+use Spot\Api\Application\Request\RequestBusInterface;
+use Spot\Api\Application\Request\RequestException;
+use Spot\Api\Application\Response\Message\ResponseInterface;
+use Spot\Api\Application\Response\ResponseBusInterface;
+use Spot\Api\Application\Response\ResponseException;
+use Spot\Api\Common\LoggableTrait;
 
 class Application implements ApplicationInterface
 {

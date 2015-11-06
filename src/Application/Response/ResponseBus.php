@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application\Response;
+namespace Spot\Api\Application\Response;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Spot\Cms\Application\Response\Generator\GeneratorInterface;
-use Spot\Cms\Application\Response\Message\ServerErrorResponse;
-use Spot\Cms\Application\Response\Message\ResponseInterface;
-use Spot\Cms\Common\LoggableTrait;
+use Spot\Api\Application\Response\Generator\GeneratorInterface;
+use Spot\Api\Application\Response\Message\ServerErrorResponse;
+use Spot\Api\Application\Response\Message\ResponseInterface;
+use Spot\Api\Common\LoggableTrait;
 
 class ResponseBus implements ResponseBusInterface
 {

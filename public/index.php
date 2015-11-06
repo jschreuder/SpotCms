@@ -3,7 +3,7 @@
 /** @var  Pimple\Container $container */
 $container = require __DIR__.'/../env_init.php';
 
-/** @var  Spot\Cms\Application\ApplicationInterface $app */
+/** @var  Spot\Api\Application\ApplicationInterface $app */
 $app = $container['app'];
 
 // Setup request, force JSON decoding on body

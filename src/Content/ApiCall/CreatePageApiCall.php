@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Content\ApiCall;
+namespace Spot\Api\Content\ApiCall;
 
 use Particle\Filter\Filter;
 use Particle\Validator\Validator;
@@ -10,19 +10,19 @@ use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
-use Spot\Cms\Application\ApiCallInterface;
-use Spot\Cms\Application\Request\Message\ArrayRequest;
-use Spot\Cms\Application\Request\Message\BadRequest;
-use Spot\Cms\Application\Request\Message\RequestInterface;
-use Spot\Cms\Application\Request\RequestException;
-use Spot\Cms\Application\Response\Message\ArrayResponse;
-use Spot\Cms\Application\Response\Message\ResponseInterface;
-use Spot\Cms\Application\Response\Message\ServerErrorResponse;
-use Spot\Cms\Application\Response\ResponseException;
-use Spot\Cms\Common\LoggableTrait;
-use Spot\Cms\Content\Entity\Page;
-use Spot\Cms\Content\Repository\PageRepository;
-use Spot\Cms\Content\Value\PageStatusValue;
+use Spot\Api\Application\ApiCallInterface;
+use Spot\Api\Application\Request\Message\ArrayRequest;
+use Spot\Api\Application\Request\Message\BadRequest;
+use Spot\Api\Application\Request\Message\RequestInterface;
+use Spot\Api\Application\Request\RequestException;
+use Spot\Api\Application\Response\Message\ArrayResponse;
+use Spot\Api\Application\Response\Message\ResponseInterface;
+use Spot\Api\Application\Response\Message\ServerErrorResponse;
+use Spot\Api\Application\Response\ResponseException;
+use Spot\Api\Common\LoggableTrait;
+use Spot\Api\Content\Entity\Page;
+use Spot\Api\Content\Repository\PageRepository;
+use Spot\Api\Content\Value\PageStatusValue;
 use Zend\Diactoros\Response\JsonResponse;
 
 class CreatePageApiCall implements ApiCallInterface

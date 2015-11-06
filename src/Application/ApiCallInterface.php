@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application;
+namespace Spot\Api\Application;
 
-use Spot\Cms\Application\Request\Executor\ExecutorInterface;
-use Spot\Cms\Application\Request\HttpRequestParserInterface;
-use Spot\Cms\Application\Response\Generator\GeneratorInterface;
+use Spot\Api\Application\Request\Executor\ExecutorInterface;
+use Spot\Api\Application\Request\HttpRequestParserInterface;
+use Spot\Api\Application\Response\Generator\GeneratorInterface;
 
 interface ApiCallInterface extends
     HttpRequestParserInterface, ExecutorInterface, GeneratorInterface

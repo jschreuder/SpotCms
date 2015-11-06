@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application\Response\Message;
+namespace Spot\Api\Application\Response\Message;
 
 class ArrayResponse implements ResponseInterface
 {

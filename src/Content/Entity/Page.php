@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Content\Entity;
+namespace Spot\Api\Content\Entity;
 
 use Ramsey\Uuid\UuidInterface;
-use Spot\Cms\Content\Value\PageStatusValue;
+use Spot\Api\Content\Value\PageStatusValue;
 
 class Page
 {

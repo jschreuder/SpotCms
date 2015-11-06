@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Common\Entity;
+namespace Spot\Api\Common\Entity;
 
 interface ValueInterface
 {

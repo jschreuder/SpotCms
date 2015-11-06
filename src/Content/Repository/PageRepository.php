@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Content\Repository;
+namespace Spot\Api\Content\Repository;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Spot\Cms\Application\Repository\ObjectRepository;
-use Spot\Cms\Common\Repository\NoUniqueResultException;
-use Spot\Cms\Content\Entity\Page;
-use Spot\Cms\Content\Value\PageStatusValue;
+use Spot\Api\Application\Repository\ObjectRepository;
+use Spot\Api\Common\Repository\NoUniqueResultException;
+use Spot\Api\Content\Entity\Page;
+use Spot\Api\Content\Value\PageStatusValue;
 
 class PageRepository
 {

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Content\Value;
+namespace Spot\Api\Content\Value;
 
-use Spot\Cms\Common\Entity\ValueInterface;
+use Spot\Api\Common\Entity\ValueInterface;
 
 class PageStatusValue implements ValueInterface
 {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application;
+namespace Spot\Api\Application;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as HttpRequest;

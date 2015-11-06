@@ -1,14 +1,14 @@
 <?php
 
-namespace spec\Spot\Cms\Application;
+namespace spec\Spot\Api\Application;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
-use Spot\Cms\Application\Application;
-use Spot\Cms\Application\Request\HttpRequestParserInterface;
-use Spot\Cms\Application\Request\RequestBusInterface;
-use Spot\Cms\Application\Response\ResponseBusInterface;
+use Spot\Api\Application\Application;
+use Spot\Api\Application\Request\HttpRequestParserInterface;
+use Spot\Api\Application\Request\RequestBusInterface;
+use Spot\Api\Application\Response\ResponseBusInterface;
 
 class ApplicationSpec extends ObjectBehavior
 {

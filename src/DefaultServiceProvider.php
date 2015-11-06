@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms;
+namespace Spot\Api;
 
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
@@ -10,13 +10,13 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Spot\Cms\Application\Application;
-use Spot\Cms\Application\ApplicationBuilder;
-use Spot\Cms\Application\ApplicationBuilderInterface;
-use Spot\Cms\Application\Request\HttpRequestParserRouter;
-use Spot\Cms\Application\Request\RequestBus;
-use Spot\Cms\Application\Response\ResponseBus;
-use Spot\Cms\Content\ApiCall\CreatePageApiCall;
+use Spot\Api\Application\Application;
+use Spot\Api\Application\ApplicationBuilder;
+use Spot\Api\Application\ApplicationBuilderInterface;
+use Spot\Api\Application\Request\HttpRequestParserRouter;
+use Spot\Api\Application\Request\RequestBus;
+use Spot\Api\Application\Response\ResponseBus;
+use Spot\Api\Content\ApiCall\CreatePageApiCall;
 
 class DefaultServiceProvider implements ServiceProviderInterface
 {

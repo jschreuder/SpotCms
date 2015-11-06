@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Cms\Application\Request;
+namespace Spot\Api\Application\Request;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
-use Spot\Cms\Application\Request\Message\RequestInterface;
-use Spot\Cms\Application\Response\Message\ResponseInterface;
-use Spot\Cms\Application\Response\ResponseException;
+use Spot\Api\Application\Request\Message\RequestInterface;
+use Spot\Api\Application\Response\Message\ResponseInterface;
+use Spot\Api\Application\Response\ResponseException;
 
 interface RequestBusInterface
 {
