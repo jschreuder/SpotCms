@@ -9,8 +9,6 @@ use Spot\Api\Application\Response\ResponseException;
 
 interface RequestBusInterface
 {
-    public function supports(RequestInterface $request) : bool;
-
     /**
      * MUST catch all exceptions internally and throw ONLY ResponseException instances
      *

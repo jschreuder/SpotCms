@@ -7,8 +7,8 @@ use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Api\Application\Request\Executor\ExecutorInterface;
-use Spot\Api\Application\Request\Message\NotFoundRequest;
 use Spot\Api\Application\Request\Message\RequestInterface;
+use Spot\Api\Application\Response\Message\NotFoundResponse;
 use Spot\Api\Application\Response\Message\ResponseInterface;
 use Spot\Api\Application\Response\Message\ServerErrorResponse;
 use Spot\Api\Application\Response\ResponseException;
@@ -48,10 +48,10 @@ class RequestBus implements RequestBusInterface
         return $executor;
     }
 
-    /** {@inheritdoc} */
-    public function supports(RequestInterface $request) : bool
+    protected function supports(RequestInterface $request) : bool
     {
-        return array_key_exists($request->getRequestName(), $this->executors);
+        return array_key_exists($request->getRequestName(), $this->executors)
+            && isset($this->container[$this->executors[$request->getRequestName()]]);
     }
 
     /** {@inheritdoc} */
@@ -59,16 +59,11 @@ class RequestBus implements RequestBusInterface
     {
         if (!$this->supports($requestMessage)) {
             $this->log('Unsupported request: ' . $requestMessage->getRequestName(), LogLevel::WARNING);
-            throw new ResponseException(new NotFoundRequest(), 404);
+            throw new ResponseException(new NotFoundResponse(), 404);
         }
 
         $requestExecutor = $this->getExecutor($requestMessage);
         $responseMessage = $requestExecutor->executeRequest($requestMessage, $httpRequest);
-
-        if (!$responseMessage instanceof ResponseInterface) {
-            $this->log('Executor for ' . $requestMessage->getRequestName() . ' did not return Response.', LogLevel::ERROR);
-            throw new ResponseException(new ServerErrorResponse(), 500);
-        }
 
         return $responseMessage;
     }
