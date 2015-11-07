@@ -1,6 +1,9 @@
 SpotApi
 =======
 
+[![Build Status](https://secure.travis-ci.org/jschreuder/SpotApi.png)](http://travis-ci.org/jschreuder/SpotApi)
+[![Code Climate](https://codeclimate.com/github/jschreuder/SpotApi/badges/gpa.svg)](https://codeclimate.com/github/jschreuder/SpotApi)
+
 At the moment this is very much just a proof-of-concept. There are many tasks
 for which a literal MVC implementation isn't ideal in my opinion. The 3 main
 ingredients are still very much present here though: the data layer (Model),
