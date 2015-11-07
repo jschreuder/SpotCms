@@ -13,7 +13,7 @@ class RequestException extends \RuntimeException
     public function __construct(RequestInterface $errorRequest = null, int $code = 0)
     {
         $this->errorRequest = $errorRequest ?: new ServerErrorRequest();
-        parent::__construct($this->errorRequest->getName(), $code ?: 500);
+        parent::__construct($this->errorRequest->getRequestName(), $code ?: 500);
     }
 
     public function getRequestObject() : RequestInterface

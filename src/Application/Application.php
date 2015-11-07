@@ -3,12 +3,12 @@
 namespace Spot\Api\Application;
 
 use Psr\Http\Message\ServerRequestInterface as HttpRequest;
+use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Api\Application\Request\HttpRequestParserInterface;
 use Spot\Api\Application\Request\RequestBusInterface;
 use Spot\Api\Application\Request\RequestException;
-use Spot\Api\Application\Response\Message\ResponseInterface;
 use Spot\Api\Application\Response\ResponseBusInterface;
 use Spot\Api\Application\Response\ResponseException;
 use Spot\Api\Common\LoggableTrait;
@@ -42,7 +42,7 @@ class Application implements ApplicationInterface
     }
 
     /** {@inheritdoc} */
-    public function execute(HttpRequest $httpRequest) : ResponseInterface
+    public function execute(HttpRequest $httpRequest) : HttpResponse
     {
         $this->log(LogLevel::INFO, 'Starting execution.');
         try {
