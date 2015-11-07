@@ -38,9 +38,10 @@ class DefaultServiceProvider implements ServiceProviderInterface
         $container['app.builder'] = function () use ($container) {
             $builder = new ApplicationBuilder(
                 new HttpRequestParserRouter(
-                    new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
+                    $container,
                     $container['logger']
                 ),
+                new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
                 new RequestBus($container, $container['logger']),
                 new ResponseBus($container, $container['logger'])
             );

@@ -2,6 +2,8 @@
 
 namespace Spot\Api\Application;
 
+use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
+use FastRoute\RouteCollector;
 use Spot\Api\Application\Request\HttpRequestParserInterface;
 use Spot\Api\Application\Request\HttpRequestParserRouter;
 use Spot\Api\Application\Request\RequestBus;
@@ -14,6 +16,9 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     /** @var  HttpRequestParserRouter */
     private $router;
 
+    /** @var  RouteCollector */
+    private $routeCollector;
+
     /** @var  RequestBus */
     private $requestBus;
 
@@ -22,10 +27,12 @@ class ApplicationBuilder implements ApplicationBuilderInterface
 
     public function __construct(
         HttpRequestParserRouter $router,
+        RouteCollector $routeCollector,
         RequestBus $requestBus,
         ResponseBus $responseBus
     ) {
         $this->router = $router;
+        $this->routeCollector = $routeCollector;
         $this->requestBus = $requestBus;
         $this->responseBus = $responseBus;
     }
@@ -33,7 +40,7 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     /** {@inheritdoc} */
     public function addParser(string $method, string $path, $httpRequestParser) : self
     {
-        $this->router->addRoute($method, $path, $httpRequestParser);
+        $this->routeCollector->addRoute($method, $path, $httpRequestParser);
         return $this;
     }
 
@@ -51,6 +58,7 @@ class ApplicationBuilder implements ApplicationBuilderInterface
         return $this;
     }
 
+    /** {@inheritdoc} */
     public function addApiCall(string $method, string $path, string $name, $apiCall) : self
     {
         return $this->addParser($method, $path, $apiCall)
@@ -58,16 +66,19 @@ class ApplicationBuilder implements ApplicationBuilderInterface
             ->addResponseGenerator($name, $apiCall);
     }
 
+    /** {@inheritdoc} */
     public function getHttpRequestParser() : HttpRequestParserInterface
     {
-        return $this->router;
+        return $this->router->setRouter(new GroupCountBasedDispatcher($this->routeCollector->getData()));
     }
 
+    /** {@inheritdoc} */
     public function getRequestBus() : RequestBusInterface
     {
         return $this->requestBus;
     }
 
+    /** {@inheritdoc} */
     public function getResponseBus() : ResponseBusInterface
     {
         return $this->responseBus;

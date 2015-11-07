@@ -3,8 +3,6 @@
 namespace Spot\Api\Application\Request;
 
 use FastRoute\Dispatcher as Router;
-use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
-use FastRoute\RouteCollector;
 use Pimple\Container;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
@@ -21,28 +19,30 @@ class HttpRequestParserRouter implements HttpRequestParserInterface
     /** @var  Container */
     private $container;
 
-    /** @var  RouteCollector */
-    private $routeCollector;
+    /** @var  Router */
+    private $router;
 
     /** @var  LoggerInterface */
     private $logger;
 
-    public function __construct(Container $container, RouteCollector $routeCollector, LoggerInterface $logger)
+    public function __construct(Container $container, LoggerInterface $logger)
     {
         $this->container = $container;
-        $this->routeCollector = $routeCollector;
         $this->logger = $logger;
     }
 
-    public function addRoute(string $method, string $path, $httpRequestParser) : self
+    public function setRouter(Router $router) : self
     {
-        $this->routeCollector->addRoute($method, $path, $httpRequestParser);
+        $this->router = $router;
         return $this;
     }
 
     private function getRouter() : Router
     {
-        return new GroupCountBasedDispatcher($this->routeCollector->getData());
+        if (is_null($this->router)) {
+            throw new \RuntimeException('Router must be provided to allow Request parsing.');
+        }
+        return $this->router;
     }
 
     private function getHttpRequestParser($name) : HttpRequestParserInterface
