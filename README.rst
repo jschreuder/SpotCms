@@ -1,8 +1,12 @@
 SpotApi
 =======
 
-[![Build Status](https://secure.travis-ci.org/jschreuder/SpotApi.png)](http://travis-ci.org/jschreuder/SpotApi)
-[![Code Climate](https://codeclimate.com/github/jschreuder/SpotApi/badges/gpa.svg)](https://codeclimate.com/github/jschreuder/SpotApi)
+.. image:: https://secure.travis-ci.org/jschreuder/SpotApi.png
+:target: http://travis-ci.org/jschreuder/SpotApi
+   :alt: Build status
+.. image:: https://codeclimate.com/github/jschreuder/SpotApi/badges/gpa.svg
+:target: https://codeclimate.com/github/jschreuder/SpotApi
+   :alt: Code Climate
 
 At the moment this is very much just a proof-of-concept. There are many tasks
 for which a literal MVC implementation isn't ideal in my opinion. The 3 main
