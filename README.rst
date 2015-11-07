@@ -2,10 +2,10 @@ SpotApi
 =======
 
 .. image:: https://secure.travis-ci.org/jschreuder/SpotApi.png
-:target: http://travis-ci.org/jschreuder/SpotApi
+   :target: http://travis-ci.org/jschreuder/SpotApi
    :alt: Build status
 .. image:: https://codeclimate.com/github/jschreuder/SpotApi/badges/gpa.svg
-:target: https://codeclimate.com/github/jschreuder/SpotApi
+   :target: https://codeclimate.com/github/jschreuder/SpotApi
    :alt: Code Climate
 
 At the moment this is very much just a proof-of-concept. There are many tasks
