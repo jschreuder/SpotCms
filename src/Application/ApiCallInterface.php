@@ -7,6 +7,8 @@ use Spot\Api\Application\Request\HttpRequestParserInterface;
 use Spot\Api\Application\Response\Generator\GeneratorInterface;
 
 interface ApiCallInterface extends
-    HttpRequestParserInterface, ExecutorInterface, GeneratorInterface
+    HttpRequestParserInterface,
+    ExecutorInterface,
+    GeneratorInterface
 {
 }

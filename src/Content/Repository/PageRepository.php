@@ -53,7 +53,11 @@ class PageRepository
         try {
             $query = $this->db->prepare('
                 UPDATE pages
-                    SET title = :title, slug = :slug, short_title = :short_title, sort_order = :sort_order, status = :status
+                    SET title = :title,
+                        slug = :slug,
+                        short_title = :short_title,
+                        sort_order = :sort_order,
+                        status = :status
                     WHERE page_uuid = :page_uuid
             ');
             $query->execute([
