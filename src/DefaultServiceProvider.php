@@ -41,15 +41,15 @@ class DefaultServiceProvider implements ServiceProviderInterface
                     new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
                     $container['logger']
                 ),
-                new RequestBus($container['logger']),
-                new ResponseBus($container['logger'])
+                new RequestBus($container, $container['logger']),
+                new ResponseBus($container, $container['logger'])
             );
 
             $builder->addApiCall(
                 'POST',
                 '/pages',
                 CreatePageApiCall::MESSAGE,
-                new CreatePageApiCall($container['repository.pages'], $container['logger'])
+                'apiCall.pages.create'
             );
 
             return $builder;
@@ -74,6 +74,10 @@ class DefaultServiceProvider implements ServiceProviderInterface
                 Logger::NOTICE
             ))->setFormatter(new LineFormatter()));
             return $logger;
+        };
+
+        $container['apiCall.pages.create'] = function () use ($container) {
+            return new CreatePageApiCall($container['repository.pages'], $container['logger']);
         };
     }
 }

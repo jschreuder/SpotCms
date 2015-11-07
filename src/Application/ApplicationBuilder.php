@@ -2,12 +2,10 @@
 
 namespace Spot\Api\Application;
 
-use Spot\Api\Application\Request\Executor\ExecutorInterface;
 use Spot\Api\Application\Request\HttpRequestParserInterface;
 use Spot\Api\Application\Request\HttpRequestParserRouter;
 use Spot\Api\Application\Request\RequestBus;
 use Spot\Api\Application\Request\RequestBusInterface;
-use Spot\Api\Application\Response\Generator\GeneratorInterface;
 use Spot\Api\Application\Response\ResponseBus;
 use Spot\Api\Application\Response\ResponseBusInterface;
 
@@ -33,27 +31,27 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     }
 
     /** {@inheritdoc} */
-    public function addParser(string $method, string $path, HttpRequestParserInterface $httpRequestParser) : self
+    public function addParser(string $method, string $path, $httpRequestParser) : self
     {
         $this->router->addRoute($method, $path, $httpRequestParser);
         return $this;
     }
 
     /** {@inheritdoc} */
-    public function addRequestExecutor(string $requestName, ExecutorInterface $executor) : self
+    public function addRequestExecutor(string $requestName, $executor) : self
     {
         $this->requestBus->setExecutor($requestName, $executor);
         return $this;
     }
 
     /** {@inheritdoc} */
-    public function addResponseGenerator(string $responseName, GeneratorInterface $generator) : self
+    public function addResponseGenerator(string $responseName, $generator) : self
     {
         $this->responseBus->setGenerator($responseName, $generator);
         return $this;
     }
 
-    public function addApiCall(string $method, string $path, string $name, ApiCallInterface $apiCall) : self
+    public function addApiCall(string $method, string $path, string $name, $apiCall) : self
     {
         return $this->addParser($method, $path, $apiCall)
             ->addRequestExecutor($name, $apiCall)

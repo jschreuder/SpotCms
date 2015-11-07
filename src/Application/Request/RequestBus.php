@@ -2,6 +2,7 @@
 
 namespace Spot\Api\Application\Request;
 
+use Pimple\Container;
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -17,18 +18,22 @@ class RequestBus implements RequestBusInterface
 {
     use LoggableTrait;
 
-    /** @var  ExecutorInterface[] */
+    /** @var  string[] */
     private $executors = [];
+
+    /** @var  Container */
+    private $container;
 
     /** @var  LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(Container $container, LoggerInterface $logger)
     {
+        $this->container = $container;
         $this->logger = $logger;
     }
 
-    public function setExecutor(string $name, ExecutorInterface $executor) : self
+    public function setExecutor(string $name, $executor) : self
     {
         $this->executors[$name] = $executor;
         return $this;
@@ -36,7 +41,11 @@ class RequestBus implements RequestBusInterface
 
     protected function getExecutor(RequestInterface $request) : ExecutorInterface
     {
-        return $this->executors[$request->getRequestName()];
+        $executor = $this->container[$this->executors[$request->getRequestName()]];
+        if (!$executor instanceof ExecutorInterface) {
+            throw new \RuntimeException('Executor must implement ExecutorInterface.');
+        }
+        return $executor;
     }
 
     /** {@inheritdoc} */

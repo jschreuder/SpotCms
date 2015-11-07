@@ -2,6 +2,7 @@
 
 namespace Spot\Api\Application\Response;
 
+use Pimple\Container;
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
@@ -15,18 +16,22 @@ class ResponseBus implements ResponseBusInterface
 {
     use LoggableTrait;
 
-    /** @var  GeneratorInterface[] */
+    /** @var  string[] */
     private $generators = [];
+
+    /** @var  Container */
+    private $container;
 
     /** @var  LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(Container $container, LoggerInterface $logger)
     {
+        $this->container = $container;
         $this->logger = $logger;
     }
 
-    public function setGenerator(string $name, GeneratorInterface $generator) : self
+    public function setGenerator(string $name, $generator) : self
     {
         $this->generators[$name] = $generator;
         return $this;
@@ -34,7 +39,11 @@ class ResponseBus implements ResponseBusInterface
 
     protected function getGenerator(ResponseInterface $response) : GeneratorInterface
     {
-        return $this->generators[$response->getResponseName()];
+        $generator = $this->container[$this->generators[$response->getResponseName()]];
+        if (!$generator instanceof GeneratorInterface) {
+            throw new \RuntimeException('Generator must implement GeneratorInterface.');
+        }
+        return $generator;
     }
 
     /** {@inheritdoc} */
