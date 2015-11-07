@@ -11,6 +11,7 @@ use Spot\Api\Application\Response\Generator\GeneratorInterface;
 use Spot\Api\Application\Response\Message\ServerErrorResponse;
 use Spot\Api\Application\Response\Message\ResponseInterface;
 use Spot\Api\Common\LoggableTrait;
+use Zend\Diactoros\Response;
 
 class ResponseBus implements ResponseBusInterface
 {
@@ -49,7 +50,8 @@ class ResponseBus implements ResponseBusInterface
     /** {@inheritdoc} */
     public function supports(ResponseInterface $response) : bool
     {
-        return array_key_exists($response->getResponseName(), $this->generators);
+        return array_key_exists($response->getResponseName(), $this->generators)
+            && isset($this->container[$this->generators[$response->getResponseName()]]);
     }
 
     /** {@inheritdoc} */
@@ -57,16 +59,11 @@ class ResponseBus implements ResponseBusInterface
     {
         if (!$this->supports($responseMessage)) {
             $this->log('Unsupported request: ' . $responseMessage->getResponseName(), LogLevel::WARNING);
-            throw new ResponseException(new ServerErrorResponse(), 500);
+            return new Response('Server error', 500);
         }
 
         $requestGenerator = $this->getGenerator($responseMessage);
-        $httpResponse = $requestGenerator->generateResponse($httpRequest, $responseMessage);
-
-        if (!$httpResponse instanceof HttpResponse) {
-            $this->log('Generator for ' . $responseMessage->getResponseName() . ' did not return Response.', LogLevel::ERROR);
-            throw new ResponseException(new ServerErrorResponse(), 500);
-        }
+        $httpResponse = $requestGenerator->generateResponse($responseMessage, $httpRequest);
 
         return $httpResponse;
     }

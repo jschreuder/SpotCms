@@ -48,12 +48,10 @@ class RequestBusSpec extends ObjectBehavior
         $executorName = 'executor.test';
         $executor = new class($response) implements ExecutorInterface {
             private $response;
-
             public function __construct($response)
             {
                 $this->response = $response;
             }
-
             public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
             {
                 return $this->response;
