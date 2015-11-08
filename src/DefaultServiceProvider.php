@@ -56,9 +56,9 @@ class DefaultServiceProvider implements ServiceProviderInterface
         };
 
         $container['logger'] = function () use ($container) {
-            $logger = new Logger('spot-cms');
+            $logger = new Logger('spot-api');
             $logger->pushHandler((new StreamHandler(
-                __DIR__.'/../logs/frontend_'.date('Ymd').'.log',
+                __DIR__.'/../logs/'.date('Ymd').'.log',
                 Logger::NOTICE
             ))->setFormatter(new LineFormatter()));
             return $logger;

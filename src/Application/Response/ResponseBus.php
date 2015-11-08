@@ -8,7 +8,6 @@ use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Api\Application\Response\Generator\GeneratorInterface;
-use Spot\Api\Application\Response\Message\ServerErrorResponse;
 use Spot\Api\Application\Response\Message\ResponseInterface;
 use Spot\Api\Common\LoggableTrait;
 use Zend\Diactoros\Response;
@@ -59,7 +58,7 @@ class ResponseBus implements ResponseBusInterface
     {
         if (!$this->supports($responseMessage)) {
             $this->log('Unsupported request: ' . $responseMessage->getResponseName(), LogLevel::WARNING);
-            return new Response('Server error', 500);
+            return new Response\HtmlResponse('Server error', 500);
         }
 
         $requestGenerator = $this->getGenerator($responseMessage);
