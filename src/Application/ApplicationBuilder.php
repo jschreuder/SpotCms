@@ -11,7 +11,10 @@ use Spot\Api\Application\Request\RequestBusInterface;
 use Spot\Api\Application\Response\ResponseBus;
 use Spot\Api\Application\Response\ResponseBusInterface;
 
-class ApplicationBuilder implements ApplicationBuilderInterface
+class ApplicationBuilder implements
+    HttpRequestParserFactoryInterface,
+    RequestBusFactoryInterface,
+    ResponseBusFactoryInterface
 {
     /** @var  HttpRequestParserRouter */
     private $router;
@@ -37,29 +40,25 @@ class ApplicationBuilder implements ApplicationBuilderInterface
         $this->responseBus = $responseBus;
     }
 
-    /** {@inheritdoc} */
-    public function addParser(string $method, string $path, $httpRequestParser) : self
+    public function addParser(string $method, string $path, string $httpRequestParser) : self
     {
         $this->routeCollector->addRoute($method, $path, $httpRequestParser);
         return $this;
     }
 
-    /** {@inheritdoc} */
-    public function addRequestExecutor(string $requestName, $executor) : self
+    public function addRequestExecutor(string $requestName, string $executor) : self
     {
         $this->requestBus->setExecutor($requestName, $executor);
         return $this;
     }
 
-    /** {@inheritdoc} */
-    public function addResponseGenerator(string $responseName, $generator) : self
+    public function addResponseGenerator(string $responseName, string $generator) : self
     {
         $this->responseBus->setGenerator($responseName, $generator);
         return $this;
     }
 
-    /** {@inheritdoc} */
-    public function addApiCall(string $method, string $path, string $name, $apiCall) : self
+    public function addApiCall(string $method, string $path, string $name, string $apiCall) : self
     {
         return $this->addParser($method, $path, $apiCall)
             ->addRequestExecutor($name, $apiCall)

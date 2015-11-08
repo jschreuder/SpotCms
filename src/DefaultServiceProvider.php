@@ -12,7 +12,6 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Spot\Api\Application\Application;
 use Spot\Api\Application\ApplicationBuilder;
-use Spot\Api\Application\ApplicationBuilderInterface;
 use Spot\Api\Application\Request\HttpRequestParserRouter;
 use Spot\Api\Application\Request\RequestBus;
 use Spot\Api\Application\Response\ResponseBus;
@@ -24,18 +23,6 @@ class DefaultServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['app'] = function () use ($container) {
-            /** @var  ApplicationBuilderInterface $builder */
-            $builder = $container['app.builder'];
-
-            return new Application(
-                $builder->getHttpRequestParser(),
-                $builder->getRequestBus(),
-                $builder->getResponseBus(),
-                $container['logger']
-            );
-        };
-
-        $container['app.builder'] = function () use ($container) {
             $builder = new ApplicationBuilder(
                 new HttpRequestParserRouter(
                     $container,
@@ -46,14 +33,14 @@ class DefaultServiceProvider implements ServiceProviderInterface
                 new ResponseBus($container, $container['logger'])
             );
 
-            $builder->addApiCall(
-                'POST',
-                '/pages',
-                CreatePageApiCall::MESSAGE,
-                'apiCall.pages.create'
-            );
+            $this->configureApiCalls($container, $builder);
 
-            return $builder;
+            return new Application(
+                $builder->getHttpRequestParser(),
+                $builder->getRequestBus(),
+                $builder->getResponseBus(),
+                $container['logger']
+            );
         };
 
         $container['db'] = function () use ($container) {
@@ -76,9 +63,31 @@ class DefaultServiceProvider implements ServiceProviderInterface
             ))->setFormatter(new LineFormatter()));
             return $logger;
         };
+    }
 
+    private function configureApiCalls(Container $container, ApplicationBuilder $builder)
+    {
         $container['apiCall.pages.create'] = function () use ($container) {
             return new CreatePageApiCall($container['repository.pages'], $container['logger']);
         };
+        $container['apiCall.pages.list'] = function () use ($container) {
+            return new ListPagesApiCall($container['repository.pages'], $container['logger']);
+        };
+        $container['apiCall.pages.get'] = function () use ($container) {
+            return new GetPageApiCall($container['repository.pages'], $container['logger']);
+        };
+        $container['apiCall.pages.update'] = function () use ($container) {
+            return new UpdatePageApiCall($container['repository.pages'], $container['logger']);
+        };
+        $container['apiCall.pages.delete'] = function () use ($container) {
+            return new DeletePageApiCall($container['repository.pages'], $container['logger']);
+        };
+
+        $builder
+            ->addApiCall('POST',   '/pages',                   CreatePageApiCall::MESSAGE, 'apiCall.pages.create')
+            ->addApiCall('GET',    '/pages',                   ListPagesApiCall::MESSAGE,  'apiCall.pages.list')
+            ->addApiCall('GET',    '/page/{uuid:[0-9a-z\-]+}', GetPageApiCall::MESSAGE,    'apiCall.pages.get')
+            ->addApiCall('PUT',    '/page/{uuid:[0-9a-z\-]+}', UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
+            ->addApiCall('DELETE', '/page/{uuid:[0-9a-z\-]+}', DeletePageApiCall::MESSAGE, 'apiCall.pages.delete');
     }
 }
