@@ -12,23 +12,23 @@ use Spot\Api\Content\Value\PageStatusValue;
 class PageRepository
 {
     /** @var  \PDO */
-    private $db;
+    private $pdo;
 
     /** @var  ObjectRepository */
     private $objectRepository;
 
-    public function __construct(\PDO $db, ObjectRepository $objectRepository)
+    public function __construct(\PDO $pdo, ObjectRepository $objectRepository)
     {
-        $this->db = $db;
+        $this->pdo = $pdo;
         $this->objectRepository = $objectRepository;
     }
 
     public function create(Page $page)
     {
-        $this->db->beginTransaction();
+        $this->pdo->beginTransaction();
         try {
             $this->objectRepository->create(Page::TYPE, $page->getUuid());
-            $this->db->prepare('
+            $this->pdo->prepare('
                 INSERT INTO pages (page_uuid, title, slug, short_title, parent_uuid, sort_order, status)
                     VALUES (:page_uuid, :title, :slug, :short_title, :parent_uuid, :sort_order, :status)
             ')->execute([
@@ -40,18 +40,18 @@ class PageRepository
                 'sort_order' => $page->getSortOrder(),
                 'status' => $page->getStatus(),
             ]);
-            $this->db->commit();
+            $this->pdo->commit();
         } catch (\Throwable $exception) {
-            $this->db->rollBack();
+            $this->pdo->rollBack();
             throw $exception;
         }
     }
 
     public function update(Page $page)
     {
-        $this->db->beginTransaction();
+        $this->pdo->beginTransaction();
         try {
-            $query = $this->db->prepare('
+            $query = $this->pdo->prepare('
                 UPDATE pages
                     SET title = :title,
                         slug = :slug,
@@ -74,9 +74,9 @@ class PageRepository
                 $this->objectRepository->update($page->getUuid());
             }
 
-            $this->db->commit();
+            $this->pdo->commit();
         } catch (\Throwable $exception) {
-            $this->db->rollBack();
+            $this->pdo->rollBack();
             throw $exception;
         }
     }
@@ -102,7 +102,7 @@ class PageRepository
 
     public function getByUuid(UuidInterface $uuid) : Page
     {
-        $query = $this->db->prepare('
+        $query = $this->pdo->prepare('
             SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status
                 FROM pages
                 WHERE page_uuid = :page_uuid
@@ -118,7 +118,7 @@ class PageRepository
 
     public function getBySlug(string $slug) : Page
     {
-        $query = $this->db->prepare('
+        $query = $this->pdo->prepare('
             SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status
                 FROM pages
                 WHERE slug = :slug
@@ -135,7 +135,7 @@ class PageRepository
     /** @return  Page[] */
     public function getAllByParentUuid(UuidInterface $uuid) : array
     {
-        $query = $this->db->prepare('
+        $query = $this->pdo->prepare('
             SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status
                 FROM pages
                 WHERE parent_uuid = :parent_uuid

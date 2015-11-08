@@ -11,15 +11,15 @@ use Spot\Api\Application\Repository\ObjectRepository;
 class ObjectRepositorySpec extends ObjectBehavior
 {
     /** @var  \PDO */
-    private $db;
+    private $pdo;
 
     /**
-     * @param  \PDO $db
+     * @param  \PDO $pdo
      */
-    public function let($db)
+    public function let($pdo)
     {
-        $this->db = $db;
-        $this->beConstructedWith($db);
+        $this->pdo = $pdo;
+        $this->beConstructedWith($pdo);
     }
 
     public function it_isInitializable()
@@ -34,7 +34,7 @@ class ObjectRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
 
-        $this->db->prepare(new TypeToken('string'))
+        $this->pdo->prepare(new TypeToken('string'))
             ->willReturn($pdoStatement);
 
         $pdoStatement->execute(['uuid' => $uuid->getBytes(), 'type' => 'test', 'created' => date('Y-m-d H:i:s')])
@@ -50,7 +50,7 @@ class ObjectRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
 
-        $this->db->prepare(new TypeToken('string'))
+        $this->pdo->prepare(new TypeToken('string'))
             ->willReturn($pdoStatement);
 
         $pdoStatement->execute(['uuid' => $uuid->getBytes(), 'updated' => date('Y-m-d H:i:s')])
@@ -66,7 +66,7 @@ class ObjectRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
 
-        $this->db->prepare(new TypeToken('string'))
+        $this->pdo->prepare(new TypeToken('string'))
             ->willReturn($pdoStatement);
 
         $pdoStatement->execute(['uuid' => $uuid->getBytes()])
