@@ -85,7 +85,7 @@ class CreatePageApiCall implements ApiCallInterface
             );
             $this->pageRepository->create($page);
             return new ArrayResponse(self::MESSAGE, ['uuid' => $page->getUuid()->toString()]);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->log($exception->getMessage(), LogLevel::ERROR);
             throw new ResponseException(new ServerErrorResponse(), 500);
         }

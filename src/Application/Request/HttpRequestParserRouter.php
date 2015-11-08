@@ -47,11 +47,7 @@ class HttpRequestParserRouter implements HttpRequestParserInterface
 
     private function getHttpRequestParser($name) : HttpRequestParserInterface
     {
-        $httpRequestParser = $this->container[$name];
-        if (!$httpRequestParser instanceof HttpRequestParserInterface) {
-            throw new \RuntimeException('HttpRequestParser must implement HttpRequestParserInterface.');
-        }
-        return $httpRequestParser;
+        return $this->container[$name];
     }
 
     /** {@inheritdoc} */
@@ -75,15 +71,11 @@ class HttpRequestParserRouter implements HttpRequestParserInterface
                 default:
                     throw new \RuntimeException('Routing errored for ' . $method . ' ' . $path);
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
             $request = new ServerErrorRequest();
         }
 
-        if (!$request instanceof RequestInterface) {
-            $this->log(LogLevel::ERROR, 'HttpRequestParser did not result in a Request message.');
-            return new ServerErrorRequest();
-        }
         return $request;
     }
 }

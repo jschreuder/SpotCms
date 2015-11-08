@@ -41,7 +41,7 @@ class PageRepository
                 'status' => $page->getStatus(),
             ]);
             $this->db->commit();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->db->rollBack();
             throw $exception;
         }
@@ -75,7 +75,7 @@ class PageRepository
             }
 
             $this->db->commit();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->db->rollBack();
             throw $exception;
         }
