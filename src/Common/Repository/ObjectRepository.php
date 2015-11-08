@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\Application\Repository;
+namespace Spot\Api\Common\Repository;
 
 use Ramsey\Uuid\UuidInterface;
 

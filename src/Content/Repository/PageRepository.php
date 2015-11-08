@@ -4,8 +4,8 @@ namespace Spot\Api\Content\Repository;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Spot\Api\Application\Repository\ObjectRepository;
 use Spot\Api\Common\Repository\NoUniqueResultException;
+use Spot\Api\Common\Repository\ObjectRepository;
 use Spot\Api\Content\Entity\Page;
 use Spot\Api\Content\Value\PageStatusValue;
 

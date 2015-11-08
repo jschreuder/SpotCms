@@ -1,13 +1,13 @@
 <?php
 
-namespace spec\Spot\Api\Application\Repository;
+namespace spec\Spot\Api\Common\Repository;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument\Token\TypeToken;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\Application\Repository\ObjectRepository;
+use Spot\Api\Common\Repository\ObjectRepository;
 
-/** @mixin  \Spot\Api\Application\Repository\ObjectRepository */
+/** @mixin  \Spot\Api\Common\Repository\ObjectRepository */
 class ObjectRepositorySpec extends ObjectBehavior
 {
     /** @var  \PDO */
