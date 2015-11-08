@@ -41,7 +41,7 @@ class CreatePageApiCall implements ApiCallInterface
     }
 
     /** {@inheritdoc} */
-    public function parseHttpRequest(HttpRequest $httpRequest, array $attributes) : RequestInterface
+    public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
         $filter = new Filter();
         $filter->values(['title', 'slug', 'short_title'])->trim()->stripHtml();

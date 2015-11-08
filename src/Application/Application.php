@@ -2,7 +2,7 @@
 
 namespace Spot\Api\Application;
 
-use Psr\Http\Message\ServerRequestInterface as HttpRequest;
+use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -42,7 +42,7 @@ class Application implements ApplicationInterface
     }
 
     /** {@inheritdoc} */
-    public function execute(HttpRequest $httpRequest) : HttpResponse
+    public function execute(ServerHttpRequest $httpRequest) : HttpResponse
     {
         $this->log(LogLevel::INFO, 'Starting execution.');
         try {

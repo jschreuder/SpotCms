@@ -12,9 +12,11 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Spot\Api\Application\Application;
 use Spot\Api\Application\ApplicationBuilder;
+use Spot\Api\Application\ApplicationInterface;
 use Spot\Api\Application\Request\HttpRequestParserRouter;
 use Spot\Api\Application\Request\RequestBus;
 use Spot\Api\Application\Response\ResponseBus;
+use Spot\Api\Common\RequestBodyParser\JsonParser;
 use Spot\Api\Content\ApiCall\CreatePageApiCall;
 
 class DefaultServiceProvider implements ServiceProviderInterface
@@ -22,7 +24,7 @@ class DefaultServiceProvider implements ServiceProviderInterface
     /** {@inheritdoc} */
     public function register(Container $container)
     {
-        $container['app'] = function () use ($container) {
+        $container['app'] = function (Container $container) {
             $builder = new ApplicationBuilder(
                 new HttpRequestParserRouter(
                     $container,
@@ -43,7 +45,12 @@ class DefaultServiceProvider implements ServiceProviderInterface
             );
         };
 
-        $container['db'] = function () use ($container) {
+        // Support JSON bodies for requests
+        $container->extend('app', function (ApplicationInterface $application) {
+            return new JsonParser($application);
+        });
+
+        $container['db'] = function (Container $container) {
             return new \PDO(
                 $container['db.dsn'] . ';dbname=' . $container['db.dbname'],
                 $container['db.user'],
@@ -55,7 +62,7 @@ class DefaultServiceProvider implements ServiceProviderInterface
             );
         };
 
-        $container['logger'] = function () use ($container) {
+        $container['logger'] = function () {
             $logger = new Logger('spot-api');
             $logger->pushHandler((new StreamHandler(
                 __DIR__.'/../logs/'.date('Ymd').'.log',
@@ -67,19 +74,19 @@ class DefaultServiceProvider implements ServiceProviderInterface
 
     private function configureApiCalls(Container $container, ApplicationBuilder $builder)
     {
-        $container['apiCall.pages.create'] = function () use ($container) {
+        $container['apiCall.pages.create'] = function (Container $container) {
             return new CreatePageApiCall($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pages.list'] = function () use ($container) {
+        $container['apiCall.pages.list'] = function (Container $container) {
             return new ListPagesApiCall($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pages.get'] = function () use ($container) {
+        $container['apiCall.pages.get'] = function (Container $container) {
             return new GetPageApiCall($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pages.update'] = function () use ($container) {
+        $container['apiCall.pages.update'] = function (Container $container) {
             return new UpdatePageApiCall($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pages.delete'] = function () use ($container) {
+        $container['apiCall.pages.delete'] = function (Container $container) {
             return new DeletePageApiCall($container['repository.pages'], $container['logger']);
         };
 
