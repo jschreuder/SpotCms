@@ -136,21 +136,20 @@ class TOTP
     }
 
     /**
-     * Helper class to decode base32
+     * Throws Exception when the secret isn't valid
      *
-     * @param   $secret
-     * @return  string
+     * @param   string $secret
+     * @return  void
+     * @throws  \InvalidArgumentException
      */
-    protected function base32Decode($secret)
+    protected function validateSecret($secret)
     {
         if (empty($secret)) {
             throw new \InvalidArgumentException('Secret cannot be empty');
         }
 
-        $base32chars = $this->getBase32LookupTable();
-        $base32charsFlipped = array_flip($base32chars);
-
         // Check encoding
+        $base32chars = $this->getBase32LookupTable();
         if (preg_match('#([^'.implode('', $base32chars).'=])#', $secret, $matches) === 1) {
             throw new \InvalidArgumentException('Invalid character encountered in secret: ' . $matches[1]);
         }
@@ -168,6 +167,19 @@ class TOTP
                 'Invalid padding encountered in secret, all = characters must be at the end'
             );
         }
+    }
+
+    /**
+     * Helper class to decode base32
+     *
+     * @param   $secret
+     * @return  string
+     */
+    protected function base32Decode($secret)
+    {
+        $this->validateSecret($secret);
+
+        $base32charsFlipped = array_flip($this->getBase32LookupTable());
 
         $secret = str_replace('=', '', $secret);
         $secret = str_split($secret);
