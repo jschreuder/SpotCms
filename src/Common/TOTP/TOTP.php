@@ -42,8 +42,6 @@ class TOTP
     public function createSecret($secretLength = 16)
     {
         $validChars = $this->getBase32LookupTable();
-        unset($validChars[32]);
-
         $secret = '';
         for ($i = 0; $i < $secretLength; $i++) {
             $secret .= $validChars[array_rand($validChars)];
@@ -66,13 +64,13 @@ class TOTP
         $secretKey = $this->base32Decode($secret);
 
         // Pack time into binary string
-        $time = chr(0).chr(0).chr(0).chr(0).pack('N*', $timeSlice);
+        $time = chr(0) . chr(0) . chr(0) . chr(0) . pack('N*', $timeSlice);
         // Hash it with users secret key
-        $hm = hash_hmac('SHA1', $time, $secretKey, true);
+        $hmac = hash_hmac('SHA1', $time, $secretKey, true);
         // Use last nipple of result as index/offset
-        $offset = ord(substr($hm, -1)) & 0x0F;
+        $offset = ord(substr($hmac, -1)) & 0x0F;
         // grab 4 bytes of the result
-        $hashpart = substr($hm, $offset, 4);
+        $hashpart = substr($hmac, $offset, 4);
         // Unpak binary value
         $value = unpack('N', $hashpart);
         $value = $value[1];
@@ -96,7 +94,7 @@ class TOTP
         $url = 'otpauth://totp/' . urlencode($name) . '?';
 
         $vars = ['secret' => $secret];
-        if(!is_null($title)) {
+        if (!is_null($title)) {
             $vars['issuer'] = $title;
         }
 
@@ -151,85 +149,45 @@ class TOTP
 
         $base32chars = $this->getBase32LookupTable();
         $base32charsFlipped = array_flip($base32chars);
-        $paddingCharCount = substr_count($secret, $base32chars[32]);
+
+        // Check encoding
+        if (preg_match('#([^'.implode('', $base32chars).'=])#', $secret, $matches) === 1) {
+            throw new \InvalidArgumentException('Invalid character encountered in secret: ' . $matches[1]);
+        }
+
+        // Check padding
+        $paddingCharCount = substr_count($secret, '=');
         $allowedValues = [6, 4, 3, 1, 0];
         if (!in_array($paddingCharCount, $allowedValues)) {
-            return false;
+            throw new \InvalidArgumentException(
+                'Invalid padding encountered in secret, must be 6, 4, 3, 1 or 0'
+            );
+        }
+        if ($paddingCharCount > 0 && substr($secret, -($paddingCharCount)) !== str_repeat('=', $paddingCharCount)) {
+            throw new \InvalidArgumentException(
+                'Invalid padding encountered in secret, all = characters must be at the end'
+            );
         }
 
-        for ($i = 0; $i < 4; $i++) {
-            if (
-                $paddingCharCount === $allowedValues[$i] &&
-                substr($secret, -($allowedValues[$i])) !== str_repeat($base32chars[32], $allowedValues[$i])
-            ) {
-                throw new \InvalidArgumentException(
-                    'Invalid padding encountered in secret, all = characters must be at the end'
-                );
-            }
-        }
-
-        $secret = str_replace('=','', $secret);
+        $secret = str_replace('=', '', $secret);
         $secret = str_split($secret);
+
+        // Go byte by byte through the secret and build the output binary string
         $binaryString = '';
-        for ($i = 0; $i < count($secret); $i = $i+8) {
-            if (!in_array($secret[$i], $base32chars)) {
-                throw new \InvalidArgumentException('Invalid character encountered in secret: ' . $secret[$i]);
+        for ($byte = 0; $byte < count($secret); $byte = $byte + 8) {
+            $string = '';
+            for ($bit = 0; $bit < 8; $bit++) {
+                $char = base_convert($base32charsFlipped[$secret[$byte + $bit]], 10, 2);
+                $string .= str_pad($char, 5, '0', STR_PAD_LEFT);
             }
 
-            $x = '';
-            for ($j = 0; $j < 8; $j++) {
-                $x .= str_pad(base_convert($base32charsFlipped[$secret[$i + $j]], 10, 2), 5, '0', STR_PAD_LEFT);
-            }
-
-            $eightBits = str_split($x, 8);
-            for ($z = 0; $z < count($eightBits); $z++) {
-                $binaryString .= (($y = chr(base_convert($eightBits[$z], 2, 10))) || ord($y) == 48) ? $y : '';
+            $eightBits = str_split($string, 8);
+            foreach ($eightBits as $bit) {
+                $binaryString .= (($y = chr(base_convert($bit, 2, 10))) || ord($y) == 48) ? $y : '';
             }
         }
 
         return $binaryString;
-    }
-
-    /**
-     * Helper class to encode base32
-     *
-     * @param   string $secret
-     * @param   bool $padding
-     * @return  string
-     */
-    protected function base32Encode($secret, $padding = true)
-    {
-        if (empty($secret)) {
-            throw new \InvalidArgumentException('Secret cannot be empty');
-        }
-
-        $base32chars = $this->getBase32LookupTable();
-        $secret = str_split($secret);
-        $binaryString = '';
-        for ($i = 0; $i < count($secret); $i++) {
-            $binaryString .= str_pad(base_convert(ord($secret[$i]), 10, 2), 8, '0', STR_PAD_LEFT);
-        }
-
-        $fiveBitBinaryArray = str_split($binaryString, 5);
-        $base32 = '';
-        $i = 0;
-        while ($i < count($fiveBitBinaryArray)) {
-            $base32 .= $base32chars[base_convert(str_pad($fiveBitBinaryArray[$i], 5, '0'), 2, 10)];
-            $i++;
-        }
-
-        if ($padding && ($x = strlen($binaryString) % 40) !== 0) {
-            if ($x === 8) {
-                $base32 .= str_repeat($base32chars[32], 6);
-            } elseif ($x === 16) {
-                $base32 .= str_repeat($base32chars[32], 4);
-            } elseif ($x === 24) {
-                $base32 .= str_repeat($base32chars[32], 3);
-            } elseif ($x === 32) {
-                $base32 .= $base32chars[32];
-            }
-        }
-        return $base32;
     }
 
     /**
@@ -244,7 +202,6 @@ class TOTP
             'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', // 15
             'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', // 23
             'Y', 'Z', '2', '3', '4', '5', '6', '7', // 31
-            '='  // padding char
         ];
     }
 }
