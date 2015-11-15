@@ -15,3 +15,9 @@ exclude_paths:
   - migrations/**/*
   - spec/**/*
   - src/DefaultServiceProvider.php
+  - .codeclimate.yml
+  - .gitignore
+  - .travis.yml
+  - composer.json
+  - phinx.yml
+  - phpspec.yml
