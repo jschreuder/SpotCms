@@ -21,7 +21,8 @@
         "particle/validator": "^2.0",
         "particle/filter": "^1.0",
         "robmorgan/phinx": "^0.4.6",
-        "ramsey/uuid": "^3.0"
+        "ramsey/uuid": "^3.0",
+        "tobscure/json-api": "^0.2.1"
     },
     "require-dev": {
         "phpspec/phpspec": "^2.3"

@@ -21,6 +21,9 @@ use Spot\Api\Application\Response\ResponseException;
 use Spot\Api\Common\LoggableTrait;
 use Spot\Api\Content\Entity\Page;
 use Spot\Api\Content\Repository\PageRepository;
+use Spot\Api\Content\Serializer\PageSerializer;
+use Tobscure\JsonApi\Collection;
+use Tobscure\JsonApi\Document;
 use Zend\Diactoros\Response\JsonResponse;
 
 class ListPagesApiCall implements ApiCallInterface
@@ -74,23 +77,9 @@ class ListPagesApiCall implements ApiCallInterface
         }
 
         $data = $response->getData();
-        $pages = [];
-        foreach ($data['pages'] as $idx => $page) {
-            /** @var  Page $page */
-            $pages[$idx] = [
-                'page_uuid' => $page->getUuid()->toString(),
-                'title' => $page->getTitle(),
-                'slug' => $page->getSlug(),
-                'short_title' => $page->getShortTitle(),
-                'parent_uuid' => $page->getParentUuid() ? $page->getParentUuid()->toString() : null,
-                'sort_order' => $page->getSortOrder(),
-                'status' => $page->getStatus()->toString(),
-            ];
-        }
+        $document = new Document(new Collection($data['pages'], new PageSerializer()));
+        $document->addMeta('parent_uuid', $data['parent_uuid'] ? $data['parent_uuid']->toString() : null);
 
-        return new JsonResponse([
-            'docs' => $pages,
-            'parent_uuid' => $data['parent_uuid'] ? $data['parent_uuid']->toString() : null,
-        ]);
+        return new JsonResponse($document);
     }
 }
