@@ -18,6 +18,10 @@ use Spot\Api\Application\Request\RequestBus;
 use Spot\Api\Application\Response\ResponseBus;
 use Spot\Api\Common\RequestBodyParser\JsonParser;
 use Spot\Api\Content\ApiCall\CreatePageApiCall;
+use Spot\Api\Content\ApiCall\DeletePageApiCall;
+use Spot\Api\Content\ApiCall\GetPageApiCall;
+use Spot\Api\Content\ApiCall\ListPagesApiCall;
+use Spot\Api\Content\ApiCall\UpdatePageApiCall;
 
 class DefaultServiceProvider implements ServiceProviderInterface
 {

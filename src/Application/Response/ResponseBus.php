@@ -57,7 +57,7 @@ class ResponseBus implements ResponseBusInterface
     public function execute(HttpRequest $httpRequest, ResponseInterface $responseMessage) : HttpResponse
     {
         if (!$this->supports($responseMessage)) {
-            $this->log('Unsupported request: ' . $responseMessage->getResponseName(), LogLevel::WARNING);
+            $this->log(LogLevel::WARNING, 'Unsupported request: ' . $responseMessage->getResponseName());
             return new Response\HtmlResponse('Server error', 500);
         }
 

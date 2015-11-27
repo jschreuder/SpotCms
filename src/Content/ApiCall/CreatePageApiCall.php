@@ -29,7 +29,7 @@ class CreatePageApiCall implements ApiCallInterface
 {
     use LoggableTrait;
 
-    const MESSAGE = 'pages.request';
+    const MESSAGE = 'pages.create';
 
     /** @var  PageRepository */
     private $pageRepository;
@@ -68,7 +68,7 @@ class CreatePageApiCall implements ApiCallInterface
     public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
     {
         if (!$request instanceof ArrayRequest) {
-            $this->log('Did not receive an ArrayRequest instance.', LogLevel::ERROR);
+            $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
             throw new ResponseException(new ServerErrorResponse(), 500);
         }
 
@@ -86,7 +86,7 @@ class CreatePageApiCall implements ApiCallInterface
             $this->pageRepository->create($page);
             return new ArrayResponse(self::MESSAGE, ['uuid' => $page->getUuid()->toString()]);
         } catch (\Throwable $exception) {
-            $this->log($exception->getMessage(), LogLevel::ERROR);
+            $this->log(LogLevel::ERROR, $exception->getMessage());
             throw new ResponseException(new ServerErrorResponse(), 500);
         }
     }
@@ -95,7 +95,7 @@ class CreatePageApiCall implements ApiCallInterface
     public function generateResponse(ResponseInterface $response, HttpRequest $httpRequest) : HttpResponse
     {
         if (!$response instanceof ArrayResponse) {
-            $this->log('Did not receive an ArrayResponse instance.', LogLevel::ERROR);
+            $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
             return new JsonResponse(['error' => 'Server Error'], 500);
         }
 

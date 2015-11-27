@@ -21,7 +21,7 @@ class JsonParser implements ApplicationInterface
     public function execute(ServerHttpRequest $httpRequest) : HttpResponse
     {
         // Only works on requests with JSON bodies
-        if (strpos($httpRequest->getHeader('Content-Type'), 'application/json') === false) {
+        if (strpos($httpRequest->getHeaderLine('Content-Type'), 'application/json') === false) {
             return $this->application->execute($httpRequest);
         }
         $body = $httpRequest->getBody()->getContents();
