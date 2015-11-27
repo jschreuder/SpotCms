@@ -16,12 +16,14 @@ use Spot\Api\Application\ApplicationInterface;
 use Spot\Api\Application\Request\HttpRequestParserRouter;
 use Spot\Api\Application\Request\RequestBus;
 use Spot\Api\Application\Response\ResponseBus;
+use Spot\Api\Common\Repository\ObjectRepository;
 use Spot\Api\Common\RequestBodyParser\JsonParser;
 use Spot\Api\Content\ApiCall\CreatePageApiCall;
 use Spot\Api\Content\ApiCall\DeletePageApiCall;
 use Spot\Api\Content\ApiCall\GetPageApiCall;
 use Spot\Api\Content\ApiCall\ListPagesApiCall;
 use Spot\Api\Content\ApiCall\UpdatePageApiCall;
+use Spot\Api\Content\Repository\PageRepository;
 
 class DefaultServiceProvider implements ServiceProviderInterface
 {
@@ -66,6 +68,8 @@ class DefaultServiceProvider implements ServiceProviderInterface
             );
         };
 
+        $this->configureRepositories($container);
+
         $container['logger'] = function () {
             $logger = new Logger('spot-api');
             $logger->pushHandler((new StreamHandler(
@@ -100,5 +104,16 @@ class DefaultServiceProvider implements ServiceProviderInterface
             ->addApiCall('GET',    '/page/{uuid:[0-9a-z\-]+}', GetPageApiCall::MESSAGE,    'apiCall.pages.get')
             ->addApiCall('PUT',    '/page/{uuid:[0-9a-z\-]+}', UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
             ->addApiCall('DELETE', '/page/{uuid:[0-9a-z\-]+}', DeletePageApiCall::MESSAGE, 'apiCall.pages.delete');
+    }
+
+    private function configureRepositories(Container $container)
+    {
+        $container['repository.objects'] = function (Container $container) {
+            return new ObjectRepository($container['db']);
+        };
+
+        $container['repository.pages'] = function (Container $container) {
+            return new PageRepository($container['db'], $container['repository.objects']);
+        };
     }
 }
