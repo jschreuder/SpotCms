@@ -1,4 +1,8 @@
 /.idea/
 /bin/
+/config/dev.php
+/config/env.php
+/logs/
 /vendor/
 composer.lock
+composer.phar

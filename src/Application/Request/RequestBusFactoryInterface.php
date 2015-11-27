@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\Application;
-
-use Spot\Api\Application\Request\RequestBusInterface;
+namespace Spot\Api\Application\Request;
 
 interface RequestBusFactoryInterface
 {

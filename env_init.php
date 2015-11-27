@@ -10,8 +10,9 @@ ini_set('display_errors', 'no');
 date_default_timezone_set('UTC');
 mb_internal_encoding('UTF-8');
 
-$container = new Pimple\Container(require __DIR__ . '/config/' . $container['environment'] . '.php');
-$container['environment'] = require __DIR__. '/config/env.php';
+$environment = require __DIR__. '/config/env.php';
+$container = new Pimple\Container(require __DIR__ . '/config/' . $environment . '.php');
+$container['environment'] = $environment;
 
 // Register services to container
 $serviceProvider = new Spot\Api\DefaultServiceProvider();
