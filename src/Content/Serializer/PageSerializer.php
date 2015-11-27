@@ -2,14 +2,28 @@
 
 namespace Spot\Api\Content\Serializer;
 
+use Ramsey\Uuid\Uuid;
 use Spot\Api\Content\Entity\Page;
-use Tobscure\JsonApi\AbstractSerializer;
+use Tobscure\JsonApi\Relationship;
+use Tobscure\JsonApi\SerializerInterface;
 
-class PageSerializer extends AbstractSerializer
+class PageSerializer implements SerializerInterface
 {
-    protected $type = 'pages';
+    public function getType($model) : string
+    {
+        return 'pages';
+    }
 
-    public function getAttributes($page, array $fields = [])
+    public function getId($page) : string
+    {
+        if (!$page instanceof Page) {
+            throw new \InvalidArgumentException('PageSerializer can only serialize pages.');
+        }
+
+        return $page->getUuid()->toString();
+    }
+
+    public function getAttributes($page, array $fields = []) : array
     {
         if (!$page instanceof Page) {
             throw new \InvalidArgumentException('PageSerializer can only serialize pages.');
@@ -24,5 +38,14 @@ class PageSerializer extends AbstractSerializer
             'sort_order' => $page->getSortOrder(),
             'status' => $page->getStatus()->toString(),
         ];
+    }
+
+    public function getRelationship($page, $name) : Relationship
+    {
+        if (!$page instanceof Page) {
+            throw new \InvalidArgumentException('PageSerializer can only serialize pages.');
+        }
+
+        throw new \OutOfBoundsException('Unknown relationship ' . $name . ' for ' . $this->getType($page));
     }
 }
