@@ -46,9 +46,9 @@ class UpdatePageApiCall implements ApiCallInterface
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
         $filter = new Filter();
-        $filter->values(['data.attributes.title', 'data.attributes.slug', 'data.attributes.short_title'])
+        $filter->values(['attributes.title', 'attributes.slug', 'attributes.short_title'])
             ->trim()->stripHtml();
-        $filter->value('data.attributes.sort_order')->int();
+        $filter->value('attributes.sort_order')->int();
 
         $validator = new Validator();
         $validator->required('type')->equals('pages');
