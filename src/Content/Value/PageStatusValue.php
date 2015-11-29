@@ -10,6 +10,10 @@ class PageStatusValue implements ValueInterface
     const PUBLISHED = 'published';
     const DELETED = 'deleted';
 
+    /**
+     * @param   string $value
+     * @return  self
+     */
     public static function get(string $value) : ValueInterface
     {
         return new self($value);
