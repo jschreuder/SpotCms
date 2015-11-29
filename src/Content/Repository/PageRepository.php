@@ -32,13 +32,13 @@ class PageRepository
                 INSERT INTO pages (page_uuid, title, slug, short_title, parent_uuid, sort_order, status)
                     VALUES (:page_uuid, :title, :slug, :short_title, :parent_uuid, :sort_order, :status)
             ')->execute([
-                'page_uuid' => $page->getUuid(),
+                'page_uuid' => $page->getUuid()->getBytes(),
                 'title' => $page->getTitle(),
                 'slug' => $page->getSlug(),
                 'short_title' => $page->getShortTitle(),
                 'parent_uuid' => $page->getParentUuid(),
                 'sort_order' => $page->getSortOrder(),
-                'status' => $page->getStatus(),
+                'status' => $page->getStatus()->toString(),
             ]);
             $this->pdo->commit();
         } catch (\Throwable $exception) {
@@ -61,12 +61,12 @@ class PageRepository
                     WHERE page_uuid = :page_uuid
             ');
             $query->execute([
-                'page_uuid' => $page->getUuid(),
+                'page_uuid' => $page->getUuid()->getBytes(),
                 'title' => $page->getTitle(),
                 'slug' => $page->getSlug(),
                 'short_title' => $page->getShortTitle(),
                 'sort_order' => $page->getSortOrder(),
-                'status' => $page->getStatus(),
+                'status' => $page->getStatus()->toString(),
             ]);
 
             // When at least one of the fields changes, the rowCount will be 1 and an update occurred
@@ -85,6 +85,7 @@ class PageRepository
     {
         // The database constraint should cascade the delete to the page
         $this->objectRepository->delete($page->getUuid());
+        $page->setStatus(PageStatusValue::get(PageStatusValue::DELETED));
     }
 
     private function getPageFromRow(array $row) : Page
@@ -109,7 +110,7 @@ class PageRepository
         ');
         $query->execute(['page_uuid' => $uuid->getBytes()]);
 
-        if ($query->rowCount() !== 0) {
+        if ($query->rowCount() !== 1) {
             throw new NoUniqueResultException('Expected a unique result, but got ' . $query->rowCount() . ' results.');
         }
 

@@ -23,7 +23,7 @@ class PageSerializer implements SerializerInterface
         return $page->getUuid()->toString();
     }
 
-    public function getAttributes($page, array $fields = []) : array
+    public function getAttributes($page, array $fields = null) : array
     {
         if (!$page instanceof Page) {
             throw new \InvalidArgumentException('PageSerializer can only serialize pages.');

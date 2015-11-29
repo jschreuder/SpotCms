@@ -2,21 +2,22 @@
 
 namespace Spot\Api\Content\Value;
 
-use Spot\Api\Common\Entity\ValueInterface;
+use Spot\Api\Common\Value\ValueInterface;
 
 class PageStatusValue implements ValueInterface
 {
     const CONCEPT = 'concept';
     const PUBLISHED = 'published';
+    const DELETED = 'deleted';
 
-    public static function get(string $value) : self
+    public static function get(string $value) : ValueInterface
     {
         return new self($value);
     }
 
     public static function getValidStatuses() : array
     {
-        return [self::CONCEPT, self::PUBLISHED];
+        return [self::CONCEPT, self::PUBLISHED, self::DELETED];
     }
 
     /** @var  string */
@@ -30,7 +31,7 @@ class PageStatusValue implements ValueInterface
         $this->value = $value;
     }
 
-    public function toString()
+    public function toString() : string
     {
         return $this->value;
     }
