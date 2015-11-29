@@ -53,7 +53,7 @@ class CreatePageApiCall implements ApiCallInterface
         $filter->value('data.attributes.sort_order')->int();
 
         $validator = new Validator();
-        $validator->required('type')->equals('pages');
+        $validator->required('data.type')->equals('pages');
         $validator->required('data.attributes.title')->lengthBetween(1, 512);
         $validator->required('data.attributes.slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
         $validator->required('data.attributes.short_title')->lengthBetween(1, 48);
@@ -84,9 +84,9 @@ class CreatePageApiCall implements ApiCallInterface
                 $request['title'],
                 $request['slug'],
                 $request['short_title'],
-                $request['parent_uuid'],
+                $request['parent_uuid'] ? Uuid::fromString($request['parent_uuid']) : null,
                 $request['sort_order'],
-                $request['status']
+                PageStatusValue::get($request['status'])
             );
             $this->pageRepository->create($page);
             return new ArrayResponse(self::MESSAGE, ['page' => $page]);

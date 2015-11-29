@@ -102,7 +102,7 @@ class DefaultServiceProvider implements ServiceProviderInterface
             ->addApiCall('POST',   '/pages',                   CreatePageApiCall::MESSAGE, 'apiCall.pages.create')
             ->addApiCall('GET',    '/pages',                   ListPagesApiCall::MESSAGE,  'apiCall.pages.list')
             ->addApiCall('GET',    '/page/{uuid:[0-9a-z\-]+}', GetPageApiCall::MESSAGE,    'apiCall.pages.get')
-            ->addApiCall('PATCH',  '/page/{uuid:[0-9a-z\-]+}', UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
+            ->addApiCall('PATCH',  '/page',                    UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
             ->addApiCall('DELETE', '/page/{uuid:[0-9a-z\-]+}', DeletePageApiCall::MESSAGE, 'apiCall.pages.delete');
     }
 

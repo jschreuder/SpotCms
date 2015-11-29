@@ -36,7 +36,7 @@ class PageRepository
                 'title' => $page->getTitle(),
                 'slug' => $page->getSlug(),
                 'short_title' => $page->getShortTitle(),
-                'parent_uuid' => $page->getParentUuid(),
+                'parent_uuid' => $page->getParentUuid() ? $page->getParentUuid()->getBytes() : null,
                 'sort_order' => $page->getSortOrder(),
                 'status' => $page->getStatus()->toString(),
             ]);
@@ -136,17 +136,27 @@ class PageRepository
     /** @return  Page[] */
     public function getAllByParentUuid(UuidInterface $uuid = null) : array
     {
-        $query = $this->pdo->prepare('
-            SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status
-                FROM pages
-                WHERE parent_uuid = :parent_uuid
-                ORDER BY sort_order ASC
-        ');
-        $query->execute(['parent_uuid' => $uuid ? $uuid->getBytes() : null]);
+        if (!is_null($uuid)) {
+            $query = $this->pdo->prepare('
+                SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status
+                    FROM pages
+                    WHERE parent_uuid = :parent_uuid
+                    ORDER BY sort_order ASC
+            ');
+            $query->execute(['parent_uuid' => $uuid ? $uuid->getBytes() : null]);
+        } else {
+            $query = $this->pdo->prepare('
+                SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status
+                    FROM pages
+                    WHERE parent_uuid IS NULL
+                    ORDER BY sort_order ASC
+            ');
+            $query->execute();
+        }
 
         $pages = [];
         while ($row = $query->fetch(\PDO::FETCH_ASSOC)) {
-            $pages[] = $this->getPageFromRow($query->fetch(\PDO::FETCH_ASSOC));
+            $pages[] = $this->getPageFromRow($row);
         }
         return $pages;
     }

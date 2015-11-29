@@ -30,7 +30,6 @@ class PageSerializer implements SerializerInterface
         }
 
         return [
-            'page_uuid' => $page->getUuid()->toString(),
             'title' => $page->getTitle(),
             'slug' => $page->getSlug(),
             'short_title' => $page->getShortTitle(),
