@@ -5,7 +5,7 @@ namespace Spot\Api\Common\RequestBodyParser;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Spot\Api\Application\ApplicationInterface;
-use Zend\Diactoros\Response\JsonResponse;
+use Spot\Api\Common\Http\JsonApiErrorResponse;
 
 class JsonApiParser implements ApplicationInterface
 {
@@ -34,7 +34,7 @@ class JsonApiParser implements ApplicationInterface
 
         // If an error occurred, duck out now
         if (json_last_error() !== JSON_ERROR_NONE) {
-            return new JsonResponse(['error' => 'Invalid JSON, couldn\'t decode.'], 400);
+            return new JsonApiErrorResponse(['error' => 'Invalid JSON, couldn\'t decode.'], 400);
         }
 
         // Everything is well, continue on with parsed JSON body

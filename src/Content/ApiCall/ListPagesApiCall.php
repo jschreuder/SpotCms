@@ -18,12 +18,13 @@ use Spot\Api\Application\Response\Message\ArrayResponse;
 use Spot\Api\Application\Response\Message\ResponseInterface;
 use Spot\Api\Application\Response\Message\ServerErrorResponse;
 use Spot\Api\Application\Response\ResponseException;
+use Spot\Api\Common\Http\JsonApiErrorResponse;
+use Spot\Api\Common\Http\JsonApiResponse;
 use Spot\Api\Common\LoggableTrait;
 use Spot\Api\Content\Repository\PageRepository;
 use Spot\Api\Content\Serializer\PageSerializer;
 use Tobscure\JsonApi\Collection;
 use Tobscure\JsonApi\Document;
-use Zend\Diactoros\Response\JsonResponse;
 
 class ListPagesApiCall implements ApiCallInterface
 {
@@ -71,12 +72,11 @@ class ListPagesApiCall implements ApiCallInterface
     {
         if (!$response instanceof ArrayResponse) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
-            return new JsonResponse(['error' => 'Server Error'], 500);
+            return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
         }
 
         $document = new Document(new Collection($response['pages'], new PageSerializer()));
         $document->addMeta('parent_uuid', $response['parent_uuid'] ? $response['parent_uuid']->toString() : null);
-
-        return new JsonResponse($document);
+        return new JsonApiResponse($document);
     }
 }

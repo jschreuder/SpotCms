@@ -19,11 +19,15 @@ use Spot\Api\Application\Response\Message\ArrayResponse;
 use Spot\Api\Application\Response\Message\ResponseInterface;
 use Spot\Api\Application\Response\Message\ServerErrorResponse;
 use Spot\Api\Application\Response\ResponseException;
+use Spot\Api\Common\Http\JsonApiErrorResponse;
+use Spot\Api\Common\Http\JsonApiResponse;
 use Spot\Api\Common\LoggableTrait;
 use Spot\Api\Content\Entity\Page;
 use Spot\Api\Content\Repository\PageRepository;
+use Spot\Api\Content\Serializer\PageSerializer;
 use Spot\Api\Content\Value\PageStatusValue;
-use Zend\Diactoros\Response\JsonResponse;
+use Tobscure\JsonApi\Document;
+use Tobscure\JsonApi\Resource;
 
 class CreatePageApiCall implements ApiCallInterface
 {
@@ -85,7 +89,7 @@ class CreatePageApiCall implements ApiCallInterface
                 $request['status']
             );
             $this->pageRepository->create($page);
-            return new ArrayResponse(self::MESSAGE, ['uuid' => $page->getUuid()->toString()]);
+            return new ArrayResponse(self::MESSAGE, ['page' => $page]);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
             throw new ResponseException(new ServerErrorResponse(), 500);
@@ -97,9 +101,10 @@ class CreatePageApiCall implements ApiCallInterface
     {
         if (!$response instanceof ArrayResponse) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
-            return new JsonResponse(['error' => 'Server Error'], 500);
+            return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
         }
 
-        return new JsonResponse($response->getData(), 201);
+        $document = new Document(new Resource($response['page'], new PageSerializer()));
+        return new JsonApiResponse($document, 201);
     }
 }
