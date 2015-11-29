@@ -51,21 +51,24 @@ class UpdatePageApiCall implements ApiCallInterface
         $filter->value('data.attributes.sort_order')->int();
 
         $validator = new Validator();
-        $validator->required('data.type')->equals('pages');
-        $validator->required('data.id')->uuid();
-        $validator->optional('data.attributes.title')->lengthBetween(1, 512);
-        $validator->optional('data.attributes.slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
-        $validator->optional('data.attributes.short_title')->lengthBetween(1, 48);
-        $validator->optional('data.attributes.sort_order')->integer();
-        $validator->optional('data.attributes.status')->inArray(PageStatusValue::getValidStatuses(), true);
+        $validator->required('type')->equals('pages');
+        $validator->required('id')->uuid();
+        $validator->optional('attributes.title')->lengthBetween(1, 512);
+        $validator->optional('attributes.slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
+        $validator->optional('attributes.short_title')->lengthBetween(1, 48);
+        $validator->optional('attributes.sort_order')->integer();
+        $validator->optional('attributes.status')
+            ->inArray([PageStatusValue::CONCEPT, PageStatusValue::PUBLISHED], true);
 
-        $data = $filter->filter($httpRequest->getParsedBody());
+        $data = $filter->filter($httpRequest->getParsedBody())['data'];
         $validationResult = $validator->validate($data);
         if ($validationResult->isNotValid()) {
             throw new RequestException(new BadRequest(), 400);
         }
 
-        return new ArrayRequest(self::MESSAGE, $validationResult->getValues()['data']);
+        $request = new ArrayRequest(self::MESSAGE, $validationResult->getValues()['attributes']);
+        $request['id'] = $data['id'];
+        return $request;
     }
 
     public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
@@ -77,21 +80,20 @@ class UpdatePageApiCall implements ApiCallInterface
 
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['id']));
-            $attributes = $request['attributes'];
-            if (isset($attributes['title']) && $attributes['title'] !== false) {
-                $page->setTitle($attributes['title']);
+            if (isset($request['title'])) {
+                $page->setTitle($request['title']);
             }
-            if (isset($attributes['slug']) && $attributes['slug'] !== false) {
-                $page->setSlug($attributes['slug']);
+            if (isset($request['slug'])) {
+                $page->setSlug($request['slug']);
             }
-            if (isset($attributes['short_title']) && $attributes['short_title'] !== false) {
-                $page->setShortTitle($attributes['short_title']);
+            if (isset($request['short_title'])) {
+                $page->setShortTitle($request['short_title']);
             }
-            if (isset($attributes['sort_order']) && $attributes['sort_order'] !== false) {
-                $page->setShortTitle($attributes['sort_order']);
+            if (isset($request['sort_order'])) {
+                $page->setSortOrder($request['sort_order']);
             }
-            if (isset($attributes['status']) && $attributes['status'] !== false) {
-                $page->setStatus(PageStatusValue::get($attributes['status']));
+            if (isset($request['status'])) {
+                $page->setStatus(PageStatusValue::get($request['status']));
             }
             $this->pageRepository->update($page);
             return new ArrayResponse(self::MESSAGE, ['page' => $page]);
