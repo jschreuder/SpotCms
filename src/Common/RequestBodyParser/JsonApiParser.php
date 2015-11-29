@@ -7,7 +7,7 @@ use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Spot\Api\Application\ApplicationInterface;
 use Zend\Diactoros\Response\JsonResponse;
 
-class JsonParser implements ApplicationInterface
+class JsonApiParser implements ApplicationInterface
 {
     /** @var  ApplicationInterface */
     private $application;
@@ -21,7 +21,7 @@ class JsonParser implements ApplicationInterface
     public function execute(ServerHttpRequest $httpRequest) : HttpResponse
     {
         // Only works on requests with JSON bodies
-        if (strpos($httpRequest->getHeaderLine('Content-Type'), 'application/json') === false) {
+        if (strpos($httpRequest->getHeaderLine('Content-Type'), 'application/vnd.api+json') === false) {
             return $this->application->execute($httpRequest);
         }
         $body = $httpRequest->getBody()->getContents();
