@@ -74,16 +74,15 @@ class CreatePageApiCall implements ApiCallInterface
             throw new ResponseException(new ServerErrorResponse(), 500);
         }
 
-        $data = $request->getData();
         try {
             $page = new Page(
                 Uuid::uuid4(),
-                $data['title'],
-                $data['slug'],
-                $data['short_title'],
-                $data['parent_uuid'],
-                $data['sort_order'],
-                $data['status']
+                $request['title'],
+                $request['slug'],
+                $request['short_title'],
+                $request['parent_uuid'],
+                $request['sort_order'],
+                $request['status']
             );
             $this->pageRepository->create($page);
             return new ArrayResponse(self::MESSAGE, ['uuid' => $page->getUuid()->toString()]);

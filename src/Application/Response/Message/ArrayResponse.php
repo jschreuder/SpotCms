@@ -2,7 +2,7 @@
 
 namespace Spot\Api\Application\Response\Message;
 
-class ArrayResponse implements ResponseInterface
+class ArrayResponse implements ResponseInterface, \ArrayAccess
 {
     /** @var  string */
     private $name;
@@ -25,5 +25,28 @@ class ArrayResponse implements ResponseInterface
     public function getData() : array
     {
         return $this->data;
+    }
+
+    public function offsetExists($offset) : \bool
+    {
+        return array_key_exists($offset, $this->data);
+    }
+
+    public function offsetGet($offset)
+    {
+        if (!isset($this[$offset])) {
+            throw new \OutOfBoundsException('No such offset: ' . $offset);
+        }
+        return $this->data[$offset];
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        $this->data[$offset] = $value;
+    }
+
+    public function offsetUnset($offset)
+    {
+        unset($this->data[$offset]);
     }
 }

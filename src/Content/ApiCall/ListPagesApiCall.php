@@ -19,7 +19,6 @@ use Spot\Api\Application\Response\Message\ResponseInterface;
 use Spot\Api\Application\Response\Message\ServerErrorResponse;
 use Spot\Api\Application\Response\ResponseException;
 use Spot\Api\Common\LoggableTrait;
-use Spot\Api\Content\Entity\Page;
 use Spot\Api\Content\Repository\PageRepository;
 use Spot\Api\Content\Serializer\PageSerializer;
 use Tobscure\JsonApi\Collection;
@@ -46,7 +45,7 @@ class ListPagesApiCall implements ApiCallInterface
         $validator = new Validator();
         $validator->optional('parent_uuid')->uuid();
 
-        $validationResult = $validator->validate($httpRequest->getParsedBody());
+        $validationResult = $validator->validate($httpRequest->getQueryParams());
         if ($validationResult->isNotValid()) {
             throw new RequestException(new BadRequest(), 400);
         }
@@ -61,8 +60,7 @@ class ListPagesApiCall implements ApiCallInterface
             throw new ResponseException(new ServerErrorResponse(), 500);
         }
 
-        $data = $request->getData();
-        $parentUuid = $data['parent_uuid'] ? Uuid::fromString($data['parent_uuid']) : null;
+        $parentUuid = $request['parent_uuid'] ? Uuid::fromString($request['parent_uuid']) : null;
         return new ArrayResponse(self::MESSAGE, [
             'pages' => $this->pageRepository->getAllByParentUuid($parentUuid),
             'parent_uuid' => $parentUuid,
@@ -76,9 +74,8 @@ class ListPagesApiCall implements ApiCallInterface
             return new JsonResponse(['error' => 'Server Error'], 500);
         }
 
-        $data = $response->getData();
-        $document = new Document(new Collection($data['pages'], new PageSerializer()));
-        $document->addMeta('parent_uuid', $data['parent_uuid'] ? $data['parent_uuid']->toString() : null);
+        $document = new Document(new Collection($response['pages'], new PageSerializer()));
+        $document->addMeta('parent_uuid', $response['parent_uuid'] ? $response['parent_uuid']->toString() : null);
 
         return new JsonResponse($document);
     }
