@@ -3,7 +3,7 @@
 namespace Spot\Api\Content\ApiCall;
 
 use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Spot\Api\Common\ParticleFixes\Validator;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;

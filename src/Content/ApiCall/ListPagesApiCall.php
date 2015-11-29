@@ -2,7 +2,7 @@
 
 namespace Spot\Api\Content\ApiCall;
 
-use Particle\Validator\Validator;
+use Spot\Api\Common\ParticleFixes\Validator;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
