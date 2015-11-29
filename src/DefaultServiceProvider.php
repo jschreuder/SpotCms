@@ -17,7 +17,7 @@ use Spot\Api\Application\Request\HttpRequestParserRouter;
 use Spot\Api\Application\Request\RequestBus;
 use Spot\Api\Application\Response\ResponseBus;
 use Spot\Api\Common\Repository\ObjectRepository;
-use Spot\Api\Common\RequestBodyParser\JsonParser;
+use Spot\Api\Common\RequestBodyParser\JsonApiParser;
 use Spot\Api\Content\ApiCall\CreatePageApiCall;
 use Spot\Api\Content\ApiCall\DeletePageApiCall;
 use Spot\Api\Content\ApiCall\GetPageApiCall;
@@ -53,7 +53,7 @@ class DefaultServiceProvider implements ServiceProviderInterface
 
         // Support JSON bodies for requests
         $container->extend('app', function (ApplicationInterface $application) {
-            return new JsonParser($application);
+            return new JsonApiParser($application);
         });
 
         $container['db'] = function (Container $container) {
@@ -102,7 +102,7 @@ class DefaultServiceProvider implements ServiceProviderInterface
             ->addApiCall('POST',   '/pages',                   CreatePageApiCall::MESSAGE, 'apiCall.pages.create')
             ->addApiCall('GET',    '/pages',                   ListPagesApiCall::MESSAGE,  'apiCall.pages.list')
             ->addApiCall('GET',    '/page/{uuid:[0-9a-z\-]+}', GetPageApiCall::MESSAGE,    'apiCall.pages.get')
-            ->addApiCall('PUT',    '/page/{uuid:[0-9a-z\-]+}', UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
+            ->addApiCall('PATCH',  '/page/{uuid:[0-9a-z\-]+}', UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
             ->addApiCall('DELETE', '/page/{uuid:[0-9a-z\-]+}', DeletePageApiCall::MESSAGE, 'apiCall.pages.delete');
     }
 

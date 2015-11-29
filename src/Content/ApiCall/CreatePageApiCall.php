@@ -44,16 +44,18 @@ class CreatePageApiCall implements ApiCallInterface
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
         $filter = new Filter();
-        $filter->values(['title', 'slug', 'short_title'])->trim()->stripHtml();
-        $filter->value('sort_order')->int();
+        $filter->values(['data.attributes.title', 'data.attributes.slug', 'data.attributes.short_title'])
+            ->trim()->stripHtml();
+        $filter->value('data.attributes.sort_order')->int();
 
         $validator = new Validator();
-        $validator->required('title')->lengthBetween(1, 512);
-        $validator->required('slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
-        $validator->required('short_title')->lengthBetween(1, 48);
-        $validator->optional('parent_uuid')->uuid();
-        $validator->required('sort_order')->integer();
-        $validator->required('status')->inArray(PageStatusValue::getValidStatuses(), true);
+        $validator->required('type')->equals('pages');
+        $validator->required('data.attributes.title')->lengthBetween(1, 512);
+        $validator->required('data.attributes.slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
+        $validator->required('data.attributes.short_title')->lengthBetween(1, 48);
+        $validator->optional('data.attributes.parent_uuid')->uuid();
+        $validator->required('data.attributes.sort_order')->integer();
+        $validator->required('data.attributes.status')->inArray(PageStatusValue::getValidStatuses(), true);
 
         $data = $filter->filter($httpRequest->getParsedBody());
         $validationResult = $validator->validate($data);
@@ -61,7 +63,7 @@ class CreatePageApiCall implements ApiCallInterface
             throw new RequestException(new BadRequest(), 400);
         }
 
-        return new ArrayRequest(self::MESSAGE, $validationResult->getValues());
+        return new ArrayRequest(self::MESSAGE, $validationResult->getValues()['data']['attributes']);
     }
 
     /** {@inheritdoc} */
