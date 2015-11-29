@@ -27,7 +27,7 @@ class ArrayResponse implements ResponseInterface, \ArrayAccess
         return $this->data;
     }
 
-    public function offsetExists($offset) : \bool
+    public function offsetExists($offset) : bool
     {
         return array_key_exists($offset, $this->data);
     }
