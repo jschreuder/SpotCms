@@ -61,7 +61,7 @@ class ListPagesApiCall implements ApiCallInterface
             throw new ResponseException(new ServerErrorResponse(), 500);
         }
 
-        $parentUuid = $request['parent_uuid'] ? Uuid::fromString($request['parent_uuid']) : null;
+        $parentUuid = isset($request['parent_uuid']) ? Uuid::fromString($request['parent_uuid']) : null;
         return new ArrayResponse(self::MESSAGE, [
             'pages' => $this->pageRepository->getAllByParentUuid($parentUuid),
             'parent_uuid' => $parentUuid,
