@@ -50,7 +50,7 @@ class GetPageApiCall implements ApiCallInterface
 
         $validationResult = $validator->validate($attributes);
         if ($validationResult->isNotValid()) {
-            throw new RequestException(new BadRequest(), 400);
+            throw new RequestException(new BadRequest());
         }
 
         return new ArrayRequest(self::MESSAGE, $validationResult->getValues());
@@ -60,14 +60,14 @@ class GetPageApiCall implements ApiCallInterface
     {
         if (!$request instanceof ArrayRequest) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException(new ServerErrorResponse(), 500);
+            throw new ResponseException(new ServerErrorResponse());
         }
 
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getData()['uuid']));
             return new ArrayResponse(self::MESSAGE, ['page' => $page]);
         } catch (NoUniqueResultException $e) {
-            throw new ResponseException(new NotFoundResponse(), 404);
+            throw new ResponseException(new NotFoundResponse());
         }
     }
 

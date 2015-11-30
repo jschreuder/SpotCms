@@ -63,7 +63,7 @@ class UpdatePageApiCall implements ApiCallInterface
         $data = $filter->filter($httpRequest->getParsedBody())['data'];
         $validationResult = $validator->validate($data);
         if ($validationResult->isNotValid()) {
-            throw new RequestException(new BadRequest(), 400);
+            throw new RequestException(new BadRequest());
         }
 
         $request = new ArrayRequest(self::MESSAGE, $validationResult->getValues()['attributes']);
@@ -75,7 +75,7 @@ class UpdatePageApiCall implements ApiCallInterface
     {
         if (!$request instanceof ArrayRequest) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException(new ServerErrorResponse(), 500);
+            throw new ResponseException(new ServerErrorResponse());
         }
 
         try {
@@ -99,7 +99,7 @@ class UpdatePageApiCall implements ApiCallInterface
             return new ArrayResponse(self::MESSAGE, ['page' => $page]);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
-            throw new ResponseException(new ServerErrorResponse(), 500);
+            throw new ResponseException(new ServerErrorResponse());
         }
     }
 

@@ -59,7 +59,7 @@ class RequestBus implements RequestBusInterface
     {
         if (!$this->supports($requestMessage)) {
             $this->log(LogLevel::WARNING, 'Unsupported request: ' . $requestMessage->getRequestName());
-            throw new ResponseException(new NotFoundResponse(), 404);
+            throw new ResponseException(new NotFoundResponse());
         }
 
         $requestExecutor = $this->getExecutor($requestMessage);

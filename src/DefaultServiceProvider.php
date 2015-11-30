@@ -16,6 +16,7 @@ use Spot\Api\Application\ApplicationInterface;
 use Spot\Api\Application\Request\HttpRequestParserRouter;
 use Spot\Api\Application\Request\RequestBus;
 use Spot\Api\Application\Response\ResponseBus;
+use Spot\Api\Common\ApiCall\ErrorApiCall;
 use Spot\Api\Common\Repository\ObjectRepository;
 use Spot\Api\Common\RequestBodyParser\JsonApiParser;
 use Spot\Api\Content\ApiCall\CreatePageApiCall;
@@ -42,6 +43,7 @@ class DefaultServiceProvider implements ServiceProviderInterface
             );
 
             $this->configureApiCalls($container, $builder);
+            $this->configureErrorHandlers($container, $builder);
 
             return new Application(
                 $builder->getHttpRequestParser(),
@@ -98,12 +100,34 @@ class DefaultServiceProvider implements ServiceProviderInterface
             return new DeletePageApiCall($container['repository.pages'], $container['logger']);
         };
 
+        // Add ApiCalls
         $builder
             ->addApiCall('POST',   '/pages',                   CreatePageApiCall::MESSAGE, 'apiCall.pages.create')
             ->addApiCall('GET',    '/pages',                   ListPagesApiCall::MESSAGE,  'apiCall.pages.list')
             ->addApiCall('GET',    '/page/{uuid:[0-9a-z\-]+}', GetPageApiCall::MESSAGE,    'apiCall.pages.get')
             ->addApiCall('PATCH',  '/page',                    UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
             ->addApiCall('DELETE', '/page/{uuid:[0-9a-z\-]+}', DeletePageApiCall::MESSAGE, 'apiCall.pages.delete');
+    }
+
+    private function configureErrorHandlers(Container $container, ApplicationBuilder $builder)
+    {
+        $container['errorHandler.badRequest'] = function () {
+            return new ErrorApiCall('error.badRequest', 400, 'Bad Request');
+        };
+        $container['errorHandler.notFound'] = function () {
+            return new ErrorApiCall('error.notFound', 404, 'Not Found');
+        };
+        $container['errorHandler.serverError'] = function () {
+            return new ErrorApiCall('error.serverError', 500, 'Server Error');
+        };
+
+        // Add error handlers
+        $builder->addRequestExecutor('error.badRequest', 'errorHandler.badRequest');
+        $builder->addResponseGenerator('error.badRequest', 'errorHandler.badRequest');
+        $builder->addRequestExecutor('error.notFound', 'errorHandler.notFound');
+        $builder->addResponseGenerator('error.notFound', 'errorHandler.notFound');
+        $builder->addRequestExecutor('error.serverError', 'errorHandler.serverError');
+        $builder->addResponseGenerator('error.serverError', 'errorHandler.serverError');
     }
 
     private function configureRepositories(Container $container)

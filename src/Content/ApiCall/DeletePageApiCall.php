@@ -44,7 +44,7 @@ class DeletePageApiCall implements ApiCallInterface
 
         $validationResult = $validator->validate($attributes);
         if ($validationResult->isNotValid()) {
-            throw new RequestException(new BadRequest(), 400);
+            throw new RequestException(new BadRequest());
         }
 
         return new ArrayRequest(self::MESSAGE, $validationResult->getValues());

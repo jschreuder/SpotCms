@@ -48,7 +48,7 @@ class ListPagesApiCall implements ApiCallInterface
 
         $validationResult = $validator->validate($httpRequest->getQueryParams());
         if ($validationResult->isNotValid()) {
-            throw new RequestException(new BadRequest(), 400);
+            throw new RequestException(new BadRequest());
         }
 
         return new ArrayRequest(self::MESSAGE, $validationResult->getValues());
@@ -58,7 +58,7 @@ class ListPagesApiCall implements ApiCallInterface
     {
         if (!$request instanceof ArrayRequest) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException(new ServerErrorResponse(), 500);
+            throw new ResponseException(new ServerErrorResponse());
         }
 
         $parentUuid = isset($request['parent_uuid']) ? Uuid::fromString($request['parent_uuid']) : null;
