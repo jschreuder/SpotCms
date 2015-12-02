@@ -10,7 +10,7 @@ use Psr\Log\LogLevel;
 use Spot\Api\Request\Message\NotFoundRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Request\Message\ServerErrorRequest;
-use Spot\Common\LoggableTrait;
+use Spot\Api\LoggableTrait;
 
 class HttpRequestParserRouter implements HttpRequestParserInterface
 {

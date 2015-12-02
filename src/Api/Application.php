@@ -11,7 +11,6 @@ use Spot\Api\Request\RequestBusInterface;
 use Spot\Api\Request\RequestException;
 use Spot\Api\Response\ResponseBusInterface;
 use Spot\Api\Response\ResponseException;
-use Spot\Common\LoggableTrait;
 
 class Application implements ApplicationInterface
 {

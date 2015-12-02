@@ -11,7 +11,7 @@ use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\ResponseException;
-use Spot\Common\LoggableTrait;
+use Spot\Api\LoggableTrait;
 
 class RequestBus implements RequestBusInterface
 {

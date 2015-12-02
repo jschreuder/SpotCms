@@ -9,8 +9,8 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Api\Response\Generator\GeneratorInterface;
 use Spot\Api\Response\Message\ResponseInterface;
-use Spot\Common\Http\JsonApiErrorResponse;
-use Spot\Common\LoggableTrait;
+use Spot\Api\Http\JsonApiErrorResponse;
+use Spot\Api\LoggableTrait;
 use Zend\Diactoros\Response;
 
 class ResponseBus implements ResponseBusInterface
