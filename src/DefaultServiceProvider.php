@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api;
+namespace Spot;
 
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
@@ -10,21 +10,21 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Spot\Api\Application\Application;
-use Spot\Api\Application\ApplicationBuilder;
-use Spot\Api\Application\ApplicationInterface;
-use Spot\Api\Application\Request\HttpRequestParserRouter;
-use Spot\Api\Application\Request\RequestBus;
-use Spot\Api\Application\Response\ResponseBus;
-use Spot\Api\Common\ApiCall\ErrorApiCall;
-use Spot\Api\Common\RequestBodyParser\JsonApiParser;
-use Spot\Api\Content\ApiCall\CreatePageApiCall;
-use Spot\Api\Content\ApiCall\DeletePageApiCall;
-use Spot\Api\Content\ApiCall\GetPageApiCall;
-use Spot\Api\Content\ApiCall\ListPagesApiCall;
-use Spot\Api\Content\ApiCall\UpdatePageApiCall;
-use Spot\Api\Content\Repository\PageRepository;
-use Spot\Api\DataModel\Repository\ObjectRepository;
+use Spot\Api\Application;
+use Spot\Api\ApplicationBuilder;
+use Spot\Api\ApplicationInterface;
+use Spot\Api\Request\HttpRequestParserRouter;
+use Spot\Api\Request\RequestBus;
+use Spot\Api\Response\ResponseBus;
+use Spot\Common\ApiCall\ErrorApiCall;
+use Spot\Common\RequestBodyParser\JsonApiParser;
+use Spot\SiteContent\ApiCall\CreatePageApiCall;
+use Spot\SiteContent\ApiCall\DeletePageApiCall;
+use Spot\SiteContent\ApiCall\GetPageApiCall;
+use Spot\SiteContent\ApiCall\ListPagesApiCall;
+use Spot\SiteContent\ApiCall\UpdatePageApiCall;
+use Spot\SiteContent\Repository\PageRepository;
+use Spot\DataModel\Repository\ObjectRepository;
 
 class DefaultServiceProvider implements ServiceProviderInterface
 {

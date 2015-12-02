@@ -1,4 +1,4 @@
 suites:
     acme_suite:
-        namespace: Spot\Api
-        psr4_prefix: Spot\Api
+        namespace: Spot
+        psr4_prefix: Spot

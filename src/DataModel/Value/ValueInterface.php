@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\DataModel\Value;
+namespace Spot\DataModel\Value;
 
 interface ValueInterface
 {

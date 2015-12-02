@@ -1,10 +1,10 @@
 <?php
 
-namespace spec\Spot\Api\Security\TOTP;
+namespace spec\Spot\Security\TOTP;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Api\Security\TOTP\TOTP;
+use Spot\Security\TOTP\TOTP;
 
 /** @mixin  TOTP */
 class TOTPSpec extends ObjectBehavior

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\Common;
+namespace Spot\Common;
 
 use Psr\Log\LoggerInterface;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spot\Api\Common\ParticleFixes;
+namespace Spot\Common\ParticleFixes;
 
 use Particle\Validator\Chain;
 use Particle\Validator\ValidationResult;

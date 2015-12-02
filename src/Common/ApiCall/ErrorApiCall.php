@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\Common\ApiCall;
+namespace Spot\Common\ApiCall;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
-use Spot\Api\Application\Request\Executor\ExecutorInterface;
-use Spot\Api\Application\Request\Message\RequestInterface;
-use Spot\Api\Application\Response\Generator\GeneratorInterface;
-use Spot\Api\Application\Response\Message\ArrayResponse;
-use Spot\Api\Application\Response\Message\ResponseInterface;
-use Spot\Api\Common\Http\JsonApiErrorResponse;
+use Spot\Api\Request\Executor\ExecutorInterface;
+use Spot\Api\Request\Message\RequestInterface;
+use Spot\Api\Response\Generator\GeneratorInterface;
+use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\ResponseInterface;
+use Spot\Common\Http\JsonApiErrorResponse;
 
 class ErrorApiCall implements ExecutorInterface, GeneratorInterface
 {

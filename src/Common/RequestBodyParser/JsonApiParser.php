@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\Common\RequestBodyParser;
+namespace Spot\Common\RequestBodyParser;
 
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
-use Spot\Api\Application\ApplicationInterface;
-use Spot\Api\Common\Http\JsonApiErrorResponse;
+use Spot\Api\ApplicationInterface;
+use Spot\Common\Http\JsonApiErrorResponse;
 
 class JsonApiParser implements ApplicationInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spot\Api\Common\ParticleFixes;
+namespace Spot\Common\ParticleFixes;
 
 class Container extends \Particle\Validator\Value\Container
 {

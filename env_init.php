@@ -15,7 +15,7 @@ $container = new Pimple\Container(require __DIR__ . '/config/' . $environment . 
 $container['environment'] = $environment;
 
 // Register services to container
-$serviceProvider = new Spot\Api\DefaultServiceProvider();
+$serviceProvider = new Spot\DefaultServiceProvider();
 $container->register($serviceProvider);
 
 Monolog\ErrorHandler::register($container['logger']);
