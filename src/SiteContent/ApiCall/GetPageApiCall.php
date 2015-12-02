@@ -3,15 +3,13 @@
 namespace Spot\SiteContent\ApiCall;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
-use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\ApiCall\ApiCallInterface;
-use Spot\Api\Http\JsonApiErrorResponse;
-use Spot\Api\Http\JsonApiResponse;
 use Spot\Api\LoggableTrait;
+use Spot\Api\Request\Executor\ExecutorInterface;
+use Spot\Api\Request\HttpRequestParserInterface;
 use Spot\Api\Request\Message\ArrayRequest;
 use Spot\Api\Request\Message\BadRequest;
 use Spot\Api\Request\Message\RequestInterface;
@@ -24,11 +22,8 @@ use Spot\Api\Response\ResponseException;
 use Spot\Common\ParticleFixes\Validator;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Repository\PageRepository;
-use Spot\SiteContent\Serializer\PageSerializer;
-use Tobscure\JsonApi\Document;
-use Tobscure\JsonApi\Resource;
 
-class GetPageApiCall implements ApiCallInterface
+class GetPageApiCall implements HttpRequestParserInterface, ExecutorInterface
 {
     use LoggableTrait;
 
@@ -65,20 +60,9 @@ class GetPageApiCall implements ApiCallInterface
 
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getData()['uuid']));
-            return new ArrayResponse(self::MESSAGE, ['page' => $page]);
+            return new ArrayResponse(self::MESSAGE, ['data' => $page]);
         } catch (NoUniqueResultException $e) {
             throw new ResponseException(new NotFoundResponse());
         }
-    }
-
-    public function generateResponse(ResponseInterface $response, HttpRequest $httpRequest) : HttpResponse
-    {
-        if (!$response instanceof ArrayResponse) {
-            $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
-            return new JsonApiErrorResponse('Server Error', 500);
-        }
-
-        $document = new Document(new Resource($response['page'], new PageSerializer()));
-        return new JsonApiResponse($document);
     }
 }

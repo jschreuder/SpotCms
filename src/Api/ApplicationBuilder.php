@@ -61,13 +61,6 @@ class ApplicationBuilder implements
         return $this;
     }
 
-    public function addApiCall(string $method, string $path, string $name, string $apiCall) : self
-    {
-        return $this->addParser($method, $path, $apiCall)
-            ->addRequestExecutor($name, $apiCall)
-            ->addResponseGenerator($name, $apiCall);
-    }
-
     /** {@inheritdoc} */
     public function getHttpRequestParser() : HttpRequestParserInterface
     {

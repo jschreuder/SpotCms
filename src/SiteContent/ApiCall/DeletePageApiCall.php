@@ -3,13 +3,12 @@
 namespace Spot\SiteContent\ApiCall;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
-use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\ApiCall\ApiCallInterface;
-use Spot\Api\Http\JsonApiResponse;
 use Spot\Api\LoggableTrait;
+use Spot\Api\Request\Executor\ExecutorInterface;
+use Spot\Api\Request\HttpRequestParserInterface;
 use Spot\Api\Request\Message\ArrayRequest;
 use Spot\Api\Request\Message\BadRequest;
 use Spot\Api\Request\Message\RequestInterface;
@@ -18,11 +17,8 @@ use Spot\Api\Response\Message\ArrayResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Common\ParticleFixes\Validator;
 use Spot\SiteContent\Repository\PageRepository;
-use Spot\SiteContent\Serializer\PageSerializer;
-use Tobscure\JsonApi\Resource;
-use Tobscure\JsonApi\Document;
 
-class DeletePageApiCall implements ApiCallInterface
+class DeletePageApiCall implements HttpRequestParserInterface, ExecutorInterface
 {
     use LoggableTrait;
 
@@ -54,11 +50,6 @@ class DeletePageApiCall implements ApiCallInterface
     {
         $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));
         $this->pageRepository->delete($page);
-        return new ArrayResponse(self::MESSAGE, ['page' => $page]);
-    }
-
-    public function generateResponse(ResponseInterface $response, HttpRequest $httpRequest) : HttpResponse
-    {
-        return new JsonApiResponse(new Document(new Resource($response['page'], new PageSerializer())), 200);
+        return new ArrayResponse(self::MESSAGE, ['data' => $page]);
     }
 }

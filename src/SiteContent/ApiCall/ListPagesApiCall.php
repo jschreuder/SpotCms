@@ -2,6 +2,8 @@
 
 namespace Spot\SiteContent\ApiCall;
 
+use Spot\Api\Request\Executor\ExecutorInterface;
+use Spot\Api\Request\HttpRequestParserInterface;
 use Spot\Common\ParticleFixes\Validator;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Http\Message\RequestInterface as HttpRequest;
@@ -9,7 +11,6 @@ use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\ApiCall\ApiCallInterface;
 use Spot\Api\Http\JsonApiErrorResponse;
 use Spot\Api\Http\JsonApiResponse;
 use Spot\Api\LoggableTrait;
@@ -26,7 +27,7 @@ use Spot\SiteContent\Serializer\PageSerializer;
 use Tobscure\JsonApi\Collection;
 use Tobscure\JsonApi\Document;
 
-class ListPagesApiCall implements ApiCallInterface
+class ListPagesApiCall implements HttpRequestParserInterface, ExecutorInterface
 {
     use LoggableTrait;
 
@@ -63,7 +64,7 @@ class ListPagesApiCall implements ApiCallInterface
 
         $parentUuid = isset($request['parent_uuid']) ? Uuid::fromString($request['parent_uuid']) : null;
         return new ArrayResponse(self::MESSAGE, [
-            'pages' => $this->pageRepository->getAllByParentUuid($parentUuid),
+            'data' => $this->pageRepository->getAllByParentUuid($parentUuid),
             'parent_uuid' => $parentUuid,
         ]);
     }
@@ -75,7 +76,7 @@ class ListPagesApiCall implements ApiCallInterface
             return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
         }
 
-        $document = new Document(new Collection($response['pages'], new PageSerializer()));
+        $document = new Document(new Collection($response['data'], new PageSerializer()));
         $document->addMeta('parent_uuid', $response['parent_uuid'] ? $response['parent_uuid']->toString() : null);
         return new JsonApiResponse($document);
     }

@@ -10,6 +10,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use Ramsey\Uuid\UuidInterface;
 use Spot\Api\ApiCall\ErrorApiCall;
 use Spot\Api\Application;
 use Spot\Api\ApplicationBuilder;
@@ -17,6 +18,9 @@ use Spot\Api\ApplicationInterface;
 use Spot\Api\Request\HttpRequestParserRouter;
 use Spot\Api\Request\RequestBus;
 use Spot\Api\RequestBodyParser\JsonApiParser;
+use Spot\Api\Response\Generator\MultiEntityGenerator;
+use Spot\Api\Response\Generator\SingleEntityGenerator;
+use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\ResponseBus;
 use Spot\SiteContent\ApiCall\CreatePageApiCall;
 use Spot\SiteContent\ApiCall\DeletePageApiCall;
@@ -25,6 +29,7 @@ use Spot\SiteContent\ApiCall\ListPagesApiCall;
 use Spot\SiteContent\ApiCall\UpdatePageApiCall;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\DataModel\Repository\ObjectRepository;
+use Spot\SiteContent\Serializer\PageSerializer;
 
 class DefaultServiceProvider implements ServiceProviderInterface
 {
@@ -99,14 +104,45 @@ class DefaultServiceProvider implements ServiceProviderInterface
         $container['apiCall.pages.delete'] = function (Container $container) {
             return new DeletePageApiCall($container['repository.pages'], $container['logger']);
         };
+        $container['responseGenerator.pages.single'] = function (Container $container) {
+            return new SingleEntityGenerator(new PageSerializer(), null, $container['logger']);
+        };
+        $container['responseGenerator.pages.multi'] = function (Container $container) {
+            return new MultiEntityGenerator(
+                new PageSerializer(),
+                function (ResponseInterface $response) : array {
+                    $metaData = [
+                        'parent_uuid' => (isset($response['parent_uuid'])
+                                && $response['parent_uuid'] instanceof UuidInterface)
+                            ? $response['parent_uuid']->toString() : null,
+                    ];
+                    return $metaData;
+                },
+                $container['logger']
+            );
+        };
 
         // Add ApiCalls
         $builder
-            ->addApiCall('POST',   '/pages',                   CreatePageApiCall::MESSAGE, 'apiCall.pages.create')
-            ->addApiCall('GET',    '/pages',                   ListPagesApiCall::MESSAGE,  'apiCall.pages.list')
-            ->addApiCall('GET',    '/page/{uuid:[0-9a-z\-]+}', GetPageApiCall::MESSAGE,    'apiCall.pages.get')
-            ->addApiCall('PATCH',  '/page',                    UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
-            ->addApiCall('DELETE', '/page/{uuid:[0-9a-z\-]+}', DeletePageApiCall::MESSAGE, 'apiCall.pages.delete');
+            ->addParser('POST', '/pages', 'apiCall.pages.create')
+            ->addRequestExecutor(CreatePageApiCall::MESSAGE, 'apiCall.pages.create')
+            ->addResponseGenerator(CreatePageApiCall::MESSAGE, 'responseGenerator.pages.single');
+        $builder
+            ->addParser('GET', '/pages', 'apiCall.pages.list')
+            ->addRequestExecutor(ListPagesApiCall::MESSAGE, 'apiCall.pages.list')
+            ->addResponseGenerator(ListPagesApiCall::MESSAGE, 'responseGenerator.pages.multi');
+        $builder
+            ->addParser('GET', '/page/{uuid:[0-9a-z\-]+}', 'apiCall.pages.get')
+            ->addRequestExecutor(GetPageApiCall::MESSAGE, 'apiCall.pages.get')
+            ->addResponseGenerator(GetPageApiCall::MESSAGE, 'responseGenerator.pages.single');
+        $builder
+            ->addParser('PATCH', '/pages', 'apiCall.pages.update')
+            ->addRequestExecutor(UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
+            ->addResponseGenerator(UpdatePageApiCall::MESSAGE, 'responseGenerator.pages.single');
+        $builder
+            ->addParser('DELETE', '/page/{uuid:[0-9a-z\-]+}', 'apiCall.pages.delete')
+            ->addRequestExecutor(DeletePageApiCall::MESSAGE, 'apiCall.pages.delete')
+            ->addResponseGenerator(DeletePageApiCall::MESSAGE, 'responseGenerator.pages.single');
     }
 
     private function configureErrorHandlers(Container $container, ApplicationBuilder $builder)

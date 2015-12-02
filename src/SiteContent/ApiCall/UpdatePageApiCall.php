@@ -4,15 +4,13 @@ namespace Spot\SiteContent\ApiCall;
 
 use Particle\Filter\Filter;
 use Psr\Http\Message\RequestInterface as HttpRequest;
-use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\ApiCall\ApiCallInterface;
-use Spot\Api\Http\JsonApiErrorResponse;
-use Spot\Api\Http\JsonApiResponse;
 use Spot\Api\LoggableTrait;
+use Spot\Api\Request\Executor\ExecutorInterface;
+use Spot\Api\Request\HttpRequestParserInterface;
 use Spot\Api\Request\Message\ArrayRequest;
 use Spot\Api\Request\Message\BadRequest;
 use Spot\Api\Request\Message\RequestInterface;
@@ -23,12 +21,9 @@ use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Common\ParticleFixes\Validator;
 use Spot\SiteContent\Repository\PageRepository;
-use Spot\SiteContent\Serializer\PageSerializer;
 use Spot\SiteContent\Value\PageStatusValue;
-use Tobscure\JsonApi\Document;
-use Tobscure\JsonApi\Resource;
 
-class UpdatePageApiCall implements ApiCallInterface
+class UpdatePageApiCall implements HttpRequestParserInterface, ExecutorInterface
 {
     use LoggableTrait;
 
@@ -96,21 +91,10 @@ class UpdatePageApiCall implements ApiCallInterface
                 $page->setStatus(PageStatusValue::get($request['status']));
             }
             $this->pageRepository->update($page);
-            return new ArrayResponse(self::MESSAGE, ['page' => $page]);
+            return new ArrayResponse(self::MESSAGE, ['data' => $page]);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
             throw new ResponseException(new ServerErrorResponse());
         }
-    }
-
-    public function generateResponse(ResponseInterface $response, HttpRequest $httpRequest) : HttpResponse
-    {
-        if (!$response instanceof ArrayResponse) {
-            $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
-            return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
-        }
-
-        $document = new Document(new Resource($response['page'], new PageSerializer()));
-        return new JsonApiResponse($document, 201);
     }
 }
