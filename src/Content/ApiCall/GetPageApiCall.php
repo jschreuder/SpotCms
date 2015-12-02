@@ -22,7 +22,7 @@ use Spot\Api\Application\Response\ResponseException;
 use Spot\Api\Common\Http\JsonApiErrorResponse;
 use Spot\Api\Common\Http\JsonApiResponse;
 use Spot\Api\Common\LoggableTrait;
-use Spot\Api\Common\Repository\NoUniqueResultException;
+use Spot\Api\DataModel\Repository\NoUniqueResultException;
 use Spot\Api\Content\Repository\PageRepository;
 use Spot\Api\Content\Serializer\PageSerializer;
 use Tobscure\JsonApi\Document;

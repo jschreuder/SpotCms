@@ -17,7 +17,6 @@ use Spot\Api\Application\Request\HttpRequestParserRouter;
 use Spot\Api\Application\Request\RequestBus;
 use Spot\Api\Application\Response\ResponseBus;
 use Spot\Api\Common\ApiCall\ErrorApiCall;
-use Spot\Api\Common\Repository\ObjectRepository;
 use Spot\Api\Common\RequestBodyParser\JsonApiParser;
 use Spot\Api\Content\ApiCall\CreatePageApiCall;
 use Spot\Api\Content\ApiCall\DeletePageApiCall;
@@ -25,6 +24,7 @@ use Spot\Api\Content\ApiCall\GetPageApiCall;
 use Spot\Api\Content\ApiCall\ListPagesApiCall;
 use Spot\Api\Content\ApiCall\UpdatePageApiCall;
 use Spot\Api\Content\Repository\PageRepository;
+use Spot\Api\DataModel\Repository\ObjectRepository;
 
 class DefaultServiceProvider implements ServiceProviderInterface
 {

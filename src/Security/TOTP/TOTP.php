@@ -1,6 +1,6 @@
 <?php
 
-namespace Spot\Api\Common\TOTP;
+namespace Spot\Api\Security\TOTP;
 
 /**
  * Based on PHPGangsta_GoogleAuthenticator class for handling Google Authenticator

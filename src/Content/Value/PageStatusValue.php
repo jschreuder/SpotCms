@@ -2,7 +2,7 @@
 
 namespace Spot\Api\Content\Value;
 
-use Spot\Api\Common\Value\ValueInterface;
+use Spot\Api\DataModel\Value\ValueInterface;
 
 class PageStatusValue implements ValueInterface
 {

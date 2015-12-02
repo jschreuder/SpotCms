@@ -4,10 +4,10 @@ namespace Spot\Api\Content\Repository;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Spot\Api\Common\Repository\NoUniqueResultException;
-use Spot\Api\Common\Repository\ObjectRepository;
+use Spot\Api\DataModel\Repository\NoUniqueResultException;
 use Spot\Api\Content\Entity\Page;
 use Spot\Api\Content\Value\PageStatusValue;
+use Spot\Api\DataModel\Repository\ObjectRepository;
 
 class PageRepository
 {
