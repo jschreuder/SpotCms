@@ -1,7 +1,6 @@
 /.idea/
 /bin/
-/config/dev.php
-/config/env.php
+/config/*.php
 /logs/
 /vendor/
 composer.lock
