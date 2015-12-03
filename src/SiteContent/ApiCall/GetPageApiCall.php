@@ -11,15 +11,14 @@ use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParserInterface;
 use Spot\Api\Request\Message\ArrayRequest;
-use Spot\Api\Request\Message\BadRequest;
 use Spot\Api\Request\Message\RequestInterface;
-use Spot\Api\Request\RequestException;
 use Spot\Api\Response\Message\ArrayResponse;
 use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Common\ParticleFixes\Validator;
+use Spot\Common\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
@@ -45,7 +44,7 @@ class GetPageApiCall implements HttpRequestParserInterface, ExecutorInterface
 
         $validationResult = $validator->validate($attributes);
         if ($validationResult->isNotValid()) {
-            throw new RequestException(new BadRequest());
+            throw new ValidationFailedException($validationResult);
         }
 
         return new ArrayRequest(self::MESSAGE, $validationResult->getValues());
@@ -54,15 +53,16 @@ class GetPageApiCall implements HttpRequestParserInterface, ExecutorInterface
     public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
     {
         if (!$request instanceof ArrayRequest) {
-            $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException(new ServerErrorResponse());
+            $msg = 'Did not receive an ArrayRequest instance.';
+            $this->log(LogLevel::ERROR, $msg);
+            throw new ResponseException($msg, new ServerErrorResponse());
         }
 
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getData()['uuid']));
             return new ArrayResponse(self::MESSAGE, ['data' => $page]);
         } catch (NoUniqueResultException $e) {
-            throw new ResponseException(new NotFoundResponse());
+            throw new ResponseException($e->getMessage(), new NotFoundResponse());
         }
     }
 }

@@ -10,12 +10,11 @@ use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParserInterface;
 use Spot\Api\Request\Message\ArrayRequest;
-use Spot\Api\Request\Message\BadRequest;
 use Spot\Api\Request\Message\RequestInterface;
-use Spot\Api\Request\RequestException;
 use Spot\Api\Response\Message\ArrayResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Common\ParticleFixes\Validator;
+use Spot\Common\Request\ValidationFailedException;
 use Spot\SiteContent\Repository\PageRepository;
 
 class DeletePageApiCall implements HttpRequestParserInterface, ExecutorInterface
@@ -40,7 +39,7 @@ class DeletePageApiCall implements HttpRequestParserInterface, ExecutorInterface
 
         $validationResult = $validator->validate($attributes);
         if ($validationResult->isNotValid()) {
-            throw new RequestException(new BadRequest());
+            throw new ValidationFailedException($validationResult);
         }
 
         return new ArrayRequest(self::MESSAGE, $validationResult->getValues());

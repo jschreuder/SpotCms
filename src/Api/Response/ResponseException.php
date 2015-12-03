@@ -10,10 +10,11 @@ class ResponseException extends \RuntimeException
     /** @var  ResponseInterface */
     private $errorResponse;
 
-    public function __construct(ResponseInterface $errorResponse = null, int $code = 0)
+    public function __construct(string $reason, ResponseInterface $errorResponse = null, int $code = 0)
     {
+        $this->reason = $reason;
         $this->errorResponse = $errorResponse ?: new ServerErrorResponse();
-        parent::__construct($this->errorResponse->getResponseName(), $code ?: 500);
+        parent::__construct($reason, $code);
     }
 
     public function getResponseObject() : ResponseInterface

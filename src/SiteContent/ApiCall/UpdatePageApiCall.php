@@ -20,6 +20,7 @@ use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Common\ParticleFixes\Validator;
+use Spot\Common\Request\ValidationFailedException;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
@@ -58,7 +59,7 @@ class UpdatePageApiCall implements HttpRequestParserInterface, ExecutorInterface
         $data = $filter->filter($httpRequest->getParsedBody())['data'];
         $validationResult = $validator->validate($data);
         if ($validationResult->isNotValid()) {
-            throw new RequestException(new BadRequest());
+            throw new ValidationFailedException($validationResult);
         }
 
         $request = new ArrayRequest(self::MESSAGE, $validationResult->getValues()['attributes']);
@@ -69,8 +70,9 @@ class UpdatePageApiCall implements HttpRequestParserInterface, ExecutorInterface
     public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
     {
         if (!$request instanceof ArrayRequest) {
-            $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException(new ServerErrorResponse());
+            $msg = 'Did not receive an ArrayRequest instance.';
+            $this->log(LogLevel::ERROR, $msg);
+            throw new ResponseException($msg, new ServerErrorResponse());
         }
 
         try {
@@ -94,7 +96,7 @@ class UpdatePageApiCall implements HttpRequestParserInterface, ExecutorInterface
             return new ArrayResponse(self::MESSAGE, ['data' => $page]);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
-            throw new ResponseException(new ServerErrorResponse());
+            throw new ResponseException($exception->getMessage(), new ServerErrorResponse());
         }
     }
 }

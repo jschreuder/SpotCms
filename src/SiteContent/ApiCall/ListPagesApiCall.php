@@ -5,27 +5,20 @@ namespace Spot\SiteContent\ApiCall;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParserInterface;
 use Spot\Common\ParticleFixes\Validator;
-use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\Http\JsonApiErrorResponse;
-use Spot\Api\Http\JsonApiResponse;
 use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Message\ArrayRequest;
-use Spot\Api\Request\Message\BadRequest;
 use Spot\Api\Request\Message\RequestInterface;
-use Spot\Api\Request\RequestException;
 use Spot\Api\Response\Message\ArrayResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
+use Spot\Common\Request\ValidationFailedException;
 use Spot\SiteContent\Repository\PageRepository;
-use Spot\SiteContent\Serializer\PageSerializer;
-use Tobscure\JsonApi\Collection;
-use Tobscure\JsonApi\Document;
 
 class ListPagesApiCall implements HttpRequestParserInterface, ExecutorInterface
 {
@@ -49,7 +42,7 @@ class ListPagesApiCall implements HttpRequestParserInterface, ExecutorInterface
 
         $validationResult = $validator->validate($httpRequest->getQueryParams());
         if ($validationResult->isNotValid()) {
-            throw new RequestException(new BadRequest());
+            throw new ValidationFailedException($validationResult);
         }
 
         return new ArrayRequest(self::MESSAGE, $validationResult->getValues());
@@ -58,8 +51,9 @@ class ListPagesApiCall implements HttpRequestParserInterface, ExecutorInterface
     public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
     {
         if (!$request instanceof ArrayRequest) {
-            $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException(new ServerErrorResponse());
+            $msg = 'Did not receive an ArrayRequest instance.';
+            $this->log(LogLevel::ERROR, $msg);
+            throw new ResponseException($msg, new ServerErrorResponse());
         }
 
         $parentUuid = isset($request['parent_uuid']) ? Uuid::fromString($request['parent_uuid']) : null;
@@ -67,17 +61,5 @@ class ListPagesApiCall implements HttpRequestParserInterface, ExecutorInterface
             'data' => $this->pageRepository->getAllByParentUuid($parentUuid),
             'parent_uuid' => $parentUuid,
         ]);
-    }
-
-    public function generateResponse(ResponseInterface $response, HttpRequest $httpRequest) : HttpResponse
-    {
-        if (!$response instanceof ArrayResponse) {
-            $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
-            return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
-        }
-
-        $document = new Document(new Collection($response['data'], new PageSerializer()));
-        $document->addMeta('parent_uuid', $response['parent_uuid'] ? $response['parent_uuid']->toString() : null);
-        return new JsonApiResponse($document);
     }
 }
