@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api;
+namespace Spot\Common\ApiBuilder;
 
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
@@ -14,7 +14,7 @@ use Spot\Api\Response\ResponseBus;
 use Spot\Api\Response\ResponseBusFactoryInterface;
 use Spot\Api\Response\ResponseBusInterface;
 
-class ApplicationBuilder implements
+class ApiBuilder implements
     HttpRequestParserFactoryInterface,
     RequestBusFactoryInterface,
     ResponseBusFactoryInterface
