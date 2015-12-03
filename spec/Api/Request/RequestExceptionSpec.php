@@ -10,6 +10,11 @@ use Spot\Api\Request\RequestException;
 /** @mixin  RequestException */
 class RequestExceptionSpec extends ObjectBehavior
 {
+    public function let()
+    {
+        $this->beConstructedWith('Reasons');
+    }
+
     public function it_isInitializable()
     {
         $this->shouldHaveType(RequestException::class);
@@ -19,11 +24,11 @@ class RequestExceptionSpec extends ObjectBehavior
     public function it_comesWithARequestObject()
     {
         $request = new ArrayRequest('destroy.earth', ['not' => 42]);
-        $this->beConstructedWith($request);
+        $this->beConstructedWith('Reasons', $request);
 
         $this->getRequestObject()
             ->shouldReturn($request);
         $this->getMessage()
-            ->shouldReturn($request->getRequestName());
+            ->shouldReturn('Reasons');
     }
 }

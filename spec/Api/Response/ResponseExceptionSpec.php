@@ -10,6 +10,11 @@ use Spot\Api\Response\ResponseException;
 /** @mixin  ResponseException */
 class ResponseExceptionSpec extends ObjectBehavior
 {
+    public function let()
+    {
+        $this->beConstructedWith('Reasons');
+    }
+
     public function it_isInitializable()
     {
         $this->shouldHaveType(ResponseException::class);
@@ -18,11 +23,11 @@ class ResponseExceptionSpec extends ObjectBehavior
     public function it_comesWithAResponseObject()
     {
         $response = new ArrayResponse('destroy.earth', ['answer' => 'misfiled']);
-        $this->beConstructedWith($response);
+        $this->beConstructedWith('Reasons', $response);
 
         $this->getResponseObject()
             ->shouldReturn($response);
         $this->getMessage()
-            ->shouldReturn($response->getResponseName());
+            ->shouldReturn('Reasons');
     }
 }

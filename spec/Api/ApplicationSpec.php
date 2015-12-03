@@ -68,7 +68,7 @@ class ApplicationSpec extends ObjectBehavior
      */
     public function it_shouldBeAbleToHandleBadRequest($httpRequest, $response, $httpResponse)
     {
-        $badRequestException = new RequestException();
+        $badRequestException = new RequestException('Reasons');
 
         $this->requestParser->parseHttpRequest($httpRequest, [])
             ->willThrow($badRequestException);
@@ -87,7 +87,7 @@ class ApplicationSpec extends ObjectBehavior
      */
     public function it_shouldBeAbleToHandleResponseExceptions($httpRequest, $request, $httpResponse)
     {
-        $responseException = new ResponseException();
+        $responseException = new ResponseException('Reasons');
 
         $this->requestParser->parseHttpRequest($httpRequest, [])
             ->willReturn($request);
