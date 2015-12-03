@@ -18,11 +18,14 @@ use Spot\Api\Request\RequestBus;
 use Spot\Api\RequestBodyParser\JsonApiParser;
 use Spot\Api\Response\ResponseBus;
 use Spot\Common\ApiBuilder\ApiBuilder;
-use Spot\SiteContent\Repository\PageRepository;
+use Spot\Common\ApiBuilder\RepositoryBuilderInterface;
+use Spot\Common\ApiBuilder\RouterBuilderInterface;
 use Spot\DataModel\Repository\ObjectRepository;
-use Spot\SiteContent\SiteContentModuleBuilder;
 
-class DefaultServiceProvider implements ServiceProviderInterface
+class DefaultServiceProvider implements
+    ServiceProviderInterface,
+    RouterBuilderInterface,
+    RepositoryBuilderInterface
 {
     /** {@inheritdoc} */
     public function register(Container $container)
@@ -38,11 +41,15 @@ class DefaultServiceProvider implements ServiceProviderInterface
                 new ResponseBus($container, $container['logger'])
             );
 
-            $siteContentBuilder = new SiteContentModuleBuilder('/pages');
-            $siteContentBuilder->configureRouting($container, $builder);
-            $siteContentBuilder->configureRepositories($container);
-
-            $this->configureErrorHandlers($container, $builder);
+            $modules = array_merge([$this], $container['modules'] ?? []);
+            foreach ($modules as $module) {
+                if ($module instanceof RouterBuilderInterface) {
+                    $module->configureRouting($container, $builder);
+                }
+                if ($module instanceof RepositoryBuilderInterface) {
+                    $module->configureRepositories($container);
+                }
+            }
 
             return new Application(
                 $builder->getHttpRequestParser(),
@@ -81,7 +88,7 @@ class DefaultServiceProvider implements ServiceProviderInterface
         };
     }
 
-    private function configureErrorHandlers(Container $container, ApiBuilder $builder)
+    public function configureRouting(Container $container, ApiBuilder $builder)
     {
         $container['errorHandler.badRequest'] = function () {
             return new ErrorApiCall('error.badRequest', 400, 'Bad Request');
@@ -102,7 +109,7 @@ class DefaultServiceProvider implements ServiceProviderInterface
         $builder->addResponseGenerator('error.serverError', 'errorHandler.serverError');
     }
 
-    private function configureRepositories(Container $container)
+    public function configureRepositories(Container $container)
     {
         $container['repository.objects'] = function (Container $container) {
             return new ObjectRepository($container['db']);
