@@ -167,6 +167,34 @@ class PageRepository
         return $pages;
     }
 
+    public function addBlockToPage(PageBlock $block, Page $page)
+    {
+        if (!$page->getUuid()->equals($block->getPage()->getUuid())) {
+            throw new \OutOfBoundsException('PageBlock must belong to page to be added to it.');
+        }
+
+        $this->pdo->beginTransaction();
+        try {
+            $this->objectRepository->create(PageBlock::TYPE, $page->getUuid());
+            $this->pdo->prepare('
+                INSERT INTO page_blocks (page_block_uuid, page_uuid, type, parameters, location, sort_order, status)
+                    VALUES (:page_block_uuid, :page_uuid, :type, :parameters, :loction, :sort_order, :status)
+            ')->execute([
+                'page_block_uuid' => $block->getUuid()->getBytes(),
+                'page_uuid' => $block->getPage()->getUuid()->getBytes(),
+                'type' => $block->getType(),
+                'parameters' => json_encode($block->getParameters()),
+                'location' => $block->getLocation(),
+                'sort_order' => $page->getSortOrder(),
+                'status' => $page->getStatus()->toString(),
+            ]);
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+            throw $exception;
+        }
+    }
+
     private function getPageBlockFromRow(Page $page, array $row)
     {
         return new PageBlock(
