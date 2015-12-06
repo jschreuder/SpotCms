@@ -53,10 +53,10 @@ class ObjectRepositorySpec extends ObjectBehavior
         $this->pdo->prepare(new TypeToken('string'))
             ->willReturn($pdoStatement);
 
-        $pdoStatement->execute(['uuid' => $uuid->getBytes(), 'updated' => date('Y-m-d H:i:s')])
+        $pdoStatement->execute(['uuid' => $uuid->getBytes(), 'type' => 'test', 'updated' => date('Y-m-d H:i:s')])
             ->shouldBeCalled();
 
-        $this->update($uuid);
+        $this->update('test', $uuid);
     }
 
     /**
@@ -69,9 +69,9 @@ class ObjectRepositorySpec extends ObjectBehavior
         $this->pdo->prepare(new TypeToken('string'))
             ->willReturn($pdoStatement);
 
-        $pdoStatement->execute(['uuid' => $uuid->getBytes()])
+        $pdoStatement->execute(['uuid' => $uuid->getBytes(), 'type' => 'test'])
             ->shouldBeCalled();
 
-        $this->delete($uuid);
+        $this->delete('test', $uuid);
     }
 }
