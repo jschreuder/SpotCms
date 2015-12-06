@@ -13,6 +13,7 @@ use Spot\Common\ApiBuilder\RouterBuilderInterface;
 use Spot\SiteContent\ApiCall\AddPageBlockApiCall;
 use Spot\SiteContent\ApiCall\CreatePageApiCall;
 use Spot\SiteContent\ApiCall\DeletePageApiCall;
+use Spot\SiteContent\ApiCall\DeletePageBlockApiCall;
 use Spot\SiteContent\ApiCall\GetPageApiCall;
 use Spot\SiteContent\ApiCall\ListPagesApiCall;
 use Spot\SiteContent\ApiCall\UpdatePageApiCall;
@@ -49,6 +50,9 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
         };
         $container['apiCall.pageBlocks.create'] = function (Container $container) {
             return new AddPageBlockApiCall($container['repository.pages'], $container['logger']);
+        };
+        $container['apiCall.pageBlocks.delete'] = function (Container $container) {
+            return new DeletePageBlockApiCall($container['repository.pages'], $container['logger']);
         };
         $container['responseGenerator.pages.single'] = function (Container $container) {
             return new SingleEntityGenerator(new PageSerializer(), null, $container['logger']);
@@ -96,6 +100,10 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
             ->addParser('POST', $this->uriSegment.'/blocks', 'apiCall.pageBlocks.create')
             ->addRequestExecutor(AddPageBlockApiCall::MESSAGE, 'apiCall.pageBlocks.create')
             ->addResponseGenerator(AddPageBlockApiCall::MESSAGE, 'responseGenerator.pageBlocks.single');
+        $builder
+            ->addParser('DELETE', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'apiCall.pageBlocks.delete')
+            ->addRequestExecutor(DeletePageBlockApiCall::MESSAGE, 'apiCall.pageBlocks.delete')
+            ->addResponseGenerator(DeletePageBlockApiCall::MESSAGE, 'responseGenerator.pageBlocks.single');
     }
 
     public function configureRepositories(Container $container)

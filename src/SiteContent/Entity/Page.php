@@ -138,6 +138,27 @@ class Page
         return $this;
     }
 
+    public function removeBlock(PageBlock $block) : self
+    {
+        foreach ($this->relatedBlocks as $idx => $relBlock) {
+            if ($relBlock->getUuid()->equals($block->getUuid())) {
+                unset($this->relatedBlocks[$idx]);
+                return $this;
+            }
+        }
+        throw new \OutOfBoundsException('Block not found in Page\'s blocks: ' . $block->getUuid()->toString());
+    }
+
+    public function getBlockByUuid(UuidInterface $uuid) : PageBlock
+    {
+        foreach ($this->relatedBlocks as $block) {
+            if ($block->getUuid()->equals($uuid)) {
+                return $block;
+            }
+        }
+        throw new \OutOfBoundsException('Block not found in Page\'s blocks: ' . $uuid->toString());
+    }
+
     public function getBlocks() : array
     {
         if (is_null($this->relatedBlocks)) {

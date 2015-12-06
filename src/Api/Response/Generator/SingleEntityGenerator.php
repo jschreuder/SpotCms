@@ -61,7 +61,7 @@ class SingleEntityGenerator implements GeneratorInterface
 
         try {
             $resource = (new Resource($response['data'], $this->getSerializer()))
-                ->with($response['includes'] ?? []);
+                ->with(isset($response['includes']) ? $response['includes'] : []);
             $document = new Document($resource);
             foreach ($this->metaDataGenerator($response) as $key => $value) {
                 $document->addMeta($key, $value);

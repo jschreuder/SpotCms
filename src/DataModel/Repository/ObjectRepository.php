@@ -21,15 +21,15 @@ class ObjectRepository
         ')->execute(['uuid' => $uuid->getBytes(), 'type' => $type, 'created' => date('Y-m-d H:i:s')]);
     }
 
-    public function update(UuidInterface $uuid)
+    public function update(string $type, UuidInterface $uuid)
     {
-        $this->pdo->prepare('UPDATE objects SET updated = :updated WHERE uuid = :uuid')
-            ->execute(['uuid' => $uuid->getBytes(), 'updated' => date('Y-m-d H:i:s')]);
+        $this->pdo->prepare('UPDATE objects SET updated = :updated WHERE uuid = :uuid AND type = :type')
+            ->execute(['uuid' => $uuid->getBytes(), 'type' => $type, 'updated' => date('Y-m-d H:i:s')]);
     }
 
-    public function delete(UuidInterface $uuid)
+    public function delete(string $type, UuidInterface $uuid)
     {
-        $this->pdo->prepare('DELETE FROM objects WHERE uuid = :uuid')
-            ->execute(['uuid' => $uuid->getBytes()]);
+        $this->pdo->prepare('DELETE FROM objects WHERE uuid = :uuid AND type = :type')
+            ->execute(['uuid' => $uuid->getBytes(), 'type' => $type]);
     }
 }

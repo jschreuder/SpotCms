@@ -72,7 +72,7 @@ class PageRepository
 
             // When at least one of the fields changes, the rowCount will be 1 and an update occurred
             if ($query->rowCount() === 1) {
-                $this->objectRepository->update($page->getUuid());
+                $this->objectRepository->update(Page::TYPE, $page->getUuid());
             }
 
             $this->pdo->commit();
@@ -85,7 +85,7 @@ class PageRepository
     public function delete(Page $page)
     {
         // The database constraint should cascade the delete to the page
-        $this->objectRepository->delete($page->getUuid());
+        $this->objectRepository->delete(Page::TYPE, $page->getUuid());
         $page->setStatus(PageStatusValue::get(PageStatusValue::DELETED));
     }
 
@@ -193,6 +193,18 @@ class PageRepository
             $this->pdo->rollBack();
             throw $exception;
         }
+    }
+
+    public function deleteBlockFromPage(PageBlock $block, Page $page)
+    {
+        if (!$page->getUuid()->equals($block->getPage()->getUuid())) {
+            throw new \OutOfBoundsException('PageBlock must belong to page to be added to it.');
+        }
+
+        // The database constraint should cascade the delete to the page
+        $this->objectRepository->delete(PageBlock::TYPE, $block->getUuid());
+        $page->removeBlock($block);
+        $block->setStatus(PageStatusValue::get(PageStatusValue::DELETED));
     }
 
     private function getPageBlockFromRow(Page $page, array $row)
