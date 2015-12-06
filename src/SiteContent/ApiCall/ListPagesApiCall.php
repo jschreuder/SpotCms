@@ -60,6 +60,7 @@ class ListPagesApiCall implements HttpRequestParserInterface, ExecutorInterface
             return new ArrayResponse(self::MESSAGE, [
                 'data' => $this->pageRepository->getAllByParentUuid($parentUuid),
                 'parent_uuid' => $parentUuid,
+                'includes' => ['pageBlocks'],
             ]);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());

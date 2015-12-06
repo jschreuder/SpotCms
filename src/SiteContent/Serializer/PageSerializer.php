@@ -2,9 +2,9 @@
 
 namespace Spot\SiteContent\Serializer;
 
-use phpDocumentor\Reflection\DocBlock\Type\Collection;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
+use Tobscure\JsonApi\Collection;
 use Tobscure\JsonApi\Relationship;
 use Tobscure\JsonApi\SerializerInterface;
 
@@ -47,7 +47,7 @@ class PageSerializer implements SerializerInterface
         }
 
         if ($name === PageBlock::TYPE) {
-            return new Collection($page->getBlocks(), new PageBlockSerializer());
+            return new Relationship(new Collection($page->getBlocks(), new PageBlockSerializer()));
         }
 
         throw new \OutOfBoundsException('Unknown relationship ' . $name . ' for ' . $this->getType($page));

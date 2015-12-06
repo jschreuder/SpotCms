@@ -7,6 +7,7 @@ use Ramsey\Uuid\UuidInterface;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\DataModel\Repository\ObjectRepository;
 use Spot\SiteContent\Entity\Page;
+use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Value\PageStatusValue;
 
 class PageRepository
@@ -114,7 +115,9 @@ class PageRepository
             throw new NoUniqueResultException('Expected a unique result, but got ' . $query->rowCount() . ' results.');
         }
 
-        return $this->getPageFromRow($query->fetch(\PDO::FETCH_ASSOC));
+        $page = $this->getPageFromRow($query->fetch(\PDO::FETCH_ASSOC));
+        $this->getBlocksForPages([$page]);
+        return $page;
     }
 
     public function getBySlug(string $slug) : Page
@@ -130,7 +133,9 @@ class PageRepository
             throw new NoUniqueResultException('Expected a unique result, but got ' . $query->rowCount() . ' results.');
         }
 
-        return $this->getPageFromRow($query->fetch(\PDO::FETCH_ASSOC));
+        $page = $this->getPageFromRow($query->fetch(\PDO::FETCH_ASSOC));
+        $this->getBlocksForPages([$page]);
+        return $page;
     }
 
     /** @return  Page[] */
@@ -158,6 +163,49 @@ class PageRepository
         while ($row = $query->fetch(\PDO::FETCH_ASSOC)) {
             $pages[] = $this->getPageFromRow($row);
         }
+        $this->getBlocksForPages($pages);
         return $pages;
+    }
+
+    private function getPageBlockFromRow(Page $page, array $row)
+    {
+        return new PageBlock(
+            Uuid::fromBytes($row['page_block_uuid']),
+            $page,
+            $row['type'],
+            !is_null($row['parameters']) ? json_decode($row['parameters'], true) : [],
+            $row['location'],
+            intval($row['sort_order']),
+            PageStatusValue::get($row['status'])
+        );
+    }
+
+    /**
+     * @param   Page[] $pages
+     * @return  void
+     */
+    public function getBlocksForPages(array $pages)
+    {
+        $uuids = [];
+        /** @var  Page[] $pagesByUuid */
+        $pagesByUuid = [];
+        foreach ($pages as $page) {
+            $uuids[] = $page->getUuid()->getBytes();
+            $pagesByUuid[$page->getUuid()->getBytes()] = $page;
+            $page->setBlocks([]);
+        }
+
+        $query = $this->pdo->prepare('
+            SELECT page_block_uuid, page_uuid, type, parameters, location, sort_order, status
+              FROM page_blocks
+             WHERE page_uuid IN ("' . implode('", "', $uuids) . '")
+          ORDER BY sort_order ASC
+        ');
+        $query->execute();
+
+        while ($row = $query->fetch(\PDO::FETCH_ASSOC)) {
+            $page = $pagesByUuid[$row['page_uuid']];
+            $page->addBlock($this->getPageBlockFromRow($page, $row));
+        }
     }
 }

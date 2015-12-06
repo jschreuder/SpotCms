@@ -22,18 +22,20 @@ class MultiEntityGenerator extends SingleEntityGenerator
         }
         if (!isset($response['data']) || !is_array($response['data'])) {
             $this->log(LogLevel::ERROR, 'No set of data present in Response.');
-            return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
+            return new JsonApiErrorResponse('Server Error', 500);
         }
 
         try {
-            $document = new Document(new Collection($response['data'], $this->getSerializer()));
+            $collection = (new Collection($response['data'], $this->getSerializer()))
+                ->with($response['includes'] ?? []);
+            $document = new Document($collection);
             foreach ($this->metaDataGenerator($response) as $key => $value) {
                 $document->addMeta($key, $value);
             }
             return new JsonApiResponse($document);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, 'Error occurred during Response generation: ' . $e->getMessage());
-            return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
+            return new JsonApiErrorResponse('Server Error', 500);
         }
     }
 }

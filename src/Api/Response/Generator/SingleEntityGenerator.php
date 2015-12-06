@@ -56,18 +56,20 @@ class SingleEntityGenerator implements GeneratorInterface
         }
         if (!isset($response['data'])) {
             $this->log(LogLevel::ERROR, 'No data present in Response.');
-            return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
+            return new JsonApiErrorResponse('Server Error', 500);
         }
 
         try {
-            $document = new Document(new Resource($response['data'], $this->getSerializer()));
+            $resource = (new Resource($response['data'], $this->getSerializer()))
+                ->with($response['includes'] ?? []);
+            $document = new Document($resource);
             foreach ($this->metaDataGenerator($response) as $key => $value) {
                 $document->addMeta($key, $value);
             }
             return new JsonApiResponse($document);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, 'Error occurred during Response generation: ' . $e->getMessage());
-            return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
+            return new JsonApiErrorResponse('Server Error', 500);
         }
     }
 }

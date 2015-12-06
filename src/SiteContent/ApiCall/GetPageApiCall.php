@@ -60,7 +60,7 @@ class GetPageApiCall implements HttpRequestParserInterface, ExecutorInterface
         try {
             try {
                 $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getData()['uuid']));
-                return new ArrayResponse(self::MESSAGE, ['data' => $page]);
+                return new ArrayResponse(self::MESSAGE, ['data' => $page, 'includes' => ['pageBlocks']]);
             } catch (NoUniqueResultException $e) {
                 throw new ResponseException('Page not found.', new NotFoundResponse());
             }

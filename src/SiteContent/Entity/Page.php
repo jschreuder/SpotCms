@@ -139,6 +139,9 @@ class Page
 
     public function getBlocks() : array
     {
+        if (is_null($this->relatedBlocks)) {
+            throw new \RuntimeException('Page block were not yet loaded.');
+        }
         return $this->relatedBlocks;
     }
 }

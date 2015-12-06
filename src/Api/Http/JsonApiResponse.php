@@ -18,6 +18,7 @@ class JsonApiResponse extends JsonResponse
         $encodingOptions = self::DEFAULT_JSON_FLAGS
     ) {
         $headers['Content-Type'] = 'application/vnd.api+json';
-        parent::__construct($document, $status, $headers, $encodingOptions);
+        $data = $document->jsonSerialize();
+        parent::__construct($data, $status, $headers, $encodingOptions);
     }
 }
