@@ -30,6 +30,9 @@ class Page
     /** @var  PageStatusValue */
     private $status;
 
+    /** @var  PageBlock[] */
+    private $relatedBlocks;
+
     public function __construct(
         UuidInterface $pageUuid,
         string $title,
@@ -112,5 +115,30 @@ class Page
     {
         $this->status = $status;
         return $this;
+    }
+
+    public function setBlocks(array $blocks) : self
+    {
+        $this->relatedBlocks = [];
+        foreach ($blocks as $block) {
+            $this->addBlock($block);
+        }
+        usort($this->relatedBlocks, function (PageBlock $a, PageBlock $b) : int {
+            if ($a->getSortOrder() === $b->getSortOrder()) {
+                return 0;
+            }
+            return $a->getSortOrder() > $b->getSortOrder() ? 1 : -1;
+        });
+        return $this;
+    }
+
+    public function addBlock(PageBlock $block) : self
+    {
+        $this->relatedBlocks[] = $block;
+    }
+
+    public function getBlocks() : array
+    {
+        return $this->relatedBlocks;
     }
 }
