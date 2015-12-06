@@ -2,8 +2,10 @@
 
 namespace Spot\SiteContent\Serializer;
 
+use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 use Tobscure\JsonApi\Relationship;
+use Tobscure\JsonApi\Resource;
 use Tobscure\JsonApi\SerializerInterface;
 
 class PageBlockSerializer implements SerializerInterface
@@ -41,6 +43,10 @@ class PageBlockSerializer implements SerializerInterface
     {
         if (!$pageBlock instanceof PageBlock) {
             throw new \InvalidArgumentException('PageBlockSerializer can only serialize pageBlocks.');
+        }
+
+        if ($name === Page::TYPE) {
+            return new Relationship(new Resource($pageBlock->getPage(), new PageSerializer()));
         }
 
         throw new \OutOfBoundsException('Unknown relationship ' . $name . ' for ' . $this->getType($pageBlock));

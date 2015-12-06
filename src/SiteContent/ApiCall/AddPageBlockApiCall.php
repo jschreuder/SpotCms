@@ -45,6 +45,7 @@ class AddPageBlockApiCall implements HttpRequestParserInterface, ExecutorInterfa
         $filter->value('data.attributes.sort_order')->int();
 
         $validator = new Validator();
+        $validator->required('data.type')->equals('pageBlocks');
         $validator->required('data.attributes.page_uuid')->uuid();
         $validator->required('data.attributes.type')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
         $validator->optional('data.attributes.parameters');
@@ -79,7 +80,7 @@ class AddPageBlockApiCall implements HttpRequestParserInterface, ExecutorInterfa
                 $request['sort_order'],
                 PageStatusValue::get($request['status'])
             );
-            $this->pageRepository->addBlock($pageBlock, $page);
+            $this->pageRepository->addBlockToPage($pageBlock, $page);
             return new ArrayResponse(self::MESSAGE, ['data' => $pageBlock, 'includes' => ['pages']]);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());

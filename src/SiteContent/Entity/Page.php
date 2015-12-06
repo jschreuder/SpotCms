@@ -135,6 +135,7 @@ class Page
     public function addBlock(PageBlock $block) : self
     {
         $this->relatedBlocks[] = $block;
+        return $this;
     }
 
     public function getBlocks() : array

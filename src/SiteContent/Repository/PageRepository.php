@@ -175,10 +175,10 @@ class PageRepository
 
         $this->pdo->beginTransaction();
         try {
-            $this->objectRepository->create(PageBlock::TYPE, $page->getUuid());
+            $this->objectRepository->create(PageBlock::TYPE, $block->getUuid());
             $this->pdo->prepare('
                 INSERT INTO page_blocks (page_block_uuid, page_uuid, type, parameters, location, sort_order, status)
-                    VALUES (:page_block_uuid, :page_uuid, :type, :parameters, :loction, :sort_order, :status)
+                    VALUES (:page_block_uuid, :page_uuid, :type, :parameters, :location, :sort_order, :status)
             ')->execute([
                 'page_block_uuid' => $block->getUuid()->getBytes(),
                 'page_uuid' => $block->getPage()->getUuid()->getBytes(),
