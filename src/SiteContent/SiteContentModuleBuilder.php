@@ -15,6 +15,7 @@ use Spot\SiteContent\ApiCall\CreatePageApiCall;
 use Spot\SiteContent\ApiCall\DeletePageApiCall;
 use Spot\SiteContent\ApiCall\DeletePageBlockApiCall;
 use Spot\SiteContent\ApiCall\GetPageApiCall;
+use Spot\SiteContent\ApiCall\GetPageBlockApiCall;
 use Spot\SiteContent\ApiCall\ListPagesApiCall;
 use Spot\SiteContent\ApiCall\UpdatePageApiCall;
 use Spot\SiteContent\ApiCall\UpdatePageBlockApiCall;
@@ -54,6 +55,9 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
         // PageBlocks API Calls
         $container['apiCall.pageBlocks.create'] = function (Container $container) {
             return new AddPageBlockApiCall($container['repository.pages'], $container['logger']);
+        };
+        $container['apiCall.pageBlocks.get'] = function (Container $container) {
+            return new GetPageBlockApiCall($container['repository.pages'], $container['logger']);
         };
         $container['apiCall.pageBlocks.update'] = function (Container $container) {
             return new UpdatePageBlockApiCall($container['repository.pages'], $container['logger']);
@@ -109,6 +113,10 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
             ->addParser('POST', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks', 'apiCall.pageBlocks.create')
             ->addRequestExecutor(AddPageBlockApiCall::MESSAGE, 'apiCall.pageBlocks.create')
             ->addResponseGenerator(AddPageBlockApiCall::MESSAGE, 'responseGenerator.pageBlocks.single');
+        $builder
+            ->addParser('GET', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'apiCall.pageBlocks.get')
+            ->addRequestExecutor(GetPageBlockApiCall::MESSAGE, 'apiCall.pageBlocks.get')
+            ->addResponseGenerator(GetPageBlockApiCall::MESSAGE, 'responseGenerator.pageBlocks.single');
         $builder
             ->addParser('PATCH', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'apiCall.pageBlocks.update')
             ->addRequestExecutor(UpdatePageBlockApiCall::MESSAGE, 'apiCall.pageBlocks.update')
