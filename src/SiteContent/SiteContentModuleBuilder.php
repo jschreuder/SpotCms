@@ -89,7 +89,7 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
             ->addRequestExecutor(GetPageApiCall::MESSAGE, 'apiCall.pages.get')
             ->addResponseGenerator(GetPageApiCall::MESSAGE, 'responseGenerator.pages.single');
         $builder
-            ->addParser('PATCH', $this->uriSegment, 'apiCall.pages.update')
+            ->addParser('PATCH', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'apiCall.pages.update')
             ->addRequestExecutor(UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
             ->addResponseGenerator(UpdatePageApiCall::MESSAGE, 'responseGenerator.pages.single');
         $builder
@@ -97,7 +97,7 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
             ->addRequestExecutor(DeletePageApiCall::MESSAGE, 'apiCall.pages.delete')
             ->addResponseGenerator(DeletePageApiCall::MESSAGE, 'responseGenerator.pages.single');
         $builder
-            ->addParser('POST', $this->uriSegment.'/blocks', 'apiCall.pageBlocks.create')
+            ->addParser('POST', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks', 'apiCall.pageBlocks.create')
             ->addRequestExecutor(AddPageBlockApiCall::MESSAGE, 'apiCall.pageBlocks.create')
             ->addResponseGenerator(AddPageBlockApiCall::MESSAGE, 'responseGenerator.pageBlocks.single');
         $builder

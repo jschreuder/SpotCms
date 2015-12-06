@@ -48,7 +48,7 @@ class UpdatePageApiCall implements HttpRequestParserInterface, ExecutorInterface
 
         $validator = new Validator();
         $validator->required('type')->equals('pages');
-        $validator->required('id')->uuid();
+        $validator->required('id')->uuid()->equals($attributes['uuid']);
         $validator->optional('attributes.title')->lengthBetween(1, 512);
         $validator->optional('attributes.slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
         $validator->optional('attributes.short_title')->lengthBetween(1, 48);
@@ -63,7 +63,7 @@ class UpdatePageApiCall implements HttpRequestParserInterface, ExecutorInterface
         }
 
         $request = new ArrayRequest(self::MESSAGE, $validationResult->getValues()['attributes']);
-        $request['id'] = $data['id'];
+        $request['id'] = $attributes['uuid'];
         return $request;
     }
 

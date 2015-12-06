@@ -46,7 +46,7 @@ class AddPageBlockApiCall implements HttpRequestParserInterface, ExecutorInterfa
 
         $validator = new Validator();
         $validator->required('data.type')->equals('pageBlocks');
-        $validator->required('data.attributes.page_uuid')->uuid();
+        $validator->optional('data.attributes.page_uuid')->uuid()->equals($attributes['page_uuid']);
         $validator->required('data.attributes.type')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
         $validator->optional('data.attributes.parameters');
         $validator->required('data.attributes.location')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
@@ -59,7 +59,9 @@ class AddPageBlockApiCall implements HttpRequestParserInterface, ExecutorInterfa
             throw new ValidationFailedException($validationResult);
         }
 
-        return new ArrayRequest(self::MESSAGE, $validationResult->getValues()['data']['attributes']);
+        $request = new ArrayRequest(self::MESSAGE, $validationResult->getValues()['data']['attributes']);
+        $request['page_uuid'] = $attributes['page_uuid'];
+        return $request;
     }
 
     public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
