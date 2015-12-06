@@ -188,6 +188,42 @@ class PageRepository
                 'sort_order' => $page->getSortOrder(),
                 'status' => $page->getStatus()->toString(),
             ]);
+            $this->objectRepository->update(Page::TYPE, $page->getUuid());
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+            throw $exception;
+        }
+    }
+
+    public function updateBlockForPage(PageBlock $block, Page $page)
+    {
+        if (!$page->getUuid()->equals($block->getPage()->getUuid())) {
+            throw new \OutOfBoundsException('PageBlock must belong to page to be added to it.');
+        }
+
+        $this->pdo->beginTransaction();
+        try {
+            $query = $this->pdo->prepare('
+                UPDATE page_blocks
+                    SET parameters = :parameters,
+                        sort_order = :sort_order,
+                        status = :status
+                    WHERE page_block_uuid = :page_block_uuid
+            ');
+            $query->execute([
+                'page_block_uuid' => $block->getUuid()->getBytes(),
+                'parameters' => json_encode($block->getParameters()),
+                'sort_order' => $block->getSortOrder(),
+                'status' => $block->getStatus()->toString(),
+            ]);
+
+            // When at least one of the fields changes, the rowCount will be 1 and an update occurred
+            if ($query->rowCount() === 1) {
+                $this->objectRepository->update(Page::TYPE, $page->getUuid());
+                $this->objectRepository->update(PageBlock::TYPE, $block->getUuid());
+            }
+
             $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
@@ -204,6 +240,7 @@ class PageRepository
         // The database constraint should cascade the delete to the page
         $this->objectRepository->delete(PageBlock::TYPE, $block->getUuid());
         $page->removeBlock($block);
+        $this->objectRepository->update(Page::TYPE, $page->getUuid());
         $block->setStatus(PageStatusValue::get(PageStatusValue::DELETED));
     }
 
