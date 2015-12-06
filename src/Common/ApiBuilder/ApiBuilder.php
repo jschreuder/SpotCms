@@ -60,12 +60,12 @@ class ApiBuilder implements
      */
     public function addModule($module)
     {
-            if ($module instanceof RouterBuilderInterface) {
-                $module->configureRouting($this->container, $this);
-            }
-            if ($module instanceof RepositoryBuilderInterface) {
-                $module->configureRepositories($this->container);
-            }
+        if ($module instanceof RouterBuilderInterface) {
+            $module->configureRouting($this->container, $this);
+        }
+        if ($module instanceof RepositoryBuilderInterface) {
+            $module->configureRepositories($this->container);
+        }
     }
 
     public function addParser(string $method, string $path, string $httpRequestParser) : self
