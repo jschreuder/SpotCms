@@ -4,6 +4,7 @@ namespace Spot\Common\ApiBuilder;
 
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
+use Pimple\Container;
 use Spot\Api\Request\HttpRequestParserFactoryInterface;
 use Spot\Api\Request\HttpRequestParserInterface;
 use Spot\Api\Request\HttpRequestParserRouter;
@@ -19,6 +20,9 @@ class ApiBuilder implements
     RequestBusFactoryInterface,
     ResponseBusFactoryInterface
 {
+    /** @var  Container */
+    private $container;
+
     /** @var  HttpRequestParserRouter */
     private $router;
 
@@ -32,15 +36,32 @@ class ApiBuilder implements
     private $responseBus;
 
     public function __construct(
+        Container $container,
         HttpRequestParserRouter $router,
         RouteCollector $routeCollector,
         RequestBus $requestBus,
-        ResponseBus $responseBus
+        ResponseBus $responseBus,
+        array $modules
     ) {
+        $this->container = $container;
         $this->router = $router;
         $this->routeCollector = $routeCollector;
         $this->requestBus = $requestBus;
         $this->responseBus = $responseBus;
+
+        foreach ($modules as $module) {
+            $this->addModule($module);
+        }
+    }
+
+    public function addModule($module)
+    {
+            if ($module instanceof RouterBuilderInterface) {
+                $module->configureRouting($this->container, $this);
+            }
+            if ($module instanceof RepositoryBuilderInterface) {
+                $module->configureRepositories($this->container);
+            }
     }
 
     public function addParser(string $method, string $path, string $httpRequestParser) : self

@@ -32,24 +32,16 @@ class DefaultServiceProvider implements
     {
         $container['app'] = function (Container $container) {
             $builder = new ApiBuilder(
+                $container,
                 new HttpRequestParserRouter(
                     $container,
                     $container['logger']
                 ),
                 new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
                 new RequestBus($container, $container['logger']),
-                new ResponseBus($container, $container['logger'])
+                new ResponseBus($container, $container['logger']),
+                array_merge([$this], $container['modules'] ?? [])
             );
-
-            $modules = array_merge([$this], $container['modules'] ?? []);
-            foreach ($modules as $module) {
-                if ($module instanceof RouterBuilderInterface) {
-                    $module->configureRouting($container, $builder);
-                }
-                if ($module instanceof RepositoryBuilderInterface) {
-                    $module->configureRepositories($container);
-                }
-            }
 
             return new Application(
                 $builder->getHttpRequestParser(),
