@@ -54,6 +54,10 @@ class ApiBuilder implements
         }
     }
 
+    /**
+     * @param   RouterBuilderInterface|RepositoryBuilderInterface $module
+     * @return  void
+     */
     public function addModule($module)
     {
             if ($module instanceof RouterBuilderInterface) {
