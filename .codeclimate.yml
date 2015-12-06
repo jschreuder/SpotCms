@@ -14,6 +14,8 @@ exclude_paths:
   - config/**/*
   - migrations/**/*
   - spec/**/*
+  - src/Common/ParticleFixes/*
+  - src/SiteContent/SiteContentModuleBuilder.php
   - src/DefaultServiceProvider.php
   - .codeclimate.yml
   - .gitignore
