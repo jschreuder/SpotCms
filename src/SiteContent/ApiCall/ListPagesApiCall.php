@@ -51,15 +51,19 @@ class ListPagesApiCall implements HttpRequestParserInterface, ExecutorInterface
     public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
     {
         if (!$request instanceof ArrayRequest) {
-            $msg = 'Did not receive an ArrayRequest instance.';
-            $this->log(LogLevel::ERROR, $msg);
-            throw new ResponseException($msg, new ServerErrorResponse());
+            $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
+            throw new ResponseException('An error occurred during ListPagesApiCall.', new ServerErrorResponse());
         }
 
-        $parentUuid = isset($request['parent_uuid']) ? Uuid::fromString($request['parent_uuid']) : null;
-        return new ArrayResponse(self::MESSAGE, [
-            'data' => $this->pageRepository->getAllByParentUuid($parentUuid),
-            'parent_uuid' => $parentUuid,
-        ]);
+        try {
+            $parentUuid = isset($request['parent_uuid']) ? Uuid::fromString($request['parent_uuid']) : null;
+            return new ArrayResponse(self::MESSAGE, [
+                'data' => $this->pageRepository->getAllByParentUuid($parentUuid),
+                'parent_uuid' => $parentUuid,
+            ]);
+        } catch (\Throwable $e) {
+            $this->log(LogLevel::ERROR, $e->getMessage());
+            throw new ResponseException('An error occurred during ListPagesApiCall.', new ServerErrorResponse());
+        }
     }
 }

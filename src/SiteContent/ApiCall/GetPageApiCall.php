@@ -53,16 +53,20 @@ class GetPageApiCall implements HttpRequestParserInterface, ExecutorInterface
     public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
     {
         if (!$request instanceof ArrayRequest) {
-            $msg = 'Did not receive an ArrayRequest instance.';
-            $this->log(LogLevel::ERROR, $msg);
-            throw new ResponseException($msg, new ServerErrorResponse());
+            $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
+            throw new ResponseException('An error occurred during GetPageApiCall.', new ServerErrorResponse());
         }
 
         try {
-            $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getData()['uuid']));
-            return new ArrayResponse(self::MESSAGE, ['data' => $page]);
-        } catch (NoUniqueResultException $e) {
-            throw new ResponseException($e->getMessage(), new NotFoundResponse());
+            try {
+                $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getData()['uuid']));
+                return new ArrayResponse(self::MESSAGE, ['data' => $page]);
+            } catch (NoUniqueResultException $e) {
+                throw new ResponseException('Page not found.', new NotFoundResponse());
+            }
+        } catch (\Throwable $e) {
+            $this->log(LogLevel::ERROR, $e->getMessage());
+            throw new ResponseException('An error occurred during GetPageApiCall.', new ServerErrorResponse());
         }
     }
 }

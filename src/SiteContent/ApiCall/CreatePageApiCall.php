@@ -68,9 +68,8 @@ class CreatePageApiCall implements HttpRequestParserInterface, ExecutorInterface
     public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
     {
         if (!$request instanceof ArrayRequest) {
-            $msg = 'Did not receive an ArrayRequest instance.';
-            $this->log(LogLevel::ERROR, $msg);
-            throw new ResponseException($msg, new ServerErrorResponse());
+            $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
+            throw new ResponseException('An error occurred during CreatePageApiCall.', new ServerErrorResponse());
         }
 
         try {
@@ -87,7 +86,7 @@ class CreatePageApiCall implements HttpRequestParserInterface, ExecutorInterface
             return new ArrayResponse(self::MESSAGE, ['data' => $page]);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
-            throw new ResponseException($exception->getMessage(), new ServerErrorResponse());
+            throw new ResponseException('An error occurred during CreatePageApiCall.', new ServerErrorResponse());
         }
     }
 }
