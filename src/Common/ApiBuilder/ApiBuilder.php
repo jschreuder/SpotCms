@@ -5,9 +5,9 @@ namespace Spot\Common\ApiBuilder;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
 use Pimple\Container;
-use Spot\Api\Request\HttpRequestParserFactoryInterface;
-use Spot\Api\Request\HttpRequestParserInterface;
-use Spot\Api\Request\HttpRequestParserRouter;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserFactoryInterface;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter;
 use Spot\Api\Request\RequestBus;
 use Spot\Api\Request\RequestBusFactoryInterface;
 use Spot\Api\Request\RequestBusInterface;
@@ -23,7 +23,7 @@ class ApiBuilder implements
     /** @var  Container */
     private $container;
 
-    /** @var  HttpRequestParserRouter */
+    /** @var  \Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter */
     private $router;
 
     /** @var  RouteCollector */

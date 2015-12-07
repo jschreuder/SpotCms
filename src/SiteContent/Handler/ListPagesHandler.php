@@ -1,26 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Spot\SiteContent\ApiCall;
+namespace Spot\SiteContent\Handler;
 
-use Spot\Api\Request\Executor\ExecutorInterface;
-use Spot\Api\Request\HttpRequestParserInterface;
-use Spot\Common\ParticleFixes\Validator;
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
+use Spot\Api\Request\Handler\RequestHandlerInterface;
 use Spot\Api\Request\Message\ArrayRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\ArrayResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
+use Spot\Common\ParticleFixes\Validator;
 use Spot\Common\Request\ValidationFailedException;
 use Spot\SiteContent\Repository\PageRepository;
 
-class ListPagesApiCall implements HttpRequestParserInterface, ExecutorInterface
+class ListPagesHandler implements RequestHandlerInterface
 {
     use LoggableTrait;
 
@@ -52,7 +51,7 @@ class ListPagesApiCall implements HttpRequestParserInterface, ExecutorInterface
     {
         if (!$request instanceof ArrayRequest) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during ListPagesApiCall.', new ServerErrorResponse());
+            throw new ResponseException('An error occurred during ListPagesHandler.', new ServerErrorResponse());
         }
 
         try {
@@ -64,7 +63,7 @@ class ListPagesApiCall implements HttpRequestParserInterface, ExecutorInterface
             ]);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());
-            throw new ResponseException('An error occurred during ListPagesApiCall.', new ServerErrorResponse());
+            throw new ResponseException('An error occurred during ListPagesHandler.', new ServerErrorResponse());
         }
     }
 }

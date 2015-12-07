@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\SiteContent\ApiCall;
+namespace Spot\SiteContent\Handler;
 
 use Particle\Filter\Filter;
 use Psr\Http\Message\RequestInterface as HttpRequest;
@@ -9,8 +9,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
-use Spot\Api\Request\Executor\ExecutorInterface;
-use Spot\Api\Request\HttpRequestParserInterface;
+use Spot\Api\Request\Handler\RequestHandlerInterface;
 use Spot\Api\Request\Message\ArrayRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\ArrayResponse;
@@ -23,7 +22,7 @@ use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
-class AddPageBlockApiCall implements HttpRequestParserInterface, ExecutorInterface
+class AddPageBlockHandler implements RequestHandlerInterface
 {
     use LoggableTrait;
 
@@ -68,7 +67,7 @@ class AddPageBlockApiCall implements HttpRequestParserInterface, ExecutorInterfa
     {
         if (!$request instanceof ArrayRequest) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during AddPageBlockApiCall.', new ServerErrorResponse());
+            throw new ResponseException('An error occurred during AddPageBlockHandler.', new ServerErrorResponse());
         }
 
         try {
@@ -86,7 +85,7 @@ class AddPageBlockApiCall implements HttpRequestParserInterface, ExecutorInterfa
             return new ArrayResponse(self::MESSAGE, ['data' => $pageBlock, 'includes' => ['pages']]);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
-            throw new ResponseException('An error occurred during AddPageBlockApiCall.', new ServerErrorResponse());
+            throw new ResponseException('An error occurred during AddPageBlockHandler.', new ServerErrorResponse());
         }
     }
 }

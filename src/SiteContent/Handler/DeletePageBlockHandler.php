@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\SiteContent\ApiCall;
+namespace Spot\SiteContent\Handler;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
@@ -8,8 +8,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
-use Spot\Api\Request\Executor\ExecutorInterface;
-use Spot\Api\Request\HttpRequestParserInterface;
+use Spot\Api\Request\Handler\RequestHandlerInterface;
 use Spot\Api\Request\Message\ArrayRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\ArrayResponse;
@@ -20,7 +19,7 @@ use Spot\Common\ParticleFixes\Validator;
 use Spot\Common\Request\ValidationFailedException;
 use Spot\SiteContent\Repository\PageRepository;
 
-class DeletePageBlockApiCall implements HttpRequestParserInterface, ExecutorInterface
+class DeletePageBlockHandler implements RequestHandlerInterface
 {
     use LoggableTrait;
 
@@ -53,7 +52,7 @@ class DeletePageBlockApiCall implements HttpRequestParserInterface, ExecutorInte
     {
         if (!$request instanceof ArrayRequest) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during DeletePageBlockApiCall.', new ServerErrorResponse());
+            throw new ResponseException('An error occurred during DeletePageBlockHandler.', new ServerErrorResponse());
         }
 
         try {
@@ -63,7 +62,7 @@ class DeletePageBlockApiCall implements HttpRequestParserInterface, ExecutorInte
             return new ArrayResponse(self::MESSAGE, ['data' => $pageBlock]);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());
-            throw new ResponseException('An error occurred during DeletePageBlockApiCall.', new ServerErrorResponse());
+            throw new ResponseException('An error occurred during DeletePageBlockHandler.', new ServerErrorResponse());
         }
     }
 }

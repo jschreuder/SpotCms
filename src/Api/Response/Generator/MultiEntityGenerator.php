@@ -27,7 +27,7 @@ class MultiEntityGenerator extends SingleEntityGenerator
 
         try {
             $collection = (new Collection($response['data'], $this->getSerializer()))
-                ->with($response['includes'] ?? []);
+                ->with(isset($response['includes']) ? $response['includes'] : []);
             $document = new Document($collection);
             foreach ($this->metaDataGenerator($response) as $key => $value) {
                 $document->addMeta($key, $value);

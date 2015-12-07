@@ -10,10 +10,10 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Spot\Api\ApiCall\ErrorApiCall;
+use Spot\Api\Request\Handler\ErrorHandler;
 use Spot\Api\Application;
 use Spot\Api\ApplicationInterface;
-use Spot\Api\Request\HttpRequestParserRouter;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter;
 use Spot\Api\Request\RequestBus;
 use Spot\Api\RequestBodyParser\JsonApiParser;
 use Spot\Api\Response\ResponseBus;
@@ -83,13 +83,13 @@ class DefaultServiceProvider implements
     public function configureRouting(Container $container, ApiBuilder $builder)
     {
         $container['errorHandler.badRequest'] = function () {
-            return new ErrorApiCall('error.badRequest', 400, 'Bad Request');
+            return new ErrorHandler('error.badRequest', 400, 'Bad Request');
         };
         $container['errorHandler.notFound'] = function () {
-            return new ErrorApiCall('error.notFound', 404, 'Not Found');
+            return new ErrorHandler('error.notFound', 404, 'Not Found');
         };
         $container['errorHandler.serverError'] = function () {
-            return new ErrorApiCall('error.serverError', 500, 'Server Error');
+            return new ErrorHandler('error.serverError', 500, 'Server Error');
         };
 
         // Add error handlers

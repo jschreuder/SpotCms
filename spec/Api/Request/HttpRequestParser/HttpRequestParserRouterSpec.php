@@ -1,20 +1,19 @@
 <?php
 
-namespace spec\Spot\Api\Request;
+namespace spec\Spot\Api\Request\HttpRequestParser;
 
 use FastRoute\Dispatcher as Router;
 use PhpSpec\ObjectBehavior;
 use Pimple\Container;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
-use Spot\Api\Request\HttpRequestParserInterface;
-use Spot\Api\Request\HttpRequestParserRouter;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\ArrayRequest;
 use Spot\Api\Request\Message\NotFoundRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Request\Message\ServerErrorRequest;
 
-/** @mixin  \Spot\Api\Request\HttpRequestParserRouter */
+/** @mixin  \Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter */
 class HttpRequestParserRouterSpec extends ObjectBehavior
 {
     /** @var  Container */
@@ -35,7 +34,7 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
 
     public function it_isInitializable()
     {
-        $this->shouldHaveType(HttpRequestParserRouter::class);
+        $this->shouldHaveType(\Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter::class);
     }
 
     /**
@@ -202,7 +201,7 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
         $router->dispatch($method, $path)
             ->willReturn([Router::FOUND, $requestName, []]);
 
-        $this->container[$requestName] = new class implements HttpRequestParserInterface {
+        $this->container[$requestName] = new class implements \Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface {
             public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
             {
                 return new \stdClass();

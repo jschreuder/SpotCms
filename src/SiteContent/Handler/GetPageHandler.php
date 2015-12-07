@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\SiteContent\ApiCall;
+namespace Spot\SiteContent\Handler;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
@@ -8,8 +8,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
-use Spot\Api\Request\Executor\ExecutorInterface;
-use Spot\Api\Request\HttpRequestParserInterface;
+use Spot\Api\Request\Handler\RequestHandlerInterface;
 use Spot\Api\Request\Message\ArrayRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\ArrayResponse;
@@ -22,11 +21,11 @@ use Spot\Common\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
-class GetPageBlockApiCall implements HttpRequestParserInterface, ExecutorInterface
+class GetPageHandler implements RequestHandlerInterface
 {
     use LoggableTrait;
 
-    const MESSAGE = 'pageBlocks.get';
+    const MESSAGE = 'pages.get';
 
     /** @var  PageRepository */
     private $pageRepository;
@@ -40,7 +39,6 @@ class GetPageBlockApiCall implements HttpRequestParserInterface, ExecutorInterfa
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
         $validator = new Validator();
-        $validator->required('page_uuid')->uuid();
         $validator->required('uuid')->uuid();
 
         $validationResult = $validator->validate($attributes);
@@ -55,22 +53,19 @@ class GetPageBlockApiCall implements HttpRequestParserInterface, ExecutorInterfa
     {
         if (!$request instanceof ArrayRequest) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during GetPageBlockApiCall.', new ServerErrorResponse());
+            throw new ResponseException('An error occurred during GetPageHandler.', new ServerErrorResponse());
         }
 
         try {
             try {
-                $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getData()['page_uuid']));
-                $block = $page->getBlockByUuid(Uuid::fromString($request->getData()['uuid']));
-                return new ArrayResponse(self::MESSAGE, ['data' => $block, 'includes' => ['pages']]);
+                $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getData()['uuid']));
+                return new ArrayResponse(self::MESSAGE, ['data' => $page, 'includes' => ['pageBlocks']]);
             } catch (NoUniqueResultException $e) {
-                throw new ResponseException('Page for PageBlock not found.', new NotFoundResponse());
-            } catch (\OutOfBoundsException $e) {
-                throw new ResponseException('PageBlock not found.', new NotFoundResponse());
+                throw new ResponseException('Page not found.', new NotFoundResponse());
             }
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());
-            throw new ResponseException('An error occurred during GetPageBlockApiCall.', new ServerErrorResponse());
+            throw new ResponseException('An error occurred during GetPageHandler.', new ServerErrorResponse());
         }
     }
 }

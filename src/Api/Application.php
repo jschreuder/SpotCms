@@ -6,7 +6,7 @@ use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Spot\Api\Request\HttpRequestParserInterface;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\RequestBusInterface;
 use Spot\Api\Request\RequestException;
 use Spot\Api\Response\ResponseBusInterface;

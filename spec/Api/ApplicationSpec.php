@@ -11,7 +11,7 @@ use Spot\Api\Response\ResponseException;
 /** @mixin  \Spot\Api\Application */
 class ApplicationSpec extends ObjectBehavior
 {
-    /** @var  \Spot\Api\Request\HttpRequestParserInterface $requestParser */
+    /** @var  \Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface $requestParser */
     private $requestParser;
 
     /** @var  \Spot\Api\Request\RequestBusInterface $requestBus */
@@ -24,7 +24,7 @@ class ApplicationSpec extends ObjectBehavior
     private $logger;
 
     /**
-     * @param  \Spot\Api\Request\HttpRequestParserInterface $requestParser
+     * @param  \Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface $requestParser
      * @param  \Spot\Api\Request\RequestBusInterface $requestBus
      * @param  \Spot\Api\Response\ResponseBusInterface $responseBus
      * @param  \Psr\Log\LoggerInterface $logger

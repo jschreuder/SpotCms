@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\SiteContent\ApiCall;
+namespace Spot\SiteContent\Handler;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
@@ -8,25 +8,22 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
-use Spot\Api\Request\Executor\ExecutorInterface;
-use Spot\Api\Request\HttpRequestParserInterface;
+use Spot\Api\Request\Handler\RequestHandlerInterface;
 use Spot\Api\Request\Message\ArrayRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\ArrayResponse;
-use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Common\ParticleFixes\Validator;
 use Spot\Common\Request\ValidationFailedException;
-use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
-class GetPageApiCall implements HttpRequestParserInterface, ExecutorInterface
+class DeletePageHandler implements RequestHandlerInterface
 {
     use LoggableTrait;
 
-    const MESSAGE = 'pages.get';
+    const MESSAGE = 'pages.delete';
 
     /** @var  PageRepository */
     private $pageRepository;
@@ -54,19 +51,16 @@ class GetPageApiCall implements HttpRequestParserInterface, ExecutorInterface
     {
         if (!$request instanceof ArrayRequest) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during GetPageApiCall.', new ServerErrorResponse());
+            throw new ResponseException('An error occurred during DeletePageHandler.', new ServerErrorResponse());
         }
 
         try {
-            try {
-                $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getData()['uuid']));
-                return new ArrayResponse(self::MESSAGE, ['data' => $page, 'includes' => ['pageBlocks']]);
-            } catch (NoUniqueResultException $e) {
-                throw new ResponseException('Page not found.', new NotFoundResponse());
-            }
+            $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));
+            $this->pageRepository->delete($page);
+            return new ArrayResponse(self::MESSAGE, ['data' => $page]);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());
-            throw new ResponseException('An error occurred during GetPageApiCall.', new ServerErrorResponse());
+            throw new ResponseException('An error occurred during DeletePageHandler.', new ServerErrorResponse());
         }
     }
 }

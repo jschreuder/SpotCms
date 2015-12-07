@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\ApiCall;
+namespace Spot\Api\Request\Handler;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
+use Spot\Api\ApiCall\int;
+use Spot\Api\ApiCall\string;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Generator\GeneratorInterface;
@@ -11,7 +13,7 @@ use Spot\Api\Response\Message\ArrayResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Http\JsonApiErrorResponse;
 
-class ErrorApiCall implements ExecutorInterface, GeneratorInterface
+class ErrorHandler implements ExecutorInterface, GeneratorInterface
 {
     /** @var  string */
     private $name;

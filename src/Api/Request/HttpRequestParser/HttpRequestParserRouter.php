@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\Request;
+namespace Spot\Api\Request\HttpRequestParser;
 
 use FastRoute\Dispatcher as Router;
 use Pimple\Container;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\NotFoundRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Request\Message\ServerErrorRequest;

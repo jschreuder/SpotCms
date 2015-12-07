@@ -10,15 +10,15 @@ use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Common\ApiBuilder\ApiBuilder;
 use Spot\Common\ApiBuilder\RepositoryBuilderInterface;
 use Spot\Common\ApiBuilder\RouterBuilderInterface;
-use Spot\SiteContent\ApiCall\AddPageBlockApiCall;
-use Spot\SiteContent\ApiCall\CreatePageApiCall;
-use Spot\SiteContent\ApiCall\DeletePageApiCall;
-use Spot\SiteContent\ApiCall\DeletePageBlockApiCall;
-use Spot\SiteContent\ApiCall\GetPageApiCall;
-use Spot\SiteContent\ApiCall\GetPageBlockApiCall;
-use Spot\SiteContent\ApiCall\ListPagesApiCall;
-use Spot\SiteContent\ApiCall\UpdatePageApiCall;
-use Spot\SiteContent\ApiCall\UpdatePageBlockApiCall;
+use Spot\SiteContent\Handler\AddPageBlockHandler;
+use Spot\SiteContent\Handler\CreatePageHandler;
+use Spot\SiteContent\Handler\DeletePageHandler;
+use Spot\SiteContent\Handler\DeletePageBlockHandler;
+use Spot\SiteContent\Handler\GetPageHandler;
+use Spot\SiteContent\Handler\GetPageBlockHandler;
+use Spot\SiteContent\Handler\ListPagesHandler;
+use Spot\SiteContent\Handler\UpdatePageHandler;
+use Spot\SiteContent\Handler\UpdatePageBlockHandler;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Serializer\PageBlockSerializer;
 use Spot\SiteContent\Serializer\PageSerializer;
@@ -36,34 +36,34 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
     public function configureRouting(Container $container, ApiBuilder $builder)
     {
         // Pages API Calls
-        $container['apiCall.pages.create'] = function (Container $container) {
-            return new CreatePageApiCall($container['repository.pages'], $container['logger']);
+        $container['handler.pages.create'] = function (Container $container) {
+            return new CreatePageHandler($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pages.list'] = function (Container $container) {
-            return new ListPagesApiCall($container['repository.pages'], $container['logger']);
+        $container['handler.pages.list'] = function (Container $container) {
+            return new ListPagesHandler($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pages.get'] = function (Container $container) {
-            return new GetPageApiCall($container['repository.pages'], $container['logger']);
+        $container['handler.pages.get'] = function (Container $container) {
+            return new GetPageHandler($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pages.update'] = function (Container $container) {
-            return new UpdatePageApiCall($container['repository.pages'], $container['logger']);
+        $container['handler.pages.update'] = function (Container $container) {
+            return new UpdatePageHandler($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pages.delete'] = function (Container $container) {
-            return new DeletePageApiCall($container['repository.pages'], $container['logger']);
+        $container['handler.pages.delete'] = function (Container $container) {
+            return new DeletePageHandler($container['repository.pages'], $container['logger']);
         };
 
         // PageBlocks API Calls
-        $container['apiCall.pageBlocks.create'] = function (Container $container) {
-            return new AddPageBlockApiCall($container['repository.pages'], $container['logger']);
+        $container['handler.pageBlocks.create'] = function (Container $container) {
+            return new AddPageBlockHandler($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pageBlocks.get'] = function (Container $container) {
-            return new GetPageBlockApiCall($container['repository.pages'], $container['logger']);
+        $container['handler.pageBlocks.get'] = function (Container $container) {
+            return new GetPageBlockHandler($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pageBlocks.update'] = function (Container $container) {
-            return new UpdatePageBlockApiCall($container['repository.pages'], $container['logger']);
+        $container['handler.pageBlocks.update'] = function (Container $container) {
+            return new UpdatePageBlockHandler($container['repository.pages'], $container['logger']);
         };
-        $container['apiCall.pageBlocks.delete'] = function (Container $container) {
-            return new DeletePageBlockApiCall($container['repository.pages'], $container['logger']);
+        $container['handler.pageBlocks.delete'] = function (Container $container) {
+            return new DeletePageBlockHandler($container['repository.pages'], $container['logger']);
         };
 
         // Response Generators for both
@@ -88,43 +88,43 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
             return new SingleEntityGenerator(new PageBlockSerializer(), null, $container['logger']);
         };
 
-        // Configure ApiBuilder to use ApiCalls & Response Generators
+        // Configure ApiBuilder to use Handlers & Response Generators
         $builder
-            ->addParser('POST', $this->uriSegment, 'apiCall.pages.create')
-            ->addRequestExecutor(CreatePageApiCall::MESSAGE, 'apiCall.pages.create')
-            ->addResponseGenerator(CreatePageApiCall::MESSAGE, 'responseGenerator.pages.single');
+            ->addParser('POST', $this->uriSegment, 'handler.pages.create')
+            ->addRequestExecutor(CreatePageHandler::MESSAGE, 'handler.pages.create')
+            ->addResponseGenerator(CreatePageHandler::MESSAGE, 'responseGenerator.pages.single');
         $builder
-            ->addParser('GET', $this->uriSegment, 'apiCall.pages.list')
-            ->addRequestExecutor(ListPagesApiCall::MESSAGE, 'apiCall.pages.list')
-            ->addResponseGenerator(ListPagesApiCall::MESSAGE, 'responseGenerator.pages.multi');
+            ->addParser('GET', $this->uriSegment, 'handler.pages.list')
+            ->addRequestExecutor(ListPagesHandler::MESSAGE, 'handler.pages.list')
+            ->addResponseGenerator(ListPagesHandler::MESSAGE, 'responseGenerator.pages.multi');
         $builder
-            ->addParser('GET', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'apiCall.pages.get')
-            ->addRequestExecutor(GetPageApiCall::MESSAGE, 'apiCall.pages.get')
-            ->addResponseGenerator(GetPageApiCall::MESSAGE, 'responseGenerator.pages.single');
+            ->addParser('GET', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.get')
+            ->addRequestExecutor(GetPageHandler::MESSAGE, 'handler.pages.get')
+            ->addResponseGenerator(GetPageHandler::MESSAGE, 'responseGenerator.pages.single');
         $builder
-            ->addParser('PATCH', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'apiCall.pages.update')
-            ->addRequestExecutor(UpdatePageApiCall::MESSAGE, 'apiCall.pages.update')
-            ->addResponseGenerator(UpdatePageApiCall::MESSAGE, 'responseGenerator.pages.single');
+            ->addParser('PATCH', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.update')
+            ->addRequestExecutor(UpdatePageHandler::MESSAGE, 'handler.pages.update')
+            ->addResponseGenerator(UpdatePageHandler::MESSAGE, 'responseGenerator.pages.single');
         $builder
-            ->addParser('DELETE', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'apiCall.pages.delete')
-            ->addRequestExecutor(DeletePageApiCall::MESSAGE, 'apiCall.pages.delete')
-            ->addResponseGenerator(DeletePageApiCall::MESSAGE, 'responseGenerator.pages.single');
+            ->addParser('DELETE', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.delete')
+            ->addRequestExecutor(DeletePageHandler::MESSAGE, 'handler.pages.delete')
+            ->addResponseGenerator(DeletePageHandler::MESSAGE, 'responseGenerator.pages.single');
         $builder
-            ->addParser('POST', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks', 'apiCall.pageBlocks.create')
-            ->addRequestExecutor(AddPageBlockApiCall::MESSAGE, 'apiCall.pageBlocks.create')
-            ->addResponseGenerator(AddPageBlockApiCall::MESSAGE, 'responseGenerator.pageBlocks.single');
+            ->addParser('POST', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks', 'handler.pageBlocks.create')
+            ->addRequestExecutor(AddPageBlockHandler::MESSAGE, 'handler.pageBlocks.create')
+            ->addResponseGenerator(AddPageBlockHandler::MESSAGE, 'responseGenerator.pageBlocks.single');
         $builder
-            ->addParser('GET', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'apiCall.pageBlocks.get')
-            ->addRequestExecutor(GetPageBlockApiCall::MESSAGE, 'apiCall.pageBlocks.get')
-            ->addResponseGenerator(GetPageBlockApiCall::MESSAGE, 'responseGenerator.pageBlocks.single');
+            ->addParser('GET', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.get')
+            ->addRequestExecutor(GetPageBlockHandler::MESSAGE, 'handler.pageBlocks.get')
+            ->addResponseGenerator(GetPageBlockHandler::MESSAGE, 'responseGenerator.pageBlocks.single');
         $builder
-            ->addParser('PATCH', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'apiCall.pageBlocks.update')
-            ->addRequestExecutor(UpdatePageBlockApiCall::MESSAGE, 'apiCall.pageBlocks.update')
-            ->addResponseGenerator(UpdatePageBlockApiCall::MESSAGE, 'responseGenerator.pageBlocks.single');
+            ->addParser('PATCH', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.update')
+            ->addRequestExecutor(UpdatePageBlockHandler::MESSAGE, 'handler.pageBlocks.update')
+            ->addResponseGenerator(UpdatePageBlockHandler::MESSAGE, 'responseGenerator.pageBlocks.single');
         $builder
-            ->addParser('DELETE', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'apiCall.pageBlocks.delete')
-            ->addRequestExecutor(DeletePageBlockApiCall::MESSAGE, 'apiCall.pageBlocks.delete')
-            ->addResponseGenerator(DeletePageBlockApiCall::MESSAGE, 'responseGenerator.pageBlocks.single');
+            ->addParser('DELETE', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.delete')
+            ->addRequestExecutor(DeletePageBlockHandler::MESSAGE, 'handler.pageBlocks.delete')
+            ->addResponseGenerator(DeletePageBlockHandler::MESSAGE, 'responseGenerator.pageBlocks.single');
     }
 
     public function configureRepositories(Container $container)
