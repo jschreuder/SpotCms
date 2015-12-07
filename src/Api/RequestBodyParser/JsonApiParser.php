@@ -34,7 +34,7 @@ class JsonApiParser implements ApplicationInterface
 
         // If an error occurred, duck out now
         if (json_last_error() !== JSON_ERROR_NONE) {
-            return new JsonApiErrorResponse(['error' => 'Invalid JSON, couldn\'t decode.'], 400);
+            return new JsonApiErrorResponse('Invalid JSON, couldn\'t decode.', 400);
         }
 
         // Everything is well, continue on with parsed JSON body
