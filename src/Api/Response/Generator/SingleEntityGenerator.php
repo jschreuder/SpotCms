@@ -52,7 +52,7 @@ class SingleEntityGenerator implements GeneratorInterface
     {
         if (!$response instanceof ArrayResponse) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
-            return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
+            return new JsonApiErrorResponse('Server Error', 500);
         }
         if (!isset($response['data'])) {
             $this->log(LogLevel::ERROR, 'No data present in Response.');
