@@ -4,8 +4,6 @@ namespace Spot\Api\Request\Handler;
 
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
-use Spot\Api\ApiCall\int;
-use Spot\Api\ApiCall\string;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Generator\GeneratorInterface;

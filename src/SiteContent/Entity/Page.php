@@ -3,10 +3,13 @@
 namespace Spot\SiteContent\Entity;
 
 use Ramsey\Uuid\UuidInterface;
+use Spot\DataModel\Entity\ObjectMetaDataTrait;
 use Spot\SiteContent\Value\PageStatusValue;
 
 class Page
 {
+    use ObjectMetaDataTrait;
+
     const TYPE = 'pages';
 
     /** @var  UuidInterface */

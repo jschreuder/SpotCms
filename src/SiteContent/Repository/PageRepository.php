@@ -31,7 +31,7 @@ class PageRepository
             $this->objectRepository->create(Page::TYPE, $page->getUuid());
             $this->pdo->prepare('
                 INSERT INTO pages (page_uuid, title, slug, short_title, parent_uuid, sort_order, status)
-                    VALUES (:page_uuid, :title, :slug, :short_title, :parent_uuid, :sort_order, :status)
+                     VALUES (:page_uuid, :title, :slug, :short_title, :parent_uuid, :sort_order, :status)
             ')->execute([
                 'page_uuid' => $page->getUuid()->getBytes(),
                 'title' => $page->getTitle(),
@@ -54,12 +54,12 @@ class PageRepository
         try {
             $query = $this->pdo->prepare('
                 UPDATE pages
-                    SET title = :title,
-                        slug = :slug,
-                        short_title = :short_title,
-                        sort_order = :sort_order,
-                        status = :status
-                    WHERE page_uuid = :page_uuid
+                   SET title = :title,
+                       slug = :slug,
+                       short_title = :short_title,
+                       sort_order = :sort_order,
+                       status = :status
+                 WHERE page_uuid = :page_uuid
             ');
             $query->execute([
                 'page_uuid' => $page->getUuid()->getBytes(),
@@ -91,7 +91,7 @@ class PageRepository
 
     private function getPageFromRow(array $row) : Page
     {
-        return new Page(
+        return (new Page(
             Uuid::fromBytes($row['page_uuid']),
             $row['title'],
             $row['slug'],
@@ -99,15 +99,16 @@ class PageRepository
             $row['parent_uuid'] ? Uuid::fromBytes($row['parent_uuid']) : null,
             intval($row['sort_order']),
             PageStatusValue::get($row['status'])
-        );
+        ))->metaDataSet(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
     }
 
     public function getByUuid(UuidInterface $uuid) : Page
     {
         $query = $this->pdo->prepare('
-            SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status
-                FROM pages
-                WHERE page_uuid = :page_uuid
+                SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status, created, updated
+                  FROM pages
+            INNER JOIN objects ON (page_uuid = uuid AND type = "pages")
+                 WHERE page_uuid = :page_uuid
         ');
         $query->execute(['page_uuid' => $uuid->getBytes()]);
 
@@ -123,9 +124,10 @@ class PageRepository
     public function getBySlug(string $slug) : Page
     {
         $query = $this->pdo->prepare('
-            SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status
-                FROM pages
-                WHERE slug = :slug
+                SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status, created, updated
+                  FROM pages
+            INNER JOIN objects ON (page_uuid = uuid AND type = "pages")
+                 WHERE slug = :slug
         ');
         $query->execute(['slug' => $slug]);
 
@@ -143,18 +145,20 @@ class PageRepository
     {
         if (!is_null($uuid)) {
             $query = $this->pdo->prepare('
-                SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status
-                    FROM pages
-                    WHERE parent_uuid = :parent_uuid
-                    ORDER BY sort_order ASC
+                    SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status, created, updated
+                      FROM pages
+                INNER JOIN objects ON (page_uuid = uuid AND type = "pages")
+                     WHERE parent_uuid = :parent_uuid
+                  ORDER BY sort_order ASC
             ');
             $query->execute(['parent_uuid' => $uuid ? $uuid->getBytes() : null]);
         } else {
             $query = $this->pdo->prepare('
-                SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status
-                    FROM pages
-                    WHERE parent_uuid IS NULL
-                    ORDER BY sort_order ASC
+                    SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status, created, updated
+                      FROM pages
+                INNER JOIN objects ON (page_uuid = uuid AND type = "pages")
+                     WHERE parent_uuid IS NULL
+                  ORDER BY sort_order ASC
             ');
             $query->execute();
         }
@@ -178,7 +182,7 @@ class PageRepository
             $this->objectRepository->create(PageBlock::TYPE, $block->getUuid());
             $this->pdo->prepare('
                 INSERT INTO page_blocks (page_block_uuid, page_uuid, type, parameters, location, sort_order, status)
-                    VALUES (:page_block_uuid, :page_uuid, :type, :parameters, :location, :sort_order, :status)
+                     VALUES (:page_block_uuid, :page_uuid, :type, :parameters, :location, :sort_order, :status)
             ')->execute([
                 'page_block_uuid' => $block->getUuid()->getBytes(),
                 'page_uuid' => $block->getPage()->getUuid()->getBytes(),
@@ -206,10 +210,10 @@ class PageRepository
         try {
             $query = $this->pdo->prepare('
                 UPDATE page_blocks
-                    SET parameters = :parameters,
-                        sort_order = :sort_order,
-                        status = :status
-                    WHERE page_block_uuid = :page_block_uuid
+                   SET parameters = :parameters,
+                       sort_order = :sort_order,
+                       status = :status
+                 WHERE page_block_uuid = :page_block_uuid
             ');
             $query->execute([
                 'page_block_uuid' => $block->getUuid()->getBytes(),
@@ -246,7 +250,7 @@ class PageRepository
 
     private function getPageBlockFromRow(Page $page, array $row)
     {
-        return new PageBlock(
+        return (new PageBlock(
             Uuid::fromBytes($row['page_block_uuid']),
             $page,
             $row['type'],
@@ -254,7 +258,7 @@ class PageRepository
             $row['location'],
             intval($row['sort_order']),
             PageStatusValue::get($row['status'])
-        );
+        ))->metaDataSet(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
     }
 
     /**
@@ -273,10 +277,11 @@ class PageRepository
         }
 
         $query = $this->pdo->prepare('
-            SELECT page_block_uuid, page_uuid, type, parameters, location, sort_order, status
-              FROM page_blocks
-             WHERE page_uuid IN ("' . implode('", "', $uuids) . '")
-          ORDER BY sort_order ASC
+                SELECT page_block_uuid, page_uuid, pb.type, parameters, location, sort_order, status, created, updated
+                  FROM page_blocks pb
+            INNER JOIN objects o ON (page_block_uuid = uuid AND o.type = "pageBlocks")
+                 WHERE page_uuid IN ("' . implode('", "', $uuids) . '")
+              ORDER BY sort_order ASC
         ');
         $query->execute();
 

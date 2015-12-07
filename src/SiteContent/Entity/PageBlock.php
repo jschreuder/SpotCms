@@ -3,10 +3,13 @@
 namespace Spot\SiteContent\Entity;
 
 use Ramsey\Uuid\UuidInterface;
+use Spot\DataModel\Entity\ObjectMetaDataTrait;
 use Spot\SiteContent\Value\PageStatusValue;
 
 class PageBlock implements \ArrayAccess
 {
+    use ObjectMetaDataTrait;
+
     const TYPE = 'pageBlocks';
 
     /** @var  UuidInterface */

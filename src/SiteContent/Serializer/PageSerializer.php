@@ -37,6 +37,10 @@ class PageSerializer implements SerializerInterface
             'parent_uuid' => $page->getParentUuid() ? $page->getParentUuid()->toString() : null,
             'sort_order' => $page->getSortOrder(),
             'status' => $page->getStatus()->toString(),
+            'meta' => [
+                'created' => $page->metaDataGetCreated()->format('c'),
+                'updated' => $page->metaDataGetCreated()->format('c'),
+            ],
         ];
     }
 
