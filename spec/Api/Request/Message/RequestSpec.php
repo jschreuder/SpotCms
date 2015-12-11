@@ -4,10 +4,10 @@ namespace spec\Spot\Api\Request\Message;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Api\Request\Message\ArrayRequest;
+use Spot\Api\Request\Message\Request;
 
-/** @mixin  \Spot\Api\Request\Message\ArrayRequest */
-class ArrayRequestSpec extends ObjectBehavior
+/** @mixin  \Spot\Api\Request\Message\Request */
+class RequestSpec extends ObjectBehavior
 {
     private $name = 'array.request';
     private $data = ['answer' => 42];
@@ -19,7 +19,7 @@ class ArrayRequestSpec extends ObjectBehavior
 
     public function it_isInitializable()
     {
-        $this->shouldHaveType(ArrayRequest::class);
+        $this->shouldHaveType(Request::class);
     }
 
     public function it_canGiveItsName()
@@ -30,7 +30,7 @@ class ArrayRequestSpec extends ObjectBehavior
 
     public function it_canGiveItsData()
     {
-        $this->getData()
+        $this->getAttributes()
             ->shouldReturn($this->data);
     }
 

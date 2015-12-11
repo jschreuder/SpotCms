@@ -6,7 +6,7 @@ use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Generator\GeneratorInterface;
-use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Http\JsonApiErrorResponse;
 
@@ -30,7 +30,7 @@ class ErrorHandler implements ExecutorInterface, GeneratorInterface
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        return new ArrayResponse($this->name, []);
+        return new Response($this->name, []);
     }
 
     public function generateResponse(ResponseInterface $response) : HttpResponse

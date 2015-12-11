@@ -4,7 +4,7 @@ namespace spec\Spot\Api\Request;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Api\Request\Message\ArrayRequest;
+use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\RequestException;
 
 /** @mixin  RequestException */
@@ -23,7 +23,7 @@ class RequestExceptionSpec extends ObjectBehavior
 
     public function it_comesWithARequestObject()
     {
-        $request = new ArrayRequest('destroy.earth', ['not' => 42]);
+        $request = new Request('destroy.earth', ['not' => 42]);
         $this->beConstructedWith('Reasons', $request);
 
         $this->getRequestObject()

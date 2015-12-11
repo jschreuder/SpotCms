@@ -49,7 +49,7 @@ class SingleEntityGeneratorSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Response\Message\ArrayResponse $response
+     * @param  \Spot\Api\Response\Message\Response $response
      * @param  \Psr\Http\Message\RequestInterface $httpRequest
      */
     public function it_canGenerateAResponse($response, $httpRequest)
@@ -81,7 +81,7 @@ class SingleEntityGeneratorSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Response\Message\ArrayResponse $response
+     * @param  \Spot\Api\Response\Message\Response $response
      * @param  \Psr\Http\Message\RequestInterface $httpRequest
      */
     public function it_willErrorOnEmptyDataResponse($response, $httpRequest)
@@ -92,7 +92,7 @@ class SingleEntityGeneratorSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Response\Message\ArrayResponse $response
+     * @param  \Spot\Api\Response\Message\Response $response
      * @param  \Psr\Http\Message\RequestInterface $httpRequest
      */
     public function it_willReturnHttpErrorOnExceptions($response, $httpRequest)

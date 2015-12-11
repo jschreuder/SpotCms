@@ -8,9 +8,9 @@ use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Handler\RequestHandlerInterface;
-use Spot\Api\Request\Message\ArrayRequest;
+use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\RequestInterface;
-use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
@@ -43,19 +43,19 @@ class ListPagesHandler implements RequestHandlerInterface
             throw new ValidationFailedException($validationResult);
         }
 
-        return new ArrayRequest(self::MESSAGE, $validationResult->getValues());
+        return new Request(self::MESSAGE, $validationResult->getValues());
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        if (!$request instanceof ArrayRequest) {
+        if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
             throw new ResponseException('An error occurred during ListPagesHandler.', new ServerErrorResponse());
         }
 
         try {
             $parentUuid = isset($request['parent_uuid']) ? Uuid::fromString($request['parent_uuid']) : null;
-            return new ArrayResponse(self::MESSAGE, [
+            return new Response(self::MESSAGE, [
                 'data' => $this->pageRepository->getAllByParentUuid($parentUuid),
                 'parent_uuid' => $parentUuid,
                 'includes' => ['pageBlocks'],

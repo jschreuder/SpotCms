@@ -4,7 +4,7 @@ namespace spec\Spot\Api\Response;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\ResponseException;
 
 /** @mixin  ResponseException */
@@ -22,7 +22,7 @@ class ResponseExceptionSpec extends ObjectBehavior
 
     public function it_comesWithAResponseObject()
     {
-        $response = new ArrayResponse('destroy.earth', ['answer' => 'misfiled']);
+        $response = new Response('destroy.earth', ['answer' => 'misfiled']);
         $this->beConstructedWith('Reasons', $response);
 
         $this->getResponseObject()

@@ -6,7 +6,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Spot\Api\Http\JsonApiErrorResponse;
 use Spot\Api\Request\Handler\ErrorHandler;
-use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\Response;
 
 /** @mixin  ErrorHandler */
 class ErrorHandlerSpec extends ObjectBehavior
@@ -37,9 +37,9 @@ class ErrorHandlerSpec extends ObjectBehavior
     public function it_canExecuteARequest($request, $httpRequest)
     {
         $response = $this->executeRequest($request, $httpRequest);
-        $response->shouldHaveType(ArrayResponse::class);
+        $response->shouldHaveType(Response::class);
         $response->getResponseName()->shouldReturn($this->name);
-        $response->getData()->shouldReturn([]);
+        $response->getAttributes()->shouldReturn([]);
     }
 
     /**

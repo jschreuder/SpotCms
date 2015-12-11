@@ -2,7 +2,9 @@
 
 namespace Spot\Api\Request\Message;
 
-interface RequestInterface
+interface RequestInterface extends \ArrayAccess
 {
     public function getRequestName() : string;
+
+    public function getAttributes() : array;
 }

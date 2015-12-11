@@ -8,7 +8,7 @@ use Pimple\Container;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
-use Spot\Api\Request\Message\ArrayRequest;
+use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\NotFoundRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Request\Message\ServerErrorRequest;
@@ -47,7 +47,7 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
         $method = 'GET';
         $path = '/life/universe/everything/';
         $requestName = 'forty.two';
-        $request = new ArrayRequest($requestName, []);
+        $request = new Request($requestName, []);
 
         $httpRequest->getMethod()
             ->willReturn($method);

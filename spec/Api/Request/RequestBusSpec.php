@@ -9,7 +9,7 @@ use Psr\Http\Message\RequestInterface as HttpRequest;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\RequestBus;
 use Spot\Api\Request\Message\RequestInterface;
-use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\ResponseException;
 
@@ -43,7 +43,7 @@ class RequestBusSpec extends ObjectBehavior
     public function it_canExecuteSuccessfully($request)
     {
         $requestName = 'request.name';
-        $response = new ArrayResponse($requestName, []);
+        $response = new Response($requestName, []);
         $executorName = 'executor.test';
         $executor = new class($response) implements ExecutorInterface {
             private $response;

@@ -2,7 +2,9 @@
 
 namespace Spot\Api\Response\Message;
 
-interface ResponseInterface
+interface ResponseInterface extends \ArrayAccess
 {
     public function getResponseName() : string;
+
+    public function getAttributes() : array;
 }

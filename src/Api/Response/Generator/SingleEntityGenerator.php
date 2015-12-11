@@ -9,7 +9,7 @@ use Psr\Log\LogLevel;
 use Spot\Api\Http\JsonApiErrorResponse;
 use Spot\Api\Http\JsonApiResponse;
 use Spot\Api\LoggableTrait;
-use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Resource;
@@ -50,7 +50,7 @@ class SingleEntityGenerator implements GeneratorInterface
 
     public function generateResponse(ResponseInterface $response) : HttpResponse
     {
-        if (!$response instanceof ArrayResponse) {
+        if (!$response instanceof Response) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
             return new JsonApiErrorResponse('Server Error', 500);
         }

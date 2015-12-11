@@ -9,9 +9,9 @@ use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Handler\RequestHandlerInterface;
-use Spot\Api\Request\Message\ArrayRequest;
+use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\RequestInterface;
-use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
@@ -57,14 +57,14 @@ class AddPageBlockHandler implements RequestHandlerInterface
             throw new ValidationFailedException($validationResult);
         }
 
-        $request = new ArrayRequest(self::MESSAGE, $validationResult->getValues()['data']['attributes']);
+        $request = new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes']);
         $request['page_uuid'] = $attributes['page_uuid'];
         return $request;
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        if (!$request instanceof ArrayRequest) {
+        if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
             throw new ResponseException('An error occurred during AddPageBlockHandler.', new ServerErrorResponse());
         }
@@ -81,7 +81,7 @@ class AddPageBlockHandler implements RequestHandlerInterface
                 PageStatusValue::get($request['status'])
             );
             $this->pageRepository->addBlockToPage($pageBlock, $page);
-            return new ArrayResponse(self::MESSAGE, ['data' => $pageBlock, 'includes' => ['pages']]);
+            return new Response(self::MESSAGE, ['data' => $pageBlock, 'includes' => ['pages']]);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
             throw new ResponseException('An error occurred during AddPageBlockHandler.', new ServerErrorResponse());

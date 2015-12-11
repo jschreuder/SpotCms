@@ -4,21 +4,25 @@ namespace Spot\Api\Response\Message;
 
 use Spot\Api\Message\AttributesArrayAccessTrait;
 
-class NotFoundResponse implements ResponseInterface
+class Response implements ResponseInterface
 {
     use \Spot\Api\Message\AttributesArrayAccessTrait;
+
+    /** @var  string */
+    private $name;
 
     /** @var  array */
     private $attributes;
 
-    public function __construct(array $attributes = [])
+    public function __construct(string $name, array $data)
     {
-        $this->attributes = $attributes;
+        $this->name = $name;
+        $this->attributes = $data;
     }
 
     /** {@inheritdoc} */
     public function getResponseName() : string
     {
-        return 'error.notFound';
+        return $this->name;
     }
 }

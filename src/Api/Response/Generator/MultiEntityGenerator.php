@@ -6,7 +6,7 @@ use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LogLevel;
 use Spot\Api\Http\JsonApiErrorResponse;
 use Spot\Api\Http\JsonApiResponse;
-use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Tobscure\JsonApi\Collection;
 use Tobscure\JsonApi\Document;
@@ -15,7 +15,7 @@ class MultiEntityGenerator extends SingleEntityGenerator
 {
     public function generateResponse(ResponseInterface $response) : HttpResponse
     {
-        if (!$response instanceof ArrayResponse) {
+        if (!$response instanceof Response) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
             return new JsonApiErrorResponse(['error' => 'Server Error'], 500);
         }

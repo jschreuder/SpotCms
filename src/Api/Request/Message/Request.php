@@ -4,21 +4,25 @@ namespace Spot\Api\Request\Message;
 
 use Spot\Api\Message\AttributesArrayAccessTrait;
 
-class BadRequest implements RequestInterface
+class Request implements RequestInterface
 {
     use \Spot\Api\Message\AttributesArrayAccessTrait;
+
+    /** @var  string */
+    private $name;
 
     /** @var  array */
     private $attributes;
 
-    public function __construct(array $attributes = [])
+    public function __construct(string $name, array $data)
     {
-        $this->attributes = $attributes;
+        $this->name = $name;
+        $this->attributes = $data;
     }
 
     /** {@inheritdoc} */
     public function getRequestName() : string
     {
-        return 'error.badRequest';
+        return $this->name;
     }
 }

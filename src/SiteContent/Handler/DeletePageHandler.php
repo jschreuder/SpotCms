@@ -8,9 +8,9 @@ use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Handler\RequestHandlerInterface;
-use Spot\Api\Request\Message\ArrayRequest;
+use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\RequestInterface;
-use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
@@ -43,12 +43,12 @@ class DeletePageHandler implements RequestHandlerInterface
             throw new ValidationFailedException($validationResult);
         }
 
-        return new ArrayRequest(self::MESSAGE, $validationResult->getValues());
+        return new Request(self::MESSAGE, $validationResult->getValues());
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        if (!$request instanceof ArrayRequest) {
+        if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
             throw new ResponseException('An error occurred during DeletePageHandler.', new ServerErrorResponse());
         }
@@ -56,7 +56,7 @@ class DeletePageHandler implements RequestHandlerInterface
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));
             $this->pageRepository->delete($page);
-            return new ArrayResponse(self::MESSAGE, ['data' => $page]);
+            return new Response(self::MESSAGE, ['data' => $page]);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());
             throw new ResponseException('An error occurred during DeletePageHandler.', new ServerErrorResponse());

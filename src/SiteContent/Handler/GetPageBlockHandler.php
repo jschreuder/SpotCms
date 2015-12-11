@@ -8,9 +8,9 @@ use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Handler\RequestHandlerInterface;
-use Spot\Api\Request\Message\ArrayRequest;
+use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\RequestInterface;
-use Spot\Api\Response\Message\ArrayResponse;
+use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
@@ -46,21 +46,21 @@ class GetPageBlockHandler implements RequestHandlerInterface
             throw new ValidationFailedException($validationResult);
         }
 
-        return new ArrayRequest(self::MESSAGE, $validationResult->getValues());
+        return new Request(self::MESSAGE, $validationResult->getValues());
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        if (!$request instanceof ArrayRequest) {
+        if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
             throw new ResponseException('An error occurred during GetPageBlockHandler.', new ServerErrorResponse());
         }
 
         try {
             try {
-                $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getData()['page_uuid']));
-                $block = $page->getBlockByUuid(Uuid::fromString($request->getData()['uuid']));
-                return new ArrayResponse(self::MESSAGE, ['data' => $block, 'includes' => ['pages']]);
+                $page = $this->pageRepository->getByUuid(Uuid::fromString($request['page_uuid']));
+                $block = $page->getBlockByUuid(Uuid::fromString($request['uuid']));
+                return new Response(self::MESSAGE, ['data' => $block, 'includes' => ['pages']]);
             } catch (NoUniqueResultException $e) {
                 throw new ResponseException('Page for PageBlock not found.', new NotFoundResponse());
             } catch (\OutOfBoundsException $e) {
