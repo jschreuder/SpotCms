@@ -10,16 +10,15 @@ use Spot\Api\Request\RequestException;
 /** @mixin  RequestException */
 class RequestExceptionSpec extends ObjectBehavior
 {
-    private $httpRequest;
+    private $request;
 
     /**
-     * @param  \Psr\Http\Message\RequestInterface $httpRequest
+     * @param  \Spot\Api\Request\Message\RequestInterface $request
      */
-    public function let($httpRequest)
+    public function let($request)
     {
-        $this->httpRequest = $httpRequest;
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/vnd.api+json');
-        $this->beConstructedWith('Reasons', null, $httpRequest);
+        $this->request = $request;
+        $this->beConstructedWith('Reasons', $request);
     }
 
     public function it_isInitializable()
@@ -30,11 +29,10 @@ class RequestExceptionSpec extends ObjectBehavior
 
     public function it_comesWithARequestObject()
     {
-        $request = new Request('destroy.earth', ['not' => 42], $this->httpRequest->getWrappedObject());
-        $this->beConstructedWith('Reasons', $request, $this->httpRequest);
+        $this->beConstructedWith('Reasons', $this->request);
 
         $this->getRequestObject()
-            ->shouldReturn($request);
+            ->shouldReturn($this->request);
         $this->getMessage()
             ->shouldReturn('Reasons');
     }

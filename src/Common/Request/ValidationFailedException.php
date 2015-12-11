@@ -21,7 +21,7 @@ class ValidationFailedException extends RequestException
             }
         }
 
-        parent::__construct(implode("\n", $this->errors), new BadRequest([], $httpRequest));
+        parent::__construct(implode("\n", $this->errors), new BadRequest(['errors' => $this->errors], $httpRequest));
     }
 
     public function getErrors() : array

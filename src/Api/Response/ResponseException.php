@@ -2,9 +2,7 @@
 
 namespace Spot\Api\Response;
 
-use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\ResponseInterface;
-use Spot\Api\Response\Message\ServerErrorResponse;
 
 class ResponseException extends \RuntimeException
 {
