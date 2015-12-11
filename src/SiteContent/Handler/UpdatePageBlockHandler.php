@@ -67,7 +67,10 @@ class UpdatePageBlockHandler implements RequestHandlerInterface
     {
         if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during UpdatePageBlockHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during UpdatePageBlockHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
 
         try {
@@ -85,10 +88,13 @@ class UpdatePageBlockHandler implements RequestHandlerInterface
                 $block->setStatus(PageStatusValue::get($request['status']));
             }
             $this->pageRepository->updateBlockForPage($block, $page);
-            return new Response(self::MESSAGE, ['data' => $block]);
+            return new Response(self::MESSAGE, ['data' => $block], $request);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
-            throw new ResponseException('An error occurred during UpdatePageBlockHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during UpdatePageBlockHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
     }
 }

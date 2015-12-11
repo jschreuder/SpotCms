@@ -50,7 +50,10 @@ class ListPagesHandler implements RequestHandlerInterface
     {
         if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during ListPagesHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during ListPagesHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
 
         try {
@@ -59,10 +62,13 @@ class ListPagesHandler implements RequestHandlerInterface
                 'data' => $this->pageRepository->getAllByParentUuid($parentUuid),
                 'parent_uuid' => $parentUuid,
                 'includes' => ['pageBlocks'],
-            ]);
+            ], $request);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());
-            throw new ResponseException('An error occurred during ListPagesHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during ListPagesHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
     }
 }

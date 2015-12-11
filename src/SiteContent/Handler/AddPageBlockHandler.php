@@ -66,7 +66,10 @@ class AddPageBlockHandler implements RequestHandlerInterface
     {
         if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during AddPageBlockHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during AddPageBlockHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
 
         try {
@@ -81,10 +84,13 @@ class AddPageBlockHandler implements RequestHandlerInterface
                 PageStatusValue::get($request['status'])
             );
             $this->pageRepository->addBlockToPage($pageBlock, $page);
-            return new Response(self::MESSAGE, ['data' => $pageBlock, 'includes' => ['pages']]);
+            return new Response(self::MESSAGE, ['data' => $pageBlock, 'includes' => ['pages']], $request);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
-            throw new ResponseException('An error occurred during AddPageBlockHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during AddPageBlockHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
     }
 }

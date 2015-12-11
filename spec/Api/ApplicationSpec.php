@@ -5,6 +5,7 @@ namespace spec\Spot\Api;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Spot\Api\Application;
+use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 
 /** @mixin  \Spot\Api\Application */
@@ -88,7 +89,11 @@ class ApplicationSpec extends ObjectBehavior
      */
     public function it_shouldBeAbleToHandleResponseExceptions($httpRequest, $request, $httpResponse)
     {
-        $responseException = new ResponseException('Reasons');
+        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
+        $responseException = new ResponseException(
+            'Reasons',
+            new ServerErrorResponse([], $request->getWrappedObject())
+        );
 
         $this->requestParser->parseHttpRequest($httpRequest, [])
             ->willReturn($request);

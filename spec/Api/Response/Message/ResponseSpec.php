@@ -11,10 +11,16 @@ class ResponseSpec extends ObjectBehavior
 {
     private $name = 'array.response';
     private $data = ['answer' => 42];
+    private $request;
 
-    public function let()
+    /**
+     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     */
+    public function let($request)
     {
-        $this->beConstructedWith($this->name, $this->data);
+        $this->request = $request;
+        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
+        $this->beConstructedWith($this->name, $this->data, $request);
     }
 
     public function it_isInitializable()

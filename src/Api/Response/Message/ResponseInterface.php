@@ -7,4 +7,6 @@ interface ResponseInterface extends \ArrayAccess
     public function getResponseName() : string;
 
     public function getAttributes() : array;
+
+    public function getContentType() : string;
 }

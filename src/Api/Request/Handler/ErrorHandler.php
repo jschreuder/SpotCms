@@ -30,7 +30,7 @@ class ErrorHandler implements ExecutorInterface, GeneratorInterface
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        return new Response($this->name, []);
+        return new Response($this->name, [], $request);
     }
 
     public function generateResponse(ResponseInterface $response) : HttpResponse

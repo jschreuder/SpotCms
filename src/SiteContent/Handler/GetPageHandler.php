@@ -52,19 +52,25 @@ class GetPageHandler implements RequestHandlerInterface
     {
         if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during GetPageHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during GetPageHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
 
         try {
             try {
                 $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));
-                return new Response(self::MESSAGE, ['data' => $page, 'includes' => ['pageBlocks']]);
+                return new Response(self::MESSAGE, ['data' => $page, 'includes' => ['pageBlocks']], $request);
             } catch (NoUniqueResultException $e) {
-                throw new ResponseException('Page not found.', new NotFoundResponse());
+                throw new ResponseException('Page not found.', new NotFoundResponse([], $request));
             }
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());
-            throw new ResponseException('An error occurred during GetPageHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during GetPageHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
     }
 }

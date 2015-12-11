@@ -10,6 +10,17 @@ use Spot\Api\Response\Message\NotFoundResponse;
 class NotFoundResponseSpec extends ObjectBehavior
 {
     private $name = 'error.notFound';
+    private $request;
+
+    /**
+     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     */
+    public function let($request)
+    {
+        $this->request = $request;
+        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
+        $this->beConstructedWith([], $request);
+    }
 
     public function it_isInitializable()
     {

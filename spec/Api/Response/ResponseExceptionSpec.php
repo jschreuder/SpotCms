@@ -10,9 +10,16 @@ use Spot\Api\Response\ResponseException;
 /** @mixin  ResponseException */
 class ResponseExceptionSpec extends ObjectBehavior
 {
-    public function let()
+    private $response;
+
+    /**
+     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     */
+    public function let($request)
     {
-        $this->beConstructedWith('Reasons');
+        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
+        $this->response = new Response('destroy.earth', ['answer' => 'misfiled'], $request->getWrappedObject());
+        $this->beConstructedWith('Reasons', $this->response);
     }
 
     public function it_isInitializable()
@@ -22,11 +29,8 @@ class ResponseExceptionSpec extends ObjectBehavior
 
     public function it_comesWithAResponseObject()
     {
-        $response = new Response('destroy.earth', ['answer' => 'misfiled']);
-        $this->beConstructedWith('Reasons', $response);
-
         $this->getResponseObject()
-            ->shouldReturn($response);
+            ->shouldReturn($this->response);
         $this->getMessage()
             ->shouldReturn('Reasons');
     }

@@ -42,8 +42,9 @@ class RequestBusSpec extends ObjectBehavior
      */
     public function it_canExecuteSuccessfully($request)
     {
+        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
         $requestName = 'request.name';
-        $response = new Response($requestName, []);
+        $response = new Response($requestName, [], $request->getWrappedObject());
         $executorName = 'executor.test';
         $executor = new class($response) implements ExecutorInterface {
             private $response;
@@ -75,6 +76,7 @@ class RequestBusSpec extends ObjectBehavior
         $requestName = 'request.name';
         $request->getRequestName()
             ->willReturn($requestName);
+        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
 
         $this->shouldThrow(ResponseException::class)->duringExecute($request);
     }
@@ -92,6 +94,7 @@ class RequestBusSpec extends ObjectBehavior
 
         $request->getRequestName()
             ->willReturn($requestName);
+        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
 
         $this->shouldThrow(ResponseException::class)->duringExecute($request);
     }

@@ -3,10 +3,11 @@
 namespace Spot\Api\Response\Message;
 
 use Spot\Api\Message\AttributesArrayAccessTrait;
+use Spot\Api\Request\Message\RequestInterface;
 
 class Response implements ResponseInterface
 {
-    use \Spot\Api\Message\AttributesArrayAccessTrait;
+    use AttributesArrayAccessTrait;
 
     /** @var  string */
     private $name;
@@ -14,15 +15,24 @@ class Response implements ResponseInterface
     /** @var  array */
     private $attributes;
 
-    public function __construct(string $name, array $data)
+    /** @var  string */
+    private $contentType;
+
+    public function __construct(string $name, array $data, RequestInterface $request)
     {
         $this->name = $name;
         $this->attributes = $data;
+        $this->contentType = $request->getAcceptContentType();
     }
 
     /** {@inheritdoc} */
     public function getResponseName() : string
     {
         return $this->name;
+    }
+
+    public function getContentType() : string
+    {
+        return $this->contentType;
     }
 }

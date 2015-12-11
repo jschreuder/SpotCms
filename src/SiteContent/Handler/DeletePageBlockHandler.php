@@ -51,17 +51,23 @@ class DeletePageBlockHandler implements RequestHandlerInterface
     {
         if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during DeletePageBlockHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during DeletePageBlockHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
 
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['page_uuid']));
             $pageBlock = $page->getBlockByUuid(Uuid::fromString($request['uuid']));
             $this->pageRepository->deleteBlockFromPage($pageBlock, $page);
-            return new Response(self::MESSAGE, ['data' => $pageBlock]);
+            return new Response(self::MESSAGE, ['data' => $pageBlock], $request);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());
-            throw new ResponseException('An error occurred during DeletePageBlockHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during DeletePageBlockHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
     }
 }

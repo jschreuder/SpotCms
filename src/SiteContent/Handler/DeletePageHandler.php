@@ -50,16 +50,22 @@ class DeletePageHandler implements RequestHandlerInterface
     {
         if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during DeletePageHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during DeletePageHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
 
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));
             $this->pageRepository->delete($page);
-            return new Response(self::MESSAGE, ['data' => $page]);
+            return new Response(self::MESSAGE, ['data' => $page], $request);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());
-            throw new ResponseException('An error occurred during DeletePageHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during DeletePageHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
     }
 }

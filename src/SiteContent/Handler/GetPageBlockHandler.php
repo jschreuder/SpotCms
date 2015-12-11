@@ -53,22 +53,28 @@ class GetPageBlockHandler implements RequestHandlerInterface
     {
         if (!$request instanceof Request) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException('An error occurred during GetPageBlockHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during GetPageBlockHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
 
         try {
             try {
                 $page = $this->pageRepository->getByUuid(Uuid::fromString($request['page_uuid']));
                 $block = $page->getBlockByUuid(Uuid::fromString($request['uuid']));
-                return new Response(self::MESSAGE, ['data' => $block, 'includes' => ['pages']]);
+                return new Response(self::MESSAGE, ['data' => $block, 'includes' => ['pages']], $request);
             } catch (NoUniqueResultException $e) {
-                throw new ResponseException('Page for PageBlock not found.', new NotFoundResponse());
+                throw new ResponseException('Page for PageBlock not found.', new NotFoundResponse([], $request));
             } catch (\OutOfBoundsException $e) {
-                throw new ResponseException('PageBlock not found.', new NotFoundResponse());
+                throw new ResponseException('PageBlock not found.', new NotFoundResponse([], $request));
             }
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, $e->getMessage());
-            throw new ResponseException('An error occurred during GetPageBlockHandler.', new ServerErrorResponse());
+            throw new ResponseException(
+                'An error occurred during GetPageBlockHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
     }
 }

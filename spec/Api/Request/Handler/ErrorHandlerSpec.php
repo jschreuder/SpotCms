@@ -34,9 +34,10 @@ class ErrorHandlerSpec extends ObjectBehavior
      * @param  \Spot\Api\Request\Message\RequestInterface $request
      * @param  \Psr\Http\Message\RequestInterface $httpRequest
      */
-    public function it_canExecuteARequest($request, $httpRequest)
+    public function it_canExecuteARequest($request)
     {
-        $response = $this->executeRequest($request, $httpRequest);
+        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
+        $response = $this->executeRequest($request);
         $response->shouldHaveType(Response::class);
         $response->getResponseName()->shouldReturn($this->name);
         $response->getAttributes()->shouldReturn([]);
@@ -46,9 +47,9 @@ class ErrorHandlerSpec extends ObjectBehavior
      * @param  \Spot\Api\Response\Message\ResponseInterface $response
      * @param  \Psr\Http\Message\RequestInterface $httpRequest
      */
-    public function it_canGenerateAResponse($response, $httpRequest)
+    public function it_canGenerateAResponse($response)
     {
-        $httpResponse = $this->generateResponse($response, $httpRequest);
+        $httpResponse = $this->generateResponse($response);
         $httpResponse->shouldHaveType(JsonApiErrorResponse::class);
     }
 }
