@@ -7,4 +7,6 @@ interface RequestInterface extends \ArrayAccess
     public function getRequestName() : string;
 
     public function getAttributes() : array;
+
+    public function getAcceptContentType() : string;
 }

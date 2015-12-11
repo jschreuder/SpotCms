@@ -41,10 +41,10 @@ class DeletePageBlockHandler implements RequestHandlerInterface
 
         $validationResult = $validator->validate($attributes);
         if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult);
+            throw new ValidationFailedException($validationResult, $httpRequest);
         }
 
-        return new Request(self::MESSAGE, $validationResult->getValues());
+        return new Request(self::MESSAGE, $validationResult->getValues(), $httpRequest);
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface

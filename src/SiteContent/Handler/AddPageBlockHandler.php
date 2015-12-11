@@ -54,10 +54,10 @@ class AddPageBlockHandler implements RequestHandlerInterface
         $data = $filter->filter($httpRequest->getParsedBody());
         $validationResult = $validator->validate($data);
         if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult);
+            throw new ValidationFailedException($validationResult, $httpRequest);
         }
 
-        $request = new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes']);
+        $request = new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes'], $httpRequest);
         $request['page_uuid'] = $attributes['page_uuid'];
         return $request;
     }

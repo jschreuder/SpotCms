@@ -62,7 +62,7 @@ class HttpRequestParserRouter implements HttpRequestParserInterface
                 case Router::NOT_FOUND:
                 case Router::METHOD_NOT_ALLOWED:
                     $this->log(LogLevel::INFO, 'No route found for ' . $method . ' ' . $path);
-                    $request = new NotFoundRequest();
+                    $request = new NotFoundRequest([], $httpRequest);
                     break;
                 case Router::FOUND:
                     $parser = $this->getHttpRequestParser($routeInfo[1]);
@@ -74,7 +74,7 @@ class HttpRequestParserRouter implements HttpRequestParserInterface
             }
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
-            $request = new ServerErrorRequest();
+            $request = new ServerErrorRequest([], $httpRequest);
         }
 
         return $request;

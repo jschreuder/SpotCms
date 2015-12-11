@@ -12,9 +12,17 @@ class RequestSpec extends ObjectBehavior
     private $name = 'array.request';
     private $data = ['answer' => 42];
 
-    public function let()
+    /** @var  \Psr\Http\Message\RequestInterface */
+    private $httpRequest;
+
+    /**
+     * @param  \Psr\Http\Message\RequestInterface $httpRequest
+     */
+    public function let($httpRequest)
     {
-        $this->beConstructedWith($this->name, $this->data);
+        $this->httpRequest = $httpRequest;
+        $httpRequest->getHeaderLine('Accept')->willReturn('application/vnd.api+json');
+        $this->beConstructedWith($this->name, $this->data, $httpRequest);
     }
 
     public function it_isInitializable()

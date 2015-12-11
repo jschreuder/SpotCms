@@ -11,6 +11,19 @@ class BadRequestSpec extends ObjectBehavior
 {
     private $name = 'error.badRequest';
 
+    /** @var  \Psr\Http\Message\RequestInterface */
+    private $httpRequest;
+
+    /**
+     * @param  \Psr\Http\Message\RequestInterface $httpRequest
+     */
+    public function let($httpRequest)
+    {
+        $this->httpRequest = $httpRequest;
+        $httpRequest->getHeaderLine('Accept')->willReturn('application/vnd.api+json');
+        $this->beConstructedWith([], $httpRequest);
+    }
+
     public function it_isInitializable()
     {
         $this->shouldHaveType(BadRequest::class);

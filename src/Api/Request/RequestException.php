@@ -2,23 +2,23 @@
 
 namespace Spot\Api\Request;
 
+use Psr\Http\Message\RequestInterface as HttpRequestInterface;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Request\Message\ServerErrorRequest;
 
 class RequestException extends \RuntimeException
 {
     /** @var  RequestInterface */
-    private $errorRequest;
+    private $request;
 
-    public function __construct(string $reason, RequestInterface $errorRequest = null, int $code = 0)
+    public function __construct(string $reason, RequestInterface $request = null, HttpRequestInterface $httpRequest)
     {
-        $this->reason = $reason;
-        $this->errorRequest = $errorRequest ?: new ServerErrorRequest();
-        parent::__construct($reason, $code);
+        $this->request = $request ?: new ServerErrorRequest([], $httpRequest);
+        parent::__construct($reason);
     }
 
     public function getRequestObject() : RequestInterface
     {
-        return $this->errorRequest;
+        return $this->request;
     }
 }

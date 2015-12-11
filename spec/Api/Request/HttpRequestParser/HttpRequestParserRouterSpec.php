@@ -47,7 +47,7 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
         $method = 'GET';
         $path = '/life/universe/everything/';
         $requestName = 'forty.two';
-        $request = new Request($requestName, []);
+        $request = new Request($requestName, [], $httpRequest->getWrappedObject());
 
         $httpRequest->getMethod()
             ->willReturn($method);
@@ -88,6 +88,8 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
 
         $httpRequest->getMethod()
             ->willReturn($method);
+        $httpRequest->getHeaderLine('Accept')
+            ->willReturn('application/vnd.api+json');
         $httpRequest->getUri()
             ->willReturn($uri);
         $uri->getPath()
@@ -113,6 +115,8 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
 
         $httpRequest->getMethod()
             ->willReturn($method);
+        $httpRequest->getHeaderLine('Accept')
+            ->willReturn('application/vnd.api+json');
         $httpRequest->getUri()
             ->willReturn($uri);
         $uri->getPath()
@@ -138,6 +142,8 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
 
         $httpRequest->getMethod()
             ->willReturn($method);
+        $httpRequest->getHeaderLine('Accept')
+            ->willReturn('application/vnd.api+json');
         $httpRequest->getUri()
             ->willReturn($uri);
         $uri->getPath()
@@ -164,6 +170,8 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
 
         $httpRequest->getMethod()
             ->willReturn($method);
+        $httpRequest->getHeaderLine('Accept')
+            ->willReturn('application/vnd.api+json');
         $httpRequest->getUri()
             ->willReturn($uri);
         $uri->getPath()
@@ -192,6 +200,8 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
 
         $httpRequest->getMethod()
             ->willReturn($method);
+        $httpRequest->getHeaderLine('Accept')
+            ->willReturn('application/vnd.api+json');
         $httpRequest->getUri()
             ->willReturn($uri);
         $uri->getPath()

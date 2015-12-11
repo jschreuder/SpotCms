@@ -5,7 +5,6 @@ namespace spec\Spot\Api;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Spot\Api\Application;
-use Spot\Api\Request\RequestException;
 use Spot\Api\Response\ResponseException;
 
 /** @mixin  \Spot\Api\Application */
@@ -63,16 +62,18 @@ class ApplicationSpec extends ObjectBehavior
 
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
+     * @param  \Spot\Api\Request\Message\RequestInterface $request
      * @param  \Spot\Api\Response\Message\ResponseInterface $response
      * @param  \Psr\Http\Message\ResponseInterface $httpResponse
+     * @param  \Spot\Api\Request\RequestException $exception
      */
-    public function it_shouldBeAbleToHandleBadRequest($httpRequest, $response, $httpResponse)
+    public function it_shouldBeAbleToHandleBadRequest($httpRequest, $request, $response, $httpResponse, $exception)
     {
-        $badRequestException = new RequestException('Reasons');
+        $exception->getRequestObject()->willReturn($request);
 
         $this->requestParser->parseHttpRequest($httpRequest, [])
-            ->willThrow($badRequestException);
-        $this->requestBus->execute($badRequestException->getRequestObject())
+            ->willThrow($exception->getWrappedObject());
+        $this->requestBus->execute($request)
             ->willReturn($response);
         $this->responseBus->execute($response)
             ->willReturn($httpResponse);

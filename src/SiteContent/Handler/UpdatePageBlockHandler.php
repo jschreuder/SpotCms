@@ -54,10 +54,10 @@ class UpdatePageBlockHandler implements RequestHandlerInterface
         $data = $filter->filter($httpRequest->getParsedBody())['data'];
         $validationResult = $validator->validate($data);
         if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult);
+            throw new ValidationFailedException($validationResult, $httpRequest);
         }
 
-        $request = new Request(self::MESSAGE, $validationResult->getValues()['attributes']);
+        $request = new Request(self::MESSAGE, $validationResult->getValues()['attributes'], $httpRequest);
         $request['uuid'] = $attributes['uuid'];
         $request['page_uuid'] = $attributes['page_uuid'];
         return $request;

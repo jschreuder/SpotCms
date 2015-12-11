@@ -2,23 +2,34 @@
 
 namespace Spot\Api\Request\Message;
 
+use Psr\Http\Message\RequestInterface as HttpRequestInterface;
 use Spot\Api\Message\AttributesArrayAccessTrait;
 
 class BadRequest implements RequestInterface
 {
-    use \Spot\Api\Message\AttributesArrayAccessTrait;
+    use AttributesArrayAccessTrait;
 
     /** @var  array */
     private $attributes;
 
-    public function __construct(array $attributes = [])
+    /** @var  string */
+    private $acceptContentType;
+
+    public function __construct(array $attributes, HttpRequestInterface $httpRequest)
     {
         $this->attributes = $attributes;
+        $this->acceptContentType = $httpRequest->getHeaderLine('Accept');
     }
 
     /** {@inheritdoc} */
     public function getRequestName() : string
     {
         return 'error.badRequest';
+    }
+
+    /** {@inheritdoc} */
+    public function getAcceptContentType() : string
+    {
+        return $this->acceptContentType;
     }
 }
