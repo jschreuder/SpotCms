@@ -53,9 +53,9 @@ class ApplicationSpec extends ObjectBehavior
     {
         $this->requestParser->parseHttpRequest($httpRequest, [])
             ->willReturn($request);
-        $this->requestBus->execute($httpRequest, $request)
+        $this->requestBus->execute($request)
             ->willReturn($response);
-        $this->responseBus->execute($httpRequest, $response)
+        $this->responseBus->execute($response)
             ->willReturn($httpResponse);
 
         $this->execute($httpRequest)->shouldReturn($httpResponse);
@@ -72,9 +72,9 @@ class ApplicationSpec extends ObjectBehavior
 
         $this->requestParser->parseHttpRequest($httpRequest, [])
             ->willThrow($badRequestException);
-        $this->requestBus->execute($httpRequest, $badRequestException->getRequestObject())
+        $this->requestBus->execute($badRequestException->getRequestObject())
             ->willReturn($response);
-        $this->responseBus->execute($httpRequest, $response)
+        $this->responseBus->execute($response)
             ->willReturn($httpResponse);
 
         $this->execute($httpRequest)->shouldReturn($httpResponse);
@@ -91,9 +91,9 @@ class ApplicationSpec extends ObjectBehavior
 
         $this->requestParser->parseHttpRequest($httpRequest, [])
             ->willReturn($request);
-        $this->requestBus->execute($httpRequest, $request)
+        $this->requestBus->execute($request)
             ->willThrow($responseException);
-        $this->responseBus->execute($httpRequest, $responseException->getResponseObject())
+        $this->responseBus->execute($responseException->getResponseObject())
             ->willReturn($httpResponse);
 
         $this->execute($httpRequest)->shouldReturn($httpResponse);

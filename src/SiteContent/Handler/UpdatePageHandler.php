@@ -3,7 +3,6 @@
 namespace Spot\SiteContent\Handler;
 
 use Particle\Filter\Filter;
-use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -64,7 +63,7 @@ class UpdatePageHandler implements RequestHandlerInterface
         return $request;
     }
 
-    public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
+    public function executeRequest(RequestInterface $request) : ResponseInterface
     {
         if (!$request instanceof ArrayRequest) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');

@@ -37,10 +37,9 @@ class ResponseBusSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Psr\Http\Message\RequestInterface $httpRequest
      * @param  \Spot\Api\Response\Message\ResponseInterface $response
      */
-    public function it_canExecuteSuccessfully($httpRequest, $response)
+    public function it_canExecuteSuccessfully($response)
     {
         $responseName = 'response.name';
         $httpResponse = new Response();
@@ -51,7 +50,7 @@ class ResponseBusSpec extends ObjectBehavior
             {
                 $this->httpResponse = $httpResponse;
             }
-            public function generateResponse(ResponseInterface $response, HttpRequest $httpRequest) : HttpResponse
+            public function generateResponse(ResponseInterface $response) : HttpResponse
             {
                 return $this->httpResponse;
             }
@@ -63,29 +62,27 @@ class ResponseBusSpec extends ObjectBehavior
         $response->getResponseName()
             ->willReturn($responseName);
 
-        $this->execute($httpRequest, $response)
+        $this->execute($response)
             ->shouldReturn($httpResponse);
     }
 
     /**
-     * @param  \Psr\Http\Message\RequestInterface $httpRequest
      * @param  \Spot\Api\Response\Message\ResponseInterface $response
      */
-    public function it_willErrorOnUnsupportedRequest($httpRequest, $response)
+    public function it_willErrorOnUnsupportedRequest($response)
     {
         $responseName = 'request.name';
         $response->getResponseName()
             ->willReturn($responseName);
 
-        $this->execute($httpRequest, $response)
+        $this->execute($response)
             ->shouldReturnAnInstanceOf(HttpResponse::class);
     }
 
     /**
-     * @param  \Psr\Http\Message\RequestInterface $httpRequest
      * @param  \Spot\Api\Response\Message\ResponseInterface $response
      */
-    public function it_willErrorOnUndefinedExecutor($httpRequest, $response)
+    public function it_willErrorOnUndefinedExecutor($response)
     {
         $responseName = 'request.name';
         $generatorName = 'executor.test';
@@ -96,7 +93,7 @@ class ResponseBusSpec extends ObjectBehavior
         $response->getResponseName()
             ->willReturn($responseName);
 
-        $this->execute($httpRequest, $response)
+        $this->execute($response)
             ->shouldReturnAnInstanceOf(HttpResponse::class);
     }
 }

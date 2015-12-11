@@ -54,7 +54,7 @@ class RequestBus implements RequestBusInterface
     }
 
     /** {@inheritdoc} */
-    public function execute(HttpRequest $httpRequest, RequestInterface $requestMessage) : ResponseInterface
+    public function execute(RequestInterface $requestMessage) : ResponseInterface
     {
         if (!$this->supports($requestMessage)) {
             $msg = 'Unsupported request: ' . $requestMessage->getRequestName();
@@ -63,7 +63,7 @@ class RequestBus implements RequestBusInterface
         }
 
         $requestExecutor = $this->getExecutor($requestMessage);
-        $responseMessage = $requestExecutor->executeRequest($requestMessage, $httpRequest);
+        $responseMessage = $requestExecutor->executeRequest($requestMessage);
 
         return $responseMessage;
     }

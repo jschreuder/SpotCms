@@ -13,5 +13,5 @@ interface ResponseBusInterface
     /**
      * MUST result in a HttpResponse, it may never result in an Exception or error.
      */
-    public function execute(HttpRequest $httpRequest, ResponseInterface $response) : HttpResponse;
+    public function execute(ResponseInterface $response) : HttpResponse;
 }

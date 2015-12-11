@@ -3,7 +3,6 @@
 namespace Spot\Api\Response;
 
 use Pimple\Container;
-use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -55,7 +54,7 @@ class ResponseBus implements ResponseBusInterface
     }
 
     /** {@inheritdoc} */
-    public function execute(HttpRequest $httpRequest, ResponseInterface $responseMessage) : HttpResponse
+    public function execute(ResponseInterface $responseMessage) : HttpResponse
     {
         if (!$this->supports($responseMessage)) {
             $this->log(LogLevel::WARNING, 'Unsupported request: ' . $responseMessage->getResponseName());
@@ -63,7 +62,7 @@ class ResponseBus implements ResponseBusInterface
         }
 
         $requestGenerator = $this->getGenerator($responseMessage);
-        $httpResponse = $requestGenerator->generateResponse($responseMessage, $httpRequest);
+        $httpResponse = $requestGenerator->generateResponse($responseMessage);
 
         return $httpResponse;
     }

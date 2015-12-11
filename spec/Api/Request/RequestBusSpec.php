@@ -38,10 +38,9 @@ class RequestBusSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Psr\Http\Message\RequestInterface $httpRequest
      * @param  \Spot\Api\Request\Message\RequestInterface $request
      */
-    public function it_canExecuteSuccessfully($httpRequest, $request)
+    public function it_canExecuteSuccessfully($request)
     {
         $requestName = 'request.name';
         $response = new ArrayResponse($requestName, []);
@@ -52,7 +51,7 @@ class RequestBusSpec extends ObjectBehavior
             {
                 $this->response = $response;
             }
-            public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
+            public function executeRequest(RequestInterface $request) : ResponseInterface
             {
                 return $this->response;
             }
@@ -64,28 +63,26 @@ class RequestBusSpec extends ObjectBehavior
         $request->getRequestName()
             ->willReturn($requestName);
 
-        $this->execute($httpRequest, $request)
+        $this->execute($request)
             ->shouldReturn($response);
     }
 
     /**
-     * @param  \Psr\Http\Message\RequestInterface $httpRequest
      * @param  \Spot\Api\Request\Message\RequestInterface $request
      */
-    public function it_willErrorOnUnsupportedRequest($httpRequest, $request)
+    public function it_willErrorOnUnsupportedRequest($request)
     {
         $requestName = 'request.name';
         $request->getRequestName()
             ->willReturn($requestName);
 
-        $this->shouldThrow(ResponseException::class)->duringExecute($httpRequest, $request);
+        $this->shouldThrow(ResponseException::class)->duringExecute($request);
     }
 
     /**
-     * @param  \Psr\Http\Message\RequestInterface $httpRequest
      * @param  \Spot\Api\Request\Message\RequestInterface $request
      */
-    public function it_willErrorOnUndefinedExecutor($httpRequest, $request)
+    public function it_willErrorOnUndefinedExecutor($request)
     {
         $requestName = 'request.name';
         $executorName = 'executor.test';
@@ -96,6 +93,6 @@ class RequestBusSpec extends ObjectBehavior
         $request->getRequestName()
             ->willReturn($requestName);
 
-        $this->shouldThrow(ResponseException::class)->duringExecute($httpRequest, $request);
+        $this->shouldThrow(ResponseException::class)->duringExecute($request);
     }
 }

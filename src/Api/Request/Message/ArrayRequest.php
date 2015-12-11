@@ -2,7 +2,7 @@
 
 namespace Spot\Api\Request\Message;
 
-class ArrayRequest implements RequestInterface, \ArrayAccess
+class ArrayRequest implements RequestInterface
 {
     /** @var  string */
     private $name;

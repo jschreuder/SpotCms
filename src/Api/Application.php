@@ -53,13 +53,13 @@ class Application implements ApplicationInterface
         }
 
         try {
-            $responseMessage = $this->requestBus->execute($httpRequest, $requestMessage);
+            $responseMessage = $this->requestBus->execute($requestMessage);
         } catch (ResponseException $responseException) {
             $this->log(LogLevel::ERROR, 'Request execution ended in exception: ' . $responseException->getMessage());
             $responseMessage = $responseException->getResponseObject();
         }
 
-        $httpResponse = $this->responseBus->execute($httpRequest, $responseMessage);
+        $httpResponse = $this->responseBus->execute($responseMessage);
         $this->log(LogLevel::INFO, 'Successfully generated HTTP response.');
 
         return $httpResponse;

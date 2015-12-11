@@ -2,7 +2,6 @@
 
 namespace Spot\Api\Request\Handler;
 
-use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\Message\RequestInterface;
@@ -29,12 +28,12 @@ class ErrorHandler implements ExecutorInterface, GeneratorInterface
         $this->message = $message;
     }
 
-    public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface
+    public function executeRequest(RequestInterface $request) : ResponseInterface
     {
         return new ArrayResponse($this->name, []);
     }
 
-    public function generateResponse(ResponseInterface $response, HttpRequest $httpRequest) : HttpResponse
+    public function generateResponse(ResponseInterface $response) : HttpResponse
     {
         return new JsonApiErrorResponse($this->message ?: $this->name, $this->statusCode);
     }

@@ -2,7 +2,6 @@
 
 namespace Spot\Api\Request\Executor;
 
-use Psr\Http\Message\RequestInterface as HttpRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\ResponseInterface;
 
@@ -15,5 +14,5 @@ interface ExecutorInterface
      * MUST catch all exceptions internally and throw only ResponseException
      * instances.
      */
-    public function executeRequest(RequestInterface $request, HttpRequest $httpRequest) : ResponseInterface;
+    public function executeRequest(RequestInterface $request) : ResponseInterface;
 }
