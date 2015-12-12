@@ -80,9 +80,9 @@ class ApiBuilder implements
         return $this;
     }
 
-    public function addResponseGenerator(string $responseName, string $generator) : self
+    public function addResponseGenerator(string $responseName, string $contentType, string $generator) : self
     {
-        $this->responseBus->setGenerator($responseName, $generator);
+        $this->responseBus->setGenerator($responseName, $contentType, $generator);
         return $this;
     }
 

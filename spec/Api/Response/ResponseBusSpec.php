@@ -56,11 +56,13 @@ class ResponseBusSpec extends ObjectBehavior
             }
         };
         $this->container[$generatorName] = $generator;
-        $this->setGenerator($responseName, $generatorName)
+        $this->setGenerator($responseName, 'application/vnd.api+json', $generatorName)
             ->shouldReturn($this);
 
         $response->getResponseName()
             ->willReturn($responseName);
+        $response->getContentType()
+            ->willReturn('application/vnd.api+json, application/json;q=0.5');
 
         $this->execute($response)
             ->shouldReturn($httpResponse);
@@ -87,11 +89,13 @@ class ResponseBusSpec extends ObjectBehavior
         $responseName = 'request.name';
         $generatorName = 'executor.test';
 
-        $this->setGenerator($responseName, $generatorName)
+        $this->setGenerator($responseName, 'application/vnd.api+json', $generatorName)
             ->shouldReturn($this);
 
         $response->getResponseName()
             ->willReturn($responseName);
+        $response->getContentType()
+            ->willReturn('application/json;q=0.5, text/html,*/*;q=0.3');
 
         $this->execute($response)
             ->shouldReturnAnInstanceOf(HttpResponse::class);

@@ -89,42 +89,43 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
         };
 
         // Configure ApiBuilder to use Handlers & Response Generators
+        $jsonApiCT = 'application/vnd.api+json';
         $builder
             ->addParser('POST', $this->uriSegment, 'handler.pages.create')
             ->addRequestExecutor(CreatePageHandler::MESSAGE, 'handler.pages.create')
-            ->addResponseGenerator(CreatePageHandler::MESSAGE, 'responseGenerator.pages.single');
+            ->addResponseGenerator(CreatePageHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pages.single');
         $builder
             ->addParser('GET', $this->uriSegment, 'handler.pages.list')
             ->addRequestExecutor(ListPagesHandler::MESSAGE, 'handler.pages.list')
-            ->addResponseGenerator(ListPagesHandler::MESSAGE, 'responseGenerator.pages.multi');
+            ->addResponseGenerator(ListPagesHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pages.multi');
         $builder
             ->addParser('GET', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.get')
             ->addRequestExecutor(GetPageHandler::MESSAGE, 'handler.pages.get')
-            ->addResponseGenerator(GetPageHandler::MESSAGE, 'responseGenerator.pages.single');
+            ->addResponseGenerator(GetPageHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pages.single');
         $builder
             ->addParser('PATCH', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.update')
             ->addRequestExecutor(UpdatePageHandler::MESSAGE, 'handler.pages.update')
-            ->addResponseGenerator(UpdatePageHandler::MESSAGE, 'responseGenerator.pages.single');
+            ->addResponseGenerator(UpdatePageHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pages.single');
         $builder
             ->addParser('DELETE', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.delete')
             ->addRequestExecutor(DeletePageHandler::MESSAGE, 'handler.pages.delete')
-            ->addResponseGenerator(DeletePageHandler::MESSAGE, 'responseGenerator.pages.single');
+            ->addResponseGenerator(DeletePageHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pages.single');
         $builder
             ->addParser('POST', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks', 'handler.pageBlocks.create')
             ->addRequestExecutor(AddPageBlockHandler::MESSAGE, 'handler.pageBlocks.create')
-            ->addResponseGenerator(AddPageBlockHandler::MESSAGE, 'responseGenerator.pageBlocks.single');
+            ->addResponseGenerator(AddPageBlockHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pageBlocks.single');
         $builder
             ->addParser('GET', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.get')
             ->addRequestExecutor(GetPageBlockHandler::MESSAGE, 'handler.pageBlocks.get')
-            ->addResponseGenerator(GetPageBlockHandler::MESSAGE, 'responseGenerator.pageBlocks.single');
+            ->addResponseGenerator(GetPageBlockHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pageBlocks.single');
         $builder
             ->addParser('PATCH', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.update')
             ->addRequestExecutor(UpdatePageBlockHandler::MESSAGE, 'handler.pageBlocks.update')
-            ->addResponseGenerator(UpdatePageBlockHandler::MESSAGE, 'responseGenerator.pageBlocks.single');
+            ->addResponseGenerator(UpdatePageBlockHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pageBlocks.single');
         $builder
             ->addParser('DELETE', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.delete')
             ->addRequestExecutor(DeletePageBlockHandler::MESSAGE, 'handler.pageBlocks.delete')
-            ->addResponseGenerator(DeletePageBlockHandler::MESSAGE, 'responseGenerator.pageBlocks.single');
+            ->addResponseGenerator(DeletePageBlockHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pageBlocks.single');
     }
 
     public function configureRepositories(Container $container)
