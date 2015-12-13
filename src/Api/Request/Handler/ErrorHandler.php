@@ -39,11 +39,11 @@ class ErrorHandler implements ExecutorInterface, GeneratorInterface
 
     public function generateResponse(ResponseInterface $response) : HttpResponse
     {
-        $meta = null;
+        $errors = [['title' => $this->message ?: $this->name]];
         if (isset($response['errors'])) {
-            $meta['errors'] = $response['errors'];
+            $errors = $response['errors'];
         }
 
-        return new JsonApiErrorResponse($this->message ?: $this->name, $this->statusCode, $meta);
+        return new JsonApiErrorResponse($errors, $this->statusCode);
     }
 }

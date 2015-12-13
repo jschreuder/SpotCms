@@ -9,17 +9,19 @@ use Spot\Api\Http\JsonApiErrorResponse;
 /** @mixin  JsonApiErrorResponse */
 class JsonApiErrorResponseSpec extends ObjectBehavior
 {
-    /** @var  string */
-    private $message;
+    /** @var  array */
+    private $errors;
 
     /** @var  int */
     private $code;
 
     public function let()
     {
-        $this->message = 'Test message';
+        $this->errors = [
+            ['title' => 'Test message'],
+        ];
         $this->code = 418;
-        $this->beConstructedWith($this->message, $this->code);
+        $this->beConstructedWith($this->errors, $this->code);
     }
 
     public function it_isInitializable()
@@ -36,6 +38,7 @@ class JsonApiErrorResponseSpec extends ObjectBehavior
     {
         $body = $this->getBody();
         $body->rewind();
-        $body->getContents()->shouldReturn('{"errors":[{"title":"Test message","status":"418"}]}');
+        $body->getContents()->shouldReturn('{"errors":[{"title":"Test message"}]}');
+        $this->getStatusCode()->shouldReturn(418);
     }
 }

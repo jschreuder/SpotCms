@@ -11,7 +11,7 @@ interface GeneratorInterface
      * Takes a Response message (and HTTP request for reference) and generates
      * a HTTP response.
      *
-     * MUST catch all exceptions internally and never throw any Exception.
+     * Exceptions will be turned into ServerError responses.
      */
     public function generateResponse(ResponseInterface $response) : HttpResponse;
 }

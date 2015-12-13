@@ -105,7 +105,10 @@ class ResponseBus implements ResponseBusInterface
     {
         if (!$this->supports($response)) {
             $this->log(LogLevel::ERROR, 'Unsupported response: ' . $response->getResponseName());
-            return new JsonApiErrorResponse('Server error', 500);
+            return new JsonApiErrorResponse([
+                'title' => 'Server Error: no generator with support for response',
+                'status' => '500',
+            ], 500);
         }
 
         try {
@@ -113,7 +116,10 @@ class ResponseBus implements ResponseBusInterface
             $httpResponse = $requestGenerator->generateResponse($response);
         } catch (\Throwable $e) {
             $this->log(LogLevel::ERROR, 'Error during Response generation: ' . $e->getMessage());
-            return new JsonApiErrorResponse('Server error', 500);
+            return new JsonApiErrorResponse([
+                'title' => 'Server error: error during response generation',
+                'status' => '500',
+            ], 500);
         }
 
         return $httpResponse;

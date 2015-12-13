@@ -90,17 +90,4 @@ class SingleEntityGeneratorSpec extends ObjectBehavior
         $httpResponse = $this->generateResponse($response, $httpRequest);
         $httpResponse->shouldHaveType(JsonApiErrorResponse::class);
     }
-
-    /**
-     * @param  \Spot\Api\Response\Message\Response $response
-     * @param  \Psr\Http\Message\RequestInterface $httpRequest
-     */
-    public function it_willReturnHttpErrorOnExceptions($response, $httpRequest)
-    {
-        $response->offsetExists('data')->willReturn(true);
-        $response->offsetGet('data')->willThrow(new \RuntimeException());
-
-        $httpResponse = $this->generateResponse($response, $httpRequest);
-        $httpResponse->shouldHaveType(JsonApiErrorResponse::class);
-    }
 }

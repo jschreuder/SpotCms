@@ -52,24 +52,25 @@ class SingleEntityGenerator implements GeneratorInterface
     {
         if (!$response instanceof Response) {
             $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
-            return new JsonApiErrorResponse('Server Error', 500);
+            return new JsonApiErrorResponse([
+                'title' => 'Server Error: generator does not support response',
+                'status' => '500',
+            ], 500);
         }
         if (!isset($response['data'])) {
             $this->log(LogLevel::ERROR, 'No data present in Response.');
-            return new JsonApiErrorResponse('Server Error', 500);
+            return new JsonApiErrorResponse([
+                'title' => 'Server Error: no data to generate response from',
+                'status' => '500',
+            ], 500);
         }
 
-        try {
-            $resource = (new Resource($response['data'], $this->getSerializer()))
-                ->with(isset($response['includes']) ? $response['includes'] : []);
-            $document = new Document($resource);
-            foreach ($this->metaDataGenerator($response) as $key => $value) {
-                $document->addMeta($key, $value);
-            }
-            return new JsonApiResponse($document);
-        } catch (\Throwable $e) {
-            $this->log(LogLevel::ERROR, 'Error occurred during Response generation: ' . $e->getMessage());
-            return new JsonApiErrorResponse('Server Error', 500);
+        $resource = (new Resource($response['data'], $this->getSerializer()))
+            ->with(isset($response['includes']) ? $response['includes'] : []);
+        $document = new Document($resource);
+        foreach ($this->metaDataGenerator($response) as $key => $value) {
+            $document->addMeta($key, $value);
         }
+        return new JsonApiResponse($document);
     }
 }

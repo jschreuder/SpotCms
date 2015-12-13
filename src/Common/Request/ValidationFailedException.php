@@ -9,23 +9,20 @@ use Spot\Api\Request\RequestException;
 
 class ValidationFailedException extends RequestException
 {
-    /** @var  string[] */
-    private $errors;
-
     public function __construct(ValidationResult $result, HttpRequestInterface $httpRequest)
     {
-        $this->errors = [];
+        $errors = [];
         foreach ($result->getMessages() as $field => $messages) {
             foreach ($messages as $errorKey => $errorMessage) {
-                $this->errors[$field][] = $errorKey;
+                $errors[] = [
+                    'id' => $field . '::' . $errorKey,
+                    'title' => $errorMessage,
+                    'code' => $errorKey,
+                    'source' => ['parameter' => $field],
+                ];
             }
         }
 
-        parent::__construct('Validation failed', new BadRequest(['errors' => $this->errors], $httpRequest));
-    }
-
-    public function getErrors() : array
-    {
-        return $this->errors;
+        parent::__construct('Validation failed', new BadRequest(['errors' => $errors], $httpRequest));
     }
 }
