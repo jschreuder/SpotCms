@@ -15,7 +15,7 @@ class NotFoundRequest implements RequestInterface
     /** @var  string */
     private $acceptContentType;
 
-    public function __construct(array $attributes = [], HttpRequestInterface $httpRequest)
+    public function __construct(array $attributes, HttpRequestInterface $httpRequest)
     {
         $this->attributes = $attributes;
         $this->acceptContentType = $httpRequest->getHeaderLine('Accept');

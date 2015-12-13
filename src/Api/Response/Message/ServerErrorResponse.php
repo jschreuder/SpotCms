@@ -15,7 +15,7 @@ class ServerErrorResponse implements ResponseInterface
     /** @var  string */
     private $contentType;
 
-    public function __construct(array $attributes = [], RequestInterface $request)
+    public function __construct(array $attributes, RequestInterface $request)
     {
         $this->attributes = $attributes;
         $this->contentType = $request->getAcceptContentType();
