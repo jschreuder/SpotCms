@@ -11,9 +11,6 @@ use Spot\Api\Request\Executor\ExecutorBus;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Response\Generator\GeneratorBus;
 use Spot\Api\Response\Generator\GeneratorInterface;
-use Spot\Common\ApiBuilder\ExecutorFactoryInterface;
-use Spot\Common\ApiBuilder\GeneratorFactoryInterface;
-use Spot\Common\ApiBuilder\HttpRequestParserFactoryInterface;
 
 class ApiBuilder implements
     HttpRequestParserFactoryInterface,
@@ -23,31 +20,31 @@ class ApiBuilder implements
     /** @var  Container */
     private $container;
 
-    /** @var  \Spot\Api\Request\HttpRequestParser\HttpRequestParserBus */
+    /** @var  HttpRequestParserBus */
     private $router;
 
     /** @var  RouteCollector */
     private $routeCollector;
 
     /** @var  ExecutorBus */
-    private $requestBus;
+    private $executorBus;
 
     /** @var  GeneratorBus */
-    private $responseBus;
+    private $generatorBus;
 
     public function __construct(
         Container $container,
         HttpRequestParserBus $router,
         RouteCollector $routeCollector,
-        ExecutorBus $requestBus,
-        GeneratorBus $responseBus,
+        ExecutorBus $executorBus,
+        GeneratorBus $generatorBus,
         array $modules
     ) {
         $this->container = $container;
         $this->router = $router;
         $this->routeCollector = $routeCollector;
-        $this->requestBus = $requestBus;
-        $this->responseBus = $responseBus;
+        $this->executorBus = $executorBus;
+        $this->generatorBus = $generatorBus;
 
         foreach ($modules as $module) {
             $this->addModule($module);
@@ -74,15 +71,15 @@ class ApiBuilder implements
         return $this;
     }
 
-    public function addRequestExecutor(string $requestName, string $executor) : self
+    public function addExecutor(string $requestName, string $executor) : self
     {
-        $this->requestBus->setExecutor($requestName, $executor);
+        $this->executorBus->setExecutor($requestName, $executor);
         return $this;
     }
 
-    public function addResponseGenerator(string $responseName, string $contentType, string $generator) : self
+    public function addGenerator(string $responseName, string $contentType, string $generator) : self
     {
-        $this->responseBus->setGenerator($responseName, $contentType, $generator);
+        $this->generatorBus->setGenerator($responseName, $contentType, $generator);
         return $this;
     }
 
@@ -95,12 +92,12 @@ class ApiBuilder implements
     /** {@inheritdoc} */
     public function getExecutor() : ExecutorInterface
     {
-        return $this->requestBus;
+        return $this->executorBus;
     }
 
     /** {@inheritdoc} */
     public function getGenerator() : GeneratorInterface
     {
-        return $this->responseBus;
+        return $this->generatorBus;
     }
 }

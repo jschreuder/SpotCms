@@ -94,12 +94,12 @@ class DefaultServiceProvider implements
 
         // Add error handlers
         $jsonApiCT = 'application/vnd.api+json';
-        $builder->addRequestExecutor('error.badRequest', 'errorHandler.badRequest');
-        $builder->addResponseGenerator('error.badRequest', $jsonApiCT, 'errorHandler.badRequest');
-        $builder->addRequestExecutor('error.notFound', 'errorHandler.notFound');
-        $builder->addResponseGenerator('error.notFound', $jsonApiCT, 'errorHandler.notFound');
-        $builder->addRequestExecutor('error.serverError', 'errorHandler.serverError');
-        $builder->addResponseGenerator('error.serverError', $jsonApiCT, 'errorHandler.serverError');
+        $builder->addExecutor('error.badRequest', 'errorHandler.badRequest');
+        $builder->addGenerator('error.badRequest', $jsonApiCT, 'errorHandler.badRequest');
+        $builder->addExecutor('error.notFound', 'errorHandler.notFound');
+        $builder->addGenerator('error.notFound', $jsonApiCT, 'errorHandler.notFound');
+        $builder->addExecutor('error.serverError', 'errorHandler.serverError');
+        $builder->addGenerator('error.serverError', $jsonApiCT, 'errorHandler.serverError');
     }
 
     public function configureRepositories(Container $container)
