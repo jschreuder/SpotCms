@@ -6,10 +6,10 @@ use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
-use Spot\Api\Request\RequestBusInterface;
 use Spot\Api\Request\RequestException;
-use Spot\Api\Response\ResponseBusInterface;
+use Spot\Api\Response\Generator\GeneratorInterface;
 use Spot\Api\Response\ResponseException;
 
 class Application implements ApplicationInterface
@@ -19,24 +19,24 @@ class Application implements ApplicationInterface
     /** @var  HttpRequestParserInterface */
     private $requestParser;
 
-    /** @var  RequestBusInterface */
-    private $requestBus;
+    /** @var  ExecutorInterface */
+    private $executor;
 
-    /** @var  ResponseBusInterface */
-    private $responseBus;
+    /** @var  GeneratorInterface */
+    private $generator;
 
     /** @var  LoggerInterface */
     private $logger;
 
     public function __construct(
         HttpRequestParserInterface $requestParser,
-        RequestBusInterface $requestBus,
-        ResponseBusInterface $responseBus,
+        ExecutorInterface $executor,
+        GeneratorInterface $generator,
         LoggerInterface $logger
     ) {
         $this->requestParser = $requestParser;
-        $this->requestBus = $requestBus;
-        $this->responseBus = $responseBus;
+        $this->executor = $executor;
+        $this->generator = $generator;
         $this->logger = $logger;
     }
 
@@ -53,13 +53,13 @@ class Application implements ApplicationInterface
         }
 
         try {
-            $responseMessage = $this->requestBus->execute($requestMessage);
+            $responseMessage = $this->executor->executeRequest($requestMessage);
         } catch (ResponseException $responseException) {
             $this->log(LogLevel::ERROR, 'Request execution ended in exception: ' . $responseException->getMessage());
             $responseMessage = $responseException->getResponseObject();
         }
 
-        $httpResponse = $this->responseBus->execute($responseMessage);
+        $httpResponse = $this->generator->generateResponse($responseMessage);
         $this->log(LogLevel::INFO, 'Successfully generated HTTP response.');
 
         return $httpResponse;

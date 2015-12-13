@@ -14,28 +14,28 @@ class ApplicationSpec extends ObjectBehavior
     /** @var  \Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface $requestParser */
     private $requestParser;
 
-    /** @var  \Spot\Api\Request\RequestBusInterface $requestBus */
-    private $requestBus;
+    /** @var  \Spot\Api\Request\Executor\ExecutorInterface */
+    private $executor;
 
-    /** @var  \Spot\Api\Response\ResponseBusInterface $responseBus */
-    private $responseBus;
+    /** @var  \Spot\Api\Response\Generator\GeneratorInterface $generator */
+    private $generator;
 
     /** @var  \Psr\Log\LoggerInterface $logger */
     private $logger;
 
     /**
      * @param  \Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface $requestParser
-     * @param  \Spot\Api\Request\RequestBusInterface $requestBus
-     * @param  \Spot\Api\Response\ResponseBusInterface $responseBus
+     * @param  \Spot\Api\Request\Executor\ExecutorInterface $executor
+     * @param  \Spot\Api\Response\Generator\GeneratorInterface $generator
      * @param  \Psr\Log\LoggerInterface $logger
      */
-    public function let($requestParser, $requestBus, $responseBus, $logger)
+    public function let($requestParser, $executor, $generator, $logger)
     {
         $this->requestParser = $requestParser;
-        $this->requestBus = $requestBus;
-        $this->responseBus = $responseBus;
+        $this->executor = $executor;
+        $this->generator = $generator;
         $this->logger = $logger;
-        $this->beConstructedWith($requestParser, $requestBus, $responseBus, $logger);
+        $this->beConstructedWith($requestParser, $executor, $generator, $logger);
     }
 
     public function it_isInitializable()
@@ -53,9 +53,9 @@ class ApplicationSpec extends ObjectBehavior
     {
         $this->requestParser->parseHttpRequest($httpRequest, [])
             ->willReturn($request);
-        $this->requestBus->execute($request)
+        $this->executor->executeRequest($request)
             ->willReturn($response);
-        $this->responseBus->execute($response)
+        $this->generator->generateResponse($response)
             ->willReturn($httpResponse);
 
         $this->execute($httpRequest)->shouldReturn($httpResponse);
@@ -74,9 +74,9 @@ class ApplicationSpec extends ObjectBehavior
 
         $this->requestParser->parseHttpRequest($httpRequest, [])
             ->willThrow($exception->getWrappedObject());
-        $this->requestBus->execute($request)
+        $this->executor->executeRequest($request)
             ->willReturn($response);
-        $this->responseBus->execute($response)
+        $this->generator->generateResponse($response)
             ->willReturn($httpResponse);
 
         $this->execute($httpRequest)->shouldReturn($httpResponse);
@@ -97,9 +97,9 @@ class ApplicationSpec extends ObjectBehavior
 
         $this->requestParser->parseHttpRequest($httpRequest, [])
             ->willReturn($request);
-        $this->requestBus->execute($request)
+        $this->executor->executeRequest($request)
             ->willThrow($responseException);
-        $this->responseBus->execute($responseException->getResponseObject())
+        $this->generator->generateResponse($responseException->getResponseObject())
             ->willReturn($httpResponse);
 
         $this->execute($httpRequest)->shouldReturn($httpResponse);

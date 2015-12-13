@@ -5,42 +5,42 @@ namespace Spot\Common\ApiBuilder;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
 use Pimple\Container;
-use Spot\Api\Request\HttpRequestParser\HttpRequestParserFactoryInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
-use Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter;
-use Spot\Api\Request\RequestBus;
-use Spot\Api\Request\RequestBusFactoryInterface;
-use Spot\Api\Request\RequestBusInterface;
-use Spot\Api\Response\ResponseBus;
-use Spot\Api\Response\ResponseBusFactoryInterface;
-use Spot\Api\Response\ResponseBusInterface;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
+use Spot\Api\Request\Executor\ExecutorBus;
+use Spot\Api\Request\Executor\ExecutorInterface;
+use Spot\Api\Response\Generator\GeneratorBus;
+use Spot\Api\Response\Generator\GeneratorInterface;
+use Spot\Common\ApiBuilder\ExecutorFactoryInterface;
+use Spot\Common\ApiBuilder\GeneratorFactoryInterface;
+use Spot\Common\ApiBuilder\HttpRequestParserFactoryInterface;
 
 class ApiBuilder implements
     HttpRequestParserFactoryInterface,
-    RequestBusFactoryInterface,
-    ResponseBusFactoryInterface
+    ExecutorFactoryInterface,
+    GeneratorFactoryInterface
 {
     /** @var  Container */
     private $container;
 
-    /** @var  \Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter */
+    /** @var  \Spot\Api\Request\HttpRequestParser\HttpRequestParserBus */
     private $router;
 
     /** @var  RouteCollector */
     private $routeCollector;
 
-    /** @var  RequestBus */
+    /** @var  ExecutorBus */
     private $requestBus;
 
-    /** @var  ResponseBus */
+    /** @var  GeneratorBus */
     private $responseBus;
 
     public function __construct(
         Container $container,
-        HttpRequestParserRouter $router,
+        HttpRequestParserBus $router,
         RouteCollector $routeCollector,
-        RequestBus $requestBus,
-        ResponseBus $responseBus,
+        ExecutorBus $requestBus,
+        GeneratorBus $responseBus,
         array $modules
     ) {
         $this->container = $container;
@@ -93,13 +93,13 @@ class ApiBuilder implements
     }
 
     /** {@inheritdoc} */
-    public function getRequestBus() : RequestBusInterface
+    public function getExecutor() : ExecutorInterface
     {
         return $this->requestBus;
     }
 
     /** {@inheritdoc} */
-    public function getResponseBus() : ResponseBusInterface
+    public function getGenerator() : GeneratorInterface
     {
         return $this->responseBus;
     }

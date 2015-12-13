@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\Request\HttpRequestParser;
+namespace Spot\Common\ApiBuilder;
 
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 

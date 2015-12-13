@@ -1,6 +1,6 @@
 <?php
 
-namespace spec\Spot\Api\Response;
+namespace spec\Spot\Api\Response\Generator;
 
 use PhpSpec\ObjectBehavior;
 use Pimple\Container;
@@ -9,11 +9,11 @@ use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Spot\Api\Response\Generator\GeneratorInterface;
 use Spot\Api\Response\Message\ResponseInterface;
-use Spot\Api\Response\ResponseBus;
+use Spot\Api\Response\Generator\GeneratorBus;
 use Zend\Diactoros\Response;
 
-/** @mixin  \Spot\Api\Response\ResponseBus */
-class ResponseBusSpec extends ObjectBehavior
+/** @mixin  \Spot\Api\Response\Generator\GeneratorBus */
+class GeneratorBusSpec extends ObjectBehavior
 {
     /** @var  Container */
     private $container;
@@ -33,7 +33,7 @@ class ResponseBusSpec extends ObjectBehavior
 
     public function it_isInitializable()
     {
-        $this->shouldHaveType(ResponseBus::class);
+        $this->shouldHaveType(GeneratorBus::class);
     }
 
     /**
@@ -64,7 +64,7 @@ class ResponseBusSpec extends ObjectBehavior
         $response->getContentType()
             ->willReturn('application/vnd.api+json, application/json;q=0.5');
 
-        $this->execute($response)
+        $this->generateResponse($response)
             ->shouldReturn($httpResponse);
     }
 
@@ -79,7 +79,7 @@ class ResponseBusSpec extends ObjectBehavior
         $response->getContentType()
             ->willReturn('application/vnd.api+json, application/json;q=0.5');
 
-        $this->execute($response)
+        $this->generateResponse($response)
             ->shouldReturnAnInstanceOf(HttpResponse::class);
     }
 
@@ -99,7 +99,7 @@ class ResponseBusSpec extends ObjectBehavior
         $response->getContentType()
             ->willReturn('application/json;q=0.5, text/html,*/*;q=0.3');
 
-        $this->execute($response)
+        $this->generateResponse($response)
             ->shouldReturnAnInstanceOf(HttpResponse::class);
     }
 }

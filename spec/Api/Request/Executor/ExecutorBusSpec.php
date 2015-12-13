@@ -1,20 +1,20 @@
 <?php
 
-namespace spec\Spot\Api\Request;
+namespace spec\Spot\Api\Request\Executor;
 
 use PhpSpec\ObjectBehavior;
 use Pimple\Container;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface as HttpRequest;
 use Spot\Api\Request\Executor\ExecutorInterface;
-use Spot\Api\Request\RequestBus;
+use Spot\Api\Request\Executor\ExecutorBus;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\ResponseException;
 
-/** @mixin  \Spot\Api\Request\RequestBus */
-class RequestBusSpec extends ObjectBehavior
+/** @mixin  \Spot\Api\Request\Executor\ExecutorBus */
+class ExecutorBusSpec extends ObjectBehavior
 {
     /** @var  Container */
     private $container;
@@ -34,7 +34,7 @@ class RequestBusSpec extends ObjectBehavior
 
     public function it_isInitializable()
     {
-        $this->shouldHaveType(RequestBus::class);
+        $this->shouldHaveType(\Spot\Api\Request\Executor\ExecutorBus::class);
     }
 
     /**
@@ -64,7 +64,7 @@ class RequestBusSpec extends ObjectBehavior
         $request->getRequestName()
             ->willReturn($requestName);
 
-        $this->execute($request)
+        $this->executeRequest($request)
             ->shouldReturn($response);
     }
 
@@ -78,7 +78,7 @@ class RequestBusSpec extends ObjectBehavior
             ->willReturn($requestName);
         $request->getAcceptContentType()->willReturn('application/vnd.api+json');
 
-        $this->shouldThrow(ResponseException::class)->duringExecute($request);
+        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
     }
 
     /**
@@ -96,6 +96,6 @@ class RequestBusSpec extends ObjectBehavior
             ->willReturn($requestName);
         $request->getAcceptContentType()->willReturn('application/vnd.api+json');
 
-        $this->shouldThrow(ResponseException::class)->duringExecute($request);
+        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
     }
 }

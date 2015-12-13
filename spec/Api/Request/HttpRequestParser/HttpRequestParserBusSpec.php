@@ -15,8 +15,8 @@ use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Request\Message\ServerErrorRequest;
 use Spot\Api\Request\RequestException;
 
-/** @mixin  \Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter */
-class HttpRequestParserRouterSpec extends ObjectBehavior
+/** @mixin  \Spot\Api\Request\HttpRequestParser\HttpRequestParserBus */
+class HttpRequestParserBusSpec extends ObjectBehavior
 {
     /** @var  Container */
     private $container;
@@ -36,7 +36,7 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
 
     public function it_isInitializable()
     {
-        $this->shouldHaveType(\Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter::class);
+        $this->shouldHaveType(\Spot\Api\Request\HttpRequestParser\HttpRequestParserBus::class);
     }
 
     /**

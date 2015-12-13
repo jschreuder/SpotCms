@@ -1,18 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\Response;
+namespace Spot\Api\Response\Generator;
 
 use Pimple\Container;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Spot\Api\Response\Generator\GeneratorInterface;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Http\JsonApiErrorResponse;
 use Spot\Api\LoggableTrait;
 use Zend\Diactoros\Response;
 
-class ResponseBus implements ResponseBusInterface
+class GeneratorBus implements GeneratorInterface
 {
     use LoggableTrait;
 
@@ -90,7 +89,7 @@ class ResponseBus implements ResponseBusInterface
     }
 
     /** {@inheritdoc} */
-    public function supports(ResponseInterface $response) : bool
+    private function supports(ResponseInterface $response) : bool
     {
         foreach ($this->getRequestedContentTypes($response) as $contentType) {
             if ($this->hasGenerator($response->getResponseName(), $contentType)) {
@@ -101,7 +100,7 @@ class ResponseBus implements ResponseBusInterface
     }
 
     /** {@inheritdoc} */
-    public function execute(ResponseInterface $response) : HttpResponse
+    public function generateResponse(ResponseInterface $response) : HttpResponse
     {
         if (!$this->supports($response)) {
             $this->log(LogLevel::ERROR, 'Unsupported response: ' . $response->getResponseName());

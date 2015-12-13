@@ -13,10 +13,10 @@ use Pimple\ServiceProviderInterface;
 use Spot\Api\Request\Handler\ErrorHandler;
 use Spot\Api\Application;
 use Spot\Api\ApplicationInterface;
-use Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter;
-use Spot\Api\Request\RequestBus;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
+use Spot\Api\Request\Executor\ExecutorBus;
 use Spot\Api\RequestBodyParser\JsonApiParser;
-use Spot\Api\Response\ResponseBus;
+use Spot\Api\Response\Generator\GeneratorBus;
 use Spot\Common\ApiBuilder\ApiBuilder;
 use Spot\Common\ApiBuilder\RepositoryBuilderInterface;
 use Spot\Common\ApiBuilder\RouterBuilderInterface;
@@ -33,20 +33,20 @@ class DefaultServiceProvider implements
         $container['app'] = function (Container $container) {
             $builder = new ApiBuilder(
                 $container,
-                new HttpRequestParserRouter(
+                new HttpRequestParserBus(
                     $container,
                     $container['logger']
                 ),
                 new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
-                new RequestBus($container, $container['logger']),
-                new ResponseBus($container, $container['logger']),
+                new ExecutorBus($container, $container['logger']),
+                new GeneratorBus($container, $container['logger']),
                 array_merge([$this], $container['modules'] ?? [])
             );
 
             return new Application(
                 $builder->getHttpRequestParser(),
-                $builder->getRequestBus(),
-                $builder->getResponseBus(),
+                $builder->getExecutor(),
+                $builder->getGenerator(),
                 $container['logger']
             );
         };

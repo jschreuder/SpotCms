@@ -14,7 +14,7 @@ use Spot\Api\Request\Message\ServerErrorRequest;
 use Spot\Api\LoggableTrait;
 use Spot\Api\Request\RequestException;
 
-class HttpRequestParserRouter implements HttpRequestParserInterface
+class HttpRequestParserBus implements HttpRequestParserInterface
 {
     use LoggableTrait;
 

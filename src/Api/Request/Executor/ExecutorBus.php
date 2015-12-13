@@ -1,19 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\Request;
+namespace Spot\Api\Request\Executor;
 
 use Pimple\Container;
-use Psr\Http\Message\RequestInterface as HttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\LoggableTrait;
 
-class RequestBus implements RequestBusInterface
+class ExecutorBus implements ExecutorInterface
 {
     use LoggableTrait;
 
@@ -54,7 +52,7 @@ class RequestBus implements RequestBusInterface
     }
 
     /** {@inheritdoc} */
-    public function execute(RequestInterface $requestMessage) : ResponseInterface
+    public function executeRequest(RequestInterface $requestMessage) : ResponseInterface
     {
         if (!$this->supports($requestMessage)) {
             $msg = 'Unsupported request: ' . $requestMessage->getRequestName();
