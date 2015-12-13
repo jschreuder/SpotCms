@@ -49,16 +49,20 @@ class ApiBuilderSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Common\ApiBuilder\RouterBuilderInterface $routeModule
-     * @param  \Spot\Common\ApiBuilder\RepositoryBuilderInterface $repoModule
+     * @param  \Pimple\ServiceProviderInterface $serviceModule
+     * @param  \Spot\Common\ApiBuilder\RoutingProviderInterface $routeModule
+     * @param  \Spot\Common\ApiBuilder\RepositoryProviderInterface $repoModule
      */
-    public function it_canAddModules($routeModule, $repoModule)
+    public function it_canAddModules($serviceModule, $routeModule, $repoModule)
     {
-        $routeModule->configureRouting($this->container, $this)
+        $serviceModule->register($this->container)
             ->shouldBeCalled();
-        $repoModule->configureRepositories($this->container)
+        $routeModule->provideRouting($this->container, $this)
+            ->shouldBeCalled();
+        $repoModule->provideRepositories($this->container)
             ->shouldBeCalled();
 
+        $this->addModule($serviceModule);
         $this->addModule($routeModule);
         $this->addModule($repoModule);
     }

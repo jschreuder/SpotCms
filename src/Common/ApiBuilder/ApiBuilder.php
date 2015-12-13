@@ -5,6 +5,7 @@ namespace Spot\Common\ApiBuilder;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
 use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
 use Spot\Api\Request\Executor\ExecutorBus;
@@ -12,10 +13,7 @@ use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Response\Generator\GeneratorBus;
 use Spot\Api\Response\Generator\GeneratorInterface;
 
-class ApiBuilder implements
-    HttpRequestParserFactoryInterface,
-    ExecutorFactoryInterface,
-    GeneratorFactoryInterface
+class ApiBuilder
 {
     /** @var  Container */
     private $container;
@@ -52,16 +50,19 @@ class ApiBuilder implements
     }
 
     /**
-     * @param   RouterBuilderInterface|RepositoryBuilderInterface $module
+     * @param   ServiceProviderInterface|RepositoryProviderInterface|RoutingProviderInterface $module
      * @return  void
      */
     public function addModule($module)
     {
-        if ($module instanceof RouterBuilderInterface) {
-            $module->configureRouting($this->container, $this);
+        if ($module instanceof ServiceProviderInterface) {
+            $module->register($this->container);
         }
-        if ($module instanceof RepositoryBuilderInterface) {
-            $module->configureRepositories($this->container);
+        if ($module instanceof RoutingProviderInterface) {
+            $module->provideRouting($this->container, $this);
+        }
+        if ($module instanceof RepositoryProviderInterface) {
+            $module->provideRepositories($this->container);
         }
     }
 

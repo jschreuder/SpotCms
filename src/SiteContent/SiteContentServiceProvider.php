@@ -8,8 +8,8 @@ use Spot\Api\Response\Generator\MultiEntityGenerator;
 use Spot\Api\Response\Generator\SingleEntityGenerator;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Common\ApiBuilder\ApiBuilder;
-use Spot\Common\ApiBuilder\RepositoryBuilderInterface;
-use Spot\Common\ApiBuilder\RouterBuilderInterface;
+use Spot\Common\ApiBuilder\RepositoryProviderInterface;
+use Spot\Common\ApiBuilder\RoutingProviderInterface;
 use Spot\SiteContent\Handler\AddPageBlockHandler;
 use Spot\SiteContent\Handler\CreatePageHandler;
 use Spot\SiteContent\Handler\DeletePageHandler;
@@ -23,7 +23,7 @@ use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Serializer\PageBlockSerializer;
 use Spot\SiteContent\Serializer\PageSerializer;
 
-class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuilderInterface
+class SiteContentServiceProvider implements RepositoryProviderInterface, RoutingProviderInterface
 {
     /** @var  string */
     private $uriSegment;
@@ -33,7 +33,14 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
         $this->uriSegment = $uriSegment;
     }
 
-    public function configureRouting(Container $container, ApiBuilder $builder)
+    public function provideRepositories(Container $container)
+    {
+        $container['repository.pages'] = function (Container $container) {
+            return new PageRepository($container['db'], $container['repository.objects']);
+        };
+    }
+
+    public function provideRouting(Container $container, ApiBuilder $builder)
     {
         // Pages API Calls
         $container['handler.pages.create'] = function (Container $container) {
@@ -89,49 +96,41 @@ class SiteContentModuleBuilder implements RouterBuilderInterface, RepositoryBuil
         };
 
         // Configure ApiBuilder to use Handlers & Response Generators
-        $jsonApiCT = 'application/vnd.api+json';
         $builder
             ->addParser('POST', $this->uriSegment, 'handler.pages.create')
             ->addExecutor(CreatePageHandler::MESSAGE, 'handler.pages.create')
-            ->addGenerator(CreatePageHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pages.single');
+            ->addGenerator(CreatePageHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.single');
         $builder
             ->addParser('GET', $this->uriSegment, 'handler.pages.list')
             ->addExecutor(ListPagesHandler::MESSAGE, 'handler.pages.list')
-            ->addGenerator(ListPagesHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pages.multi');
+            ->addGenerator(ListPagesHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.multi');
         $builder
             ->addParser('GET', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.get')
             ->addExecutor(GetPageHandler::MESSAGE, 'handler.pages.get')
-            ->addGenerator(GetPageHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pages.single');
+            ->addGenerator(GetPageHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.single');
         $builder
             ->addParser('PATCH', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.update')
             ->addExecutor(UpdatePageHandler::MESSAGE, 'handler.pages.update')
-            ->addGenerator(UpdatePageHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pages.single');
+            ->addGenerator(UpdatePageHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.single');
         $builder
             ->addParser('DELETE', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.delete')
             ->addExecutor(DeletePageHandler::MESSAGE, 'handler.pages.delete')
-            ->addGenerator(DeletePageHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pages.single');
+            ->addGenerator(DeletePageHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.single');
         $builder
             ->addParser('POST', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks', 'handler.pageBlocks.create')
             ->addExecutor(AddPageBlockHandler::MESSAGE, 'handler.pageBlocks.create')
-            ->addGenerator(AddPageBlockHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pageBlocks.single');
+            ->addGenerator(AddPageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
         $builder
             ->addParser('GET', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.get')
             ->addExecutor(GetPageBlockHandler::MESSAGE, 'handler.pageBlocks.get')
-            ->addGenerator(GetPageBlockHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pageBlocks.single');
+            ->addGenerator(GetPageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
         $builder
             ->addParser('PATCH', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.update')
             ->addExecutor(UpdatePageBlockHandler::MESSAGE, 'handler.pageBlocks.update')
-            ->addGenerator(UpdatePageBlockHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pageBlocks.single');
+            ->addGenerator(UpdatePageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
         $builder
             ->addParser('DELETE', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.delete')
             ->addExecutor(DeletePageBlockHandler::MESSAGE, 'handler.pageBlocks.delete')
-            ->addGenerator(DeletePageBlockHandler::MESSAGE, $jsonApiCT, 'responseGenerator.pageBlocks.single');
-    }
-
-    public function configureRepositories(Container $container)
-    {
-        $container['repository.pages'] = function (Container $container) {
-            return new PageRepository($container['db'], $container['repository.objects']);
-        };
+            ->addGenerator(DeletePageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
     }
 }

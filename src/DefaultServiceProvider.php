@@ -18,14 +18,14 @@ use Spot\Api\Request\Executor\ExecutorBus;
 use Spot\Api\Request\BodyParser\JsonApiParser;
 use Spot\Api\Response\Generator\GeneratorBus;
 use Spot\Common\ApiBuilder\ApiBuilder;
-use Spot\Common\ApiBuilder\RepositoryBuilderInterface;
-use Spot\Common\ApiBuilder\RouterBuilderInterface;
+use Spot\Common\ApiBuilder\RepositoryProviderInterface;
+use Spot\Common\ApiBuilder\RoutingProviderInterface;
 use Spot\DataModel\Repository\ObjectRepository;
 
 class DefaultServiceProvider implements
     ServiceProviderInterface,
-    RouterBuilderInterface,
-    RepositoryBuilderInterface
+    RepositoryProviderInterface,
+    RoutingProviderInterface
 {
     /** {@inheritdoc} */
     public function register(Container $container)
@@ -68,7 +68,7 @@ class DefaultServiceProvider implements
             );
         };
 
-        $this->configureRepositories($container);
+        $this->provideRepositories($container);
 
         $container['logger'] = function () {
             $logger = new Logger('spot-api');
@@ -80,7 +80,14 @@ class DefaultServiceProvider implements
         };
     }
 
-    public function configureRouting(Container $container, ApiBuilder $builder)
+    public function provideRepositories(Container $container)
+    {
+        $container['repository.objects'] = function (Container $container) {
+            return new ObjectRepository($container['db']);
+        };
+    }
+
+    public function provideRouting(Container $container, ApiBuilder $builder)
     {
         $container['errorHandler.badRequest'] = function () {
             return new ErrorHandler('error.badRequest', 400, 'Bad Request');
@@ -100,12 +107,5 @@ class DefaultServiceProvider implements
         $builder->addGenerator('error.notFound', $jsonApiCT, 'errorHandler.notFound');
         $builder->addExecutor('error.serverError', 'errorHandler.serverError');
         $builder->addGenerator('error.serverError', $jsonApiCT, 'errorHandler.serverError');
-    }
-
-    public function configureRepositories(Container $container)
-    {
-        $container['repository.objects'] = function (Container $container) {
-            return new ObjectRepository($container['db']);
-        };
     }
 }
