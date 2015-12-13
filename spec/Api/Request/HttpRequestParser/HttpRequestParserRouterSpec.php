@@ -38,6 +38,33 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
     }
 
     /**
+     * @param  \FastRoute\Dispatcher $router
+     */
+    public function it_canTakeARouter($router)
+    {
+        $this->setRouter($router)
+            ->shouldReturn($this);
+    }
+
+    /**
+     * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
+     * @param  \Psr\Http\Message\UriInterface $uri
+     */
+    public function it_errorsWithoutARouter($httpRequest, $uri)
+    {
+        $method = 'GET';
+        $path = '/life/universe/everything/';
+        $httpRequest->getMethod()
+            ->willReturn($method);
+        $httpRequest->getUri()
+            ->willReturn($uri);
+        $uri->getPath()
+            ->willReturn($path);
+
+        $this->shouldThrow(\RuntimeException::class)->duringParseHttpRequest($httpRequest, []);
+    }
+
+    /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      * @param  \Psr\Http\Message\UriInterface $uri
      * @param  \FastRoute\Dispatcher $router
