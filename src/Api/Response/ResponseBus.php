@@ -39,41 +39,43 @@ class ResponseBus implements ResponseBusInterface
 
     private function hasGenerator(string $name, string $contentType) : bool
     {
+        if (empty($this->generators[$name])) {
+            // No registered generators? Always false
+            return false;
+        } elseif ($contentType === '*/*') {
+            // There are registered generators and requested is wildcard? Always true
+            return true;
+        }
+        // Otherwise check if the specific contentType has a generator
         return isset($this->generators[$name][$contentType]);
     }
 
     private function getGenerator(string $name, string $contentType) : GeneratorInterface
     {
+        // When wildcard and no specific wildcard handler was set: default to first generator
+        if ($contentType === '*/*' and !isset($this->generators[$name][$contentType])) {
+            return $this->container[reset($this->generators[$name])];
+        }
         return $this->container[$this->generators[$name][$contentType]];
     }
 
-    private function getFirstGenerator(string $name) : GeneratorInterface
-    {
-        return $this->container[reset($this->generators[$name])];
-    }
-
-    protected function getGeneratorForResponse(ResponseInterface $response) : GeneratorInterface
+    private function getGeneratorForResponse(ResponseInterface $response) : GeneratorInterface
     {
         $name = $response->getResponseName();
-        if (empty($this->generators[$name])) {
-            throw new \OutOfBoundsException('No generator registered for this response: ' . $name);
-        }
-
-        // Attempt to match content-type
         foreach ($this->getRequestedContentTypes($response) as $contentType) {
             if ($this->hasGenerator($name, $contentType)) {
                 return $this->getGenerator($name, $contentType);
-            } elseif ($contentType === '*/*') {
-                return $this->getFirstGenerator($name);
             }
         }
 
-        throw new \OutOfBoundsException(
-            'No generator registered for this content type: ' . ($contentType ?? '(none)')
-        );
+        throw new \OutOfBoundsException(sprintf(
+            'No generator registered for %s with content type: %s',
+            $name,
+            ($response->getContentType() ?? '(none)')
+        ));
     }
 
-    private function getRequestedContentTypes(ResponseInterface $response)
+    private function getRequestedContentTypes(ResponseInterface $response) : \SplPriorityQueue
     {
         preg_match_all(
             '#(?:^|(?:, ?))(?P<type>[^/,;]+/[^/,;]+)[^,]*?(?:;q=(?P<weight>[01]\.[0-9]+))?#uiD',
@@ -90,7 +92,12 @@ class ResponseBus implements ResponseBusInterface
     /** {@inheritdoc} */
     public function supports(ResponseInterface $response) : bool
     {
-        return array_key_exists($response->getResponseName(), $this->generators);
+        foreach ($this->getRequestedContentTypes($response) as $contentType) {
+            if ($this->hasGenerator($response->getResponseName(), $contentType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** {@inheritdoc} */

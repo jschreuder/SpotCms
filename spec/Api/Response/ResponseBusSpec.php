@@ -76,6 +76,8 @@ class ResponseBusSpec extends ObjectBehavior
         $responseName = 'request.name';
         $response->getResponseName()
             ->willReturn($responseName);
+        $response->getContentType()
+            ->willReturn('application/vnd.api+json, application/json;q=0.5');
 
         $this->execute($response)
             ->shouldReturnAnInstanceOf(HttpResponse::class);
