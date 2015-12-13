@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Common\ApiBuilder;
+namespace Spot\Common\ApiServiceProvider;
 
 use Pimple\Container;
 

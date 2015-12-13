@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Common\ApiBuilder;
+namespace Spot\Common\ApiServiceProvider;
 
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use Spot\Api\Application;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
 use Spot\Api\Request\Executor\ExecutorBus;
@@ -13,7 +14,7 @@ use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Response\Generator\GeneratorBus;
 use Spot\Api\Response\Generator\GeneratorInterface;
 
-class ApiBuilder
+class ApiServiceProvider implements ServiceProviderInterface
 {
     /** @var  Container */
     private $container;
@@ -100,5 +101,18 @@ class ApiBuilder
     public function getGenerator() : GeneratorInterface
     {
         return $this->generatorBus;
+    }
+
+    /** {@inheritdoc} */
+    public function register(Container $container)
+    {
+        $container['app'] = function (Container $container) {
+            return new Application(
+                $this->getHttpRequestParser(),
+                $this->getExecutor(),
+                $this->getGenerator(),
+                $container['logger']
+            );
+        };
     }
 }

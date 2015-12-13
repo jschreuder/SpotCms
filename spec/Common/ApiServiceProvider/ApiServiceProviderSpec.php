@@ -1,14 +1,14 @@
 <?php
 
-namespace spec\Spot\Common\ApiBuilder;
+namespace spec\Spot\Common\ApiServiceProvider;
 
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Common\ApiBuilder\ApiBuilder;
+use Spot\Common\ApiServiceProvider\ApiServiceProvider;
 
-/** @mixin  ApiBuilder */
-class ApiBuilderSpec extends ObjectBehavior
+/** @mixin  ApiServiceProvider */
+class ApiServiceProviderSpec extends ObjectBehavior
 {
     /** @var  \Pimple\Container */
     private $container;
@@ -45,13 +45,13 @@ class ApiBuilderSpec extends ObjectBehavior
 
     public function it_isInitializable()
     {
-        $this->shouldHaveType(ApiBuilder::class);
+        $this->shouldHaveType(ApiServiceProvider::class);
     }
 
     /**
      * @param  \Pimple\ServiceProviderInterface $serviceModule
-     * @param  \Spot\Common\ApiBuilder\RoutingProviderInterface $routeModule
-     * @param  \Spot\Common\ApiBuilder\RepositoryProviderInterface $repoModule
+     * @param  \Spot\Common\ApiServiceProvider\RoutingProviderInterface $routeModule
+     * @param  \Spot\Common\ApiServiceProvider\RepositoryProviderInterface $repoModule
      */
     public function it_canAddModules($serviceModule, $routeModule, $repoModule)
     {

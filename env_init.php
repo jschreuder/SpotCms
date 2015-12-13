@@ -16,7 +16,7 @@ $container['environment'] = $environment;
 
 // Register services to container
 $serviceProvider = new Spot\DefaultServiceProvider();
-$container->register($serviceProvider);
+$serviceProvider->init($container);
 
 Monolog\ErrorHandler::register($container['logger']);
 

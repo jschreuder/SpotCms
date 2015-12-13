@@ -5,51 +5,36 @@ namespace Spot;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as StdRouteParser;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 use Pimple\Container;
-use Pimple\ServiceProviderInterface;
 use Spot\Api\Request\Handler\ErrorHandler;
-use Spot\Api\Application;
 use Spot\Api\ApplicationInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
 use Spot\Api\Request\Executor\ExecutorBus;
 use Spot\Api\Request\BodyParser\JsonApiParser;
 use Spot\Api\Response\Generator\GeneratorBus;
-use Spot\Common\ApiBuilder\ApiBuilder;
-use Spot\Common\ApiBuilder\RepositoryProviderInterface;
-use Spot\Common\ApiBuilder\RoutingProviderInterface;
+use Spot\Common\ApiServiceProvider\ApiServiceProvider;
+use Spot\Common\ApiServiceProvider\RepositoryProviderInterface;
+use Spot\Common\ApiServiceProvider\RoutingProviderInterface;
 use Spot\DataModel\Repository\ObjectRepository;
 
 class DefaultServiceProvider implements
-    ServiceProviderInterface,
     RepositoryProviderInterface,
     RoutingProviderInterface
 {
     /** {@inheritdoc} */
-    public function register(Container $container)
+    public function init(Container $container)
     {
-        $container['app'] = function (Container $container) {
-            $builder = new ApiBuilder(
+        $container->register(new ApiServiceProvider(
+            $container,
+            new HttpRequestParserBus(
                 $container,
-                new HttpRequestParserBus(
-                    $container,
-                    $container['logger']
-                ),
-                new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
-                new ExecutorBus($container, $container['logger']),
-                new GeneratorBus($container, $container['logger']),
-                array_merge([$this], $container['modules'] ?? [])
-            );
-
-            return new Application(
-                $builder->getHttpRequestParser(),
-                $builder->getExecutor(),
-                $builder->getGenerator(),
                 $container['logger']
-            );
-        };
+            ),
+            new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
+            new ExecutorBus($container, $container['logger']),
+            new GeneratorBus($container, $container['logger']),
+            array_merge([$this], $container['modules'] ?? [])
+        ));
 
         // Support JSON bodies for requests
         $container->extend('app', function (ApplicationInterface $application) {
@@ -67,17 +52,6 @@ class DefaultServiceProvider implements
                 ]
             );
         };
-
-        $this->provideRepositories($container);
-
-        $container['logger'] = function () {
-            $logger = new Logger('spot-api');
-            $logger->pushHandler((new StreamHandler(
-                __DIR__.'/../logs/'.date('Ymd').'.log',
-                Logger::NOTICE
-            ))->setFormatter(new LineFormatter()));
-            return $logger;
-        };
     }
 
     public function provideRepositories(Container $container)
@@ -87,7 +61,7 @@ class DefaultServiceProvider implements
         };
     }
 
-    public function provideRouting(Container $container, ApiBuilder $builder)
+    public function provideRouting(Container $container, ApiServiceProvider $builder)
     {
         $container['errorHandler.badRequest'] = function () {
             return new ErrorHandler('error.badRequest', 400, 'Bad Request');
