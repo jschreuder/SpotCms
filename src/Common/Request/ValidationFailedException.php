@@ -17,11 +17,11 @@ class ValidationFailedException extends RequestException
         $this->errors = [];
         foreach ($result->getMessages() as $field => $messages) {
             foreach ($messages as $errorKey => $errorMessage) {
-                $this->errors[] = sprintf('%s: %s [%s]', $field, $errorMessage, $errorKey);
+                $this->errors[$field][] = $errorKey;
             }
         }
 
-        parent::__construct(implode("\n", $this->errors), new BadRequest(['errors' => $this->errors], $httpRequest));
+        parent::__construct('Validation failed', new BadRequest(['errors' => $this->errors], $httpRequest));
     }
 
     public function getErrors() : array
