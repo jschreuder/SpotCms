@@ -4,11 +4,16 @@ namespace spec\Spot\Api\Request\Message;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use spec\Spot\Api\Message\AttributesArrayAccessSpecTrait;
 use Spot\Api\Request\Message\NotFoundRequest;
+
+require_once __DIR__ . '/../../Message/AttributesArrayAccessSpecTrait.php';
 
 /** @mixin  \Spot\Api\Request\Message\NotFoundRequest */
 class NotFoundRequestSpec extends ObjectBehavior
 {
+    use AttributesArrayAccessSpecTrait;
+
     private $name = 'error.notFound';
 
     /** @var  \Psr\Http\Message\RequestInterface */

@@ -4,11 +4,16 @@ namespace spec\Spot\Api\Request\Message;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use spec\Spot\Api\Message\AttributesArrayAccessSpecTrait;
 use Spot\Api\Request\Message\Request;
+
+require_once __DIR__ . '/../../Message/AttributesArrayAccessSpecTrait.php';
 
 /** @mixin  \Spot\Api\Request\Message\Request */
 class RequestSpec extends ObjectBehavior
 {
+    use AttributesArrayAccessSpecTrait;
+
     private $name = 'array.request';
     private $data = ['answer' => 42];
 
