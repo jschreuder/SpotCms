@@ -2,18 +2,11 @@
 
 namespace Spot\Common\ParticleFixes;
 
-use Particle\Validator\Chain;
 use Particle\Validator\ValidationResult;
 
 class Validator extends \Particle\Validator\Validator
 {
-    /**
-     * Validates the values in the $values array and returns a ValidationResult.
-     *
-     * @param array $values
-     * @param string $context
-     * @return ValidationResult
-     */
+    /** {@inheritdoc} */
     public function validate(array $values, $context = self::DEFAULT_CONTEXT)
     {
         $isValid = true;
@@ -58,5 +51,11 @@ class Validator extends \Particle\Validator\Validator
         }
 
         return $output;
+    }
+
+    /** {@inheritdoc} */
+    protected function buildChain($key, $name, $required, $allowEmpty)
+    {
+        return new Chain($key, $name, $required, $allowEmpty);
     }
 }
