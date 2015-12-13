@@ -30,11 +30,20 @@ class ErrorHandler implements ExecutorInterface, GeneratorInterface
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        return new Response($this->name, [], $request);
+        $attributes = [];
+        if (isset($request['errors'])) {
+            $attributes['errors'] = $request['errors'];
+        }
+        return new Response($this->name, $attributes, $request);
     }
 
     public function generateResponse(ResponseInterface $response) : HttpResponse
     {
-        return new JsonApiErrorResponse($this->message ?: $this->name, $this->statusCode);
+        $meta = null;
+        if (isset($response['errors'])) {
+            $meta['errors'] = $response['errors'];
+        }
+
+        return new JsonApiErrorResponse($this->message ?: $this->name, $this->statusCode, $meta);
     }
 }

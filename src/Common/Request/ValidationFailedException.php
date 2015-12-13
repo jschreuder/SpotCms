@@ -17,7 +17,7 @@ class ValidationFailedException extends RequestException
         $this->errors = [];
         foreach ($result->getMessages() as $field => $messages) {
             foreach ($messages as $errorKey => $errorMessage) {
-                $this->errors[] = sprintf('[%s] :: %s (%s)', $field, $errorMessage, $errorKey);
+                $this->errors[] = sprintf('%s: %s [%s]', $field, $errorMessage, $errorKey);
             }
         }
 

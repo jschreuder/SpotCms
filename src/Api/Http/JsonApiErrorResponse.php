@@ -10,13 +10,18 @@ class JsonApiErrorResponse extends JsonApiResponse
      * JsonResponse overloaded Constructor to assign JSON-API Content-Type
      * and create JSON-API formatted response
      */
-    public function __construct(string $message, int $status = 200)
+    public function __construct(string $message, int $status = 200, array $meta = null)
     {
-        $document = new Document();
-        $document->setErrors([[
+        $error = [
             'title' => $message,
             'status' => strval($status),
-        ]]);
+        ];
+        if (!is_null($meta)) {
+            $error['meta'] = $meta;
+        }
+
+        $document = new Document();
+        $document->setErrors([$error]);
         parent::__construct($document, $status);
     }
 }

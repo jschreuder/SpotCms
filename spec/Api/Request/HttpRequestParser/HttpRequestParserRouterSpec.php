@@ -8,10 +8,12 @@ use Pimple\Container;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
+use Spot\Api\Request\Message\BadRequest;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\NotFoundRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Request\Message\ServerErrorRequest;
+use Spot\Api\Request\RequestException;
 
 /** @mixin  \Spot\Api\Request\HttpRequestParser\HttpRequestParserRouter */
 class HttpRequestParserRouterSpec extends ObjectBehavior
@@ -96,6 +98,47 @@ class HttpRequestParserRouterSpec extends ObjectBehavior
             public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
             {
                 return $this->request;
+            }
+        };
+
+        $this->parseHttpRequest($httpRequest, [])
+            ->shouldReturn($request);
+    }
+
+    /**
+     * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
+     * @param  \Psr\Http\Message\UriInterface $uri
+     * @param  \FastRoute\Dispatcher $router
+     */
+    public function it_canHandleA400($httpRequest, $uri, $router)
+    {
+        $method = 'GET';
+        $path = '/life/universe/everything/';
+        $requestName = 'forty.two';
+        $request = new BadRequest([], $httpRequest->getWrappedObject());
+
+        $httpRequest->getMethod()
+            ->willReturn($method);
+        $httpRequest->getHeaderLine('Accept')
+            ->willReturn('application/vnd.api+json');
+        $httpRequest->getUri()
+            ->willReturn($uri);
+        $uri->getPath()
+            ->willReturn($path);
+
+        $this->setRouter($router);
+        $router->dispatch($method, $path)
+            ->willReturn([Router::FOUND, $requestName, []]);
+
+        $this->container[$requestName] = new class($request) implements HttpRequestParserInterface {
+            private $request;
+            public function __construct($request)
+            {
+                $this->request = $request;
+            }
+            public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
+            {
+                throw new RequestException('Validation failed', $this->request);
             }
         };
 

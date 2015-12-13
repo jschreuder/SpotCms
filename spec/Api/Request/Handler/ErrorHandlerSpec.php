@@ -37,10 +37,27 @@ class ErrorHandlerSpec extends ObjectBehavior
     public function it_canExecuteARequest($request)
     {
         $request->getAcceptContentType()->willReturn('application/vnd.api+json');
+        $request->offsetExists('errors')->willReturn(false);
         $response = $this->executeRequest($request);
         $response->shouldHaveType(Response::class);
         $response->getResponseName()->shouldReturn($this->name);
         $response->getAttributes()->shouldReturn([]);
+    }
+
+    /**
+     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Psr\Http\Message\RequestInterface $httpRequest
+     */
+    public function it_canPassOnErrorsToTheResponse($request)
+    {
+        $errors = ['error1' => 'your first mistake', 'error2' => 'was trying to run this mess'];
+        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
+        $request->offsetExists('errors')->willReturn(true);
+        $request->offsetGet('errors')->willReturn($errors);
+        $response = $this->executeRequest($request);
+        $response->shouldHaveType(Response::class);
+        $response->getResponseName()->shouldReturn($this->name);
+        $response->getAttributes()->shouldReturn(['errors' => $errors]);
     }
 
     /**

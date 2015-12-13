@@ -12,6 +12,7 @@ use Spot\Api\Request\Message\NotFoundRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Request\Message\ServerErrorRequest;
 use Spot\Api\LoggableTrait;
+use Spot\Api\Request\RequestException;
 
 class HttpRequestParserRouter implements HttpRequestParserInterface
 {
@@ -72,6 +73,8 @@ class HttpRequestParserRouter implements HttpRequestParserInterface
                 default:
                     throw new \RuntimeException('Routing errored for ' . $method . ' ' . $path);
             }
+        } catch (RequestException $exception) {
+            $request = $exception->getRequestObject();
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
             $request = new ServerErrorRequest([], $httpRequest);
