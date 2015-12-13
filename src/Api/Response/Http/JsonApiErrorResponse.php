@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Spot\Api\Http;
+namespace Spot\Api\Response\Http;
 
 use Tobscure\JsonApi\Document;
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace spec\Spot\Api\RequestBodyParser;
+namespace spec\Spot\Api\Request\BodyParser;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Api\Http\JsonApiErrorResponse;
-use Spot\Api\RequestBodyParser\JsonApiParser;
+use Spot\Api\Response\Http\JsonApiErrorResponse;
+use Spot\Api\Request\BodyParser\JsonApiParser;
 
 /** @mixin  JsonApiParser */
 class JsonApiParserSpec extends ObjectBehavior

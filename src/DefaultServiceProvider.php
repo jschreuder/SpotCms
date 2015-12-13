@@ -15,7 +15,7 @@ use Spot\Api\Application;
 use Spot\Api\ApplicationInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
 use Spot\Api\Request\Executor\ExecutorBus;
-use Spot\Api\RequestBodyParser\JsonApiParser;
+use Spot\Api\Request\BodyParser\JsonApiParser;
 use Spot\Api\Response\Generator\GeneratorBus;
 use Spot\Common\ApiBuilder\ApiBuilder;
 use Spot\Common\ApiBuilder\RepositoryBuilderInterface;

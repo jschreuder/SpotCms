@@ -8,7 +8,7 @@ use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Generator\GeneratorInterface;
 use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
-use Spot\Api\Http\JsonApiErrorResponse;
+use Spot\Api\Response\Http\JsonApiErrorResponse;
 
 class ErrorHandler implements ExecutorInterface, GeneratorInterface
 {

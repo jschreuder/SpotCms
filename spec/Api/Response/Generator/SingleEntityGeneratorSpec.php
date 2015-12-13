@@ -4,8 +4,8 @@ namespace spec\Spot\Api\Response\Generator;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Api\Http\JsonApiErrorResponse;
-use Spot\Api\Http\JsonApiResponse;
+use Spot\Api\Response\Http\JsonApiErrorResponse;
+use Spot\Api\Response\Http\JsonApiResponse;
 use Spot\Api\Response\Generator\SingleEntityGenerator;
 use Spot\Api\Response\Message\ResponseInterface;
 

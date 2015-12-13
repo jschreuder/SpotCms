@@ -4,8 +4,8 @@ namespace Spot\Api\Response\Generator;
 
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LogLevel;
-use Spot\Api\Http\JsonApiErrorResponse;
-use Spot\Api\Http\JsonApiResponse;
+use Spot\Api\Response\Http\JsonApiErrorResponse;
+use Spot\Api\Response\Http\JsonApiResponse;
 use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Tobscure\JsonApi\Collection;

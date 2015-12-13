@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Api\Response\Message\ResponseInterface;
-use Spot\Api\Http\JsonApiErrorResponse;
+use Spot\Api\Response\Http\JsonApiErrorResponse;
 use Spot\Api\LoggableTrait;
 use Zend\Diactoros\Response;
 

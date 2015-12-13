@@ -1,10 +1,10 @@
 <?php
 
-namespace spec\Spot\Api\Http;
+namespace spec\Spot\Api\Response\Http;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Api\Http\JsonApiResponse;
+use Spot\Api\Response\Http\JsonApiResponse;
 
 /** @mixin  JsonApiResponse */
 class JsonApiResponseSpec extends ObjectBehavior

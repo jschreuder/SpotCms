@@ -4,7 +4,7 @@ namespace spec\Spot\Api\Request\Handler;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Api\Http\JsonApiErrorResponse;
+use Spot\Api\Response\Http\JsonApiErrorResponse;
 use Spot\Api\Request\Handler\ErrorHandler;
 use Spot\Api\Response\Message\Response;
 
