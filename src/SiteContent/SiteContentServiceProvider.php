@@ -121,15 +121,18 @@ class SiteContentServiceProvider implements RepositoryProviderInterface, Routing
             ->addExecutor(AddPageBlockHandler::MESSAGE, 'handler.pageBlocks.create')
             ->addGenerator(AddPageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
         $builder
-            ->addParser('GET', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.get')
+            ->addParser('GET', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}',
+                'handler.pageBlocks.get')
             ->addExecutor(GetPageBlockHandler::MESSAGE, 'handler.pageBlocks.get')
             ->addGenerator(GetPageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
         $builder
-            ->addParser('PATCH', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.update')
+            ->addParser('PATCH', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}',
+                'handler.pageBlocks.update')
             ->addExecutor(UpdatePageBlockHandler::MESSAGE, 'handler.pageBlocks.update')
             ->addGenerator(UpdatePageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
         $builder
-            ->addParser('DELETE', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}', 'handler.pageBlocks.delete')
+            ->addParser('DELETE', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}',
+                'handler.pageBlocks.delete')
             ->addExecutor(DeletePageBlockHandler::MESSAGE, 'handler.pageBlocks.delete')
             ->addGenerator(DeletePageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
     }

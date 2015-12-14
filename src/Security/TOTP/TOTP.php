@@ -18,7 +18,7 @@ class TOTP
     /**
      * @param  int $codeLength
      */
-    public function __construct($codeLength = 6)
+    public function __construct(int $codeLength = 6)
     {
         if (!is_int($codeLength) || $codeLength < 6) {
             throw new \OutOfRangeException('Code length must be a valid integer and be 6 or larger.');
@@ -27,7 +27,7 @@ class TOTP
     }
 
     /** @return  int */
-    protected function getCodeLength()
+    protected function getCodeLength() : int
     {
         return $this->codeLength;
     }
@@ -39,7 +39,7 @@ class TOTP
      * @param   int $secretLength
      * @return  string
      */
-    public function createSecret($secretLength = 16)
+    public function createSecret(int $secretLength = 16) : string
     {
         $validChars = $this->getBase32LookupTable();
         $secret = '';
@@ -51,12 +51,8 @@ class TOTP
 
     /**
      * Calculate the code, with given secret and point in time
-     *
-     * @param   string $secret
-     * @param   int|null $timeSlice
-     * @return  string
      */
-    public function getCode($secret, $timeSlice = null)
+    public function getCode(string $secret, int $timeSlice = null) : string
     {
         if ($timeSlice === null) {
             $timeSlice = floor(time() / 30);
@@ -83,13 +79,8 @@ class TOTP
 
     /**
      * Get QR-Code URL for image, from google charts
-     *
-     * @param   string $name
-     * @param   string $secret
-     * @param   string $title
-     * @return   string
      */
-    public function getQRCodeUrl($name, $secret, $title = null)
+    public function getQRCodeUrl(string $name, string $secret, string $title = null) : string
     {
         $url = 'otpauth://totp/' . urlencode($name) . '?';
 
@@ -104,16 +95,8 @@ class TOTP
     /**
      * Check if the code is correct. This will accept codes starting from
      * $discrepancy*30sec ago to $discrepancy*30sec from now
-     *
-     * @param   string $secret
-     * @param   string $code
-     * @param   int $discrepancy This is the allowed time drift in 30 second
-     *          units (8 means 4 minutes before or after)
-     * @param   int|null $currentTimeSlice time slice if we want use other
-     *          that time()
-     * @return  bool
      */
-    public function verifyCode($secret, $code, $discrepancy = 1, $currentTimeSlice = null)
+    public function verifyCode(string $secret, string $code, int $discrepancy = 1, int $currentTimeSlice = null) : bool
     {
         if (strlen($code) !== $this->getCodeLength()) {
             throw new \InvalidArgumentException('Code must have exact length: ' . $this->getCodeLength());
@@ -138,11 +121,10 @@ class TOTP
     /**
      * Throws Exception when the secret isn't valid
      *
-     * @param   string $secret
      * @return  void
      * @throws  \InvalidArgumentException
      */
-    protected function validateSecret($secret)
+    protected function validateSecret(string $secret)
     {
         if (empty($secret)) {
             throw new \InvalidArgumentException('Secret cannot be empty');
@@ -150,7 +132,7 @@ class TOTP
 
         // Check encoding
         $base32chars = $this->getBase32LookupTable();
-        if (preg_match('#([^'.implode('', $base32chars).'=])#', $secret, $matches) === 1) {
+        if (preg_match('#([^' . implode('', $base32chars) . '=])#', $secret, $matches) === 1) {
             throw new \InvalidArgumentException('Invalid character encountered in secret: ' . $matches[1]);
         }
 
@@ -171,11 +153,8 @@ class TOTP
 
     /**
      * Helper class to decode base32
-     *
-     * @param   $secret
-     * @return  string
      */
-    protected function base32Decode($secret)
+    protected function base32Decode(string $secret) : string
     {
         $this->validateSecret($secret);
 
@@ -205,15 +184,43 @@ class TOTP
     /**
      * Get array with all 32 characters for decoding from/encoding to base32
      *
-     * @return  array
+     * @return  string[]
      */
-    protected function getBase32LookupTable()
+    protected function getBase32LookupTable() : array
     {
         return [
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', //  7
-            'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', // 15
-            'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', // 23
-            'Y', 'Z', '2', '3', '4', '5', '6', '7', // 31
+            'A',
+            'B',
+            'C',
+            'D',
+            'E',
+            'F',
+            'G',
+            'H', //  7
+            'I',
+            'J',
+            'K',
+            'L',
+            'M',
+            'N',
+            'O',
+            'P', // 15
+            'Q',
+            'R',
+            'S',
+            'T',
+            'U',
+            'V',
+            'W',
+            'X', // 23
+            'Y',
+            'Z',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7', // 31
         ];
     }
 }
