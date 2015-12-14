@@ -56,9 +56,15 @@ Response message.
 This is probably often a JSON or XML object as that is what this is meant to
 enable, but HTML is a distinct possibility as well.
 
-Basically stage 1 is an added stage, similar to routing but it does more. Stage
-2 is the Controller layer and stage 3 is the View layer. The Model layer is not
-represented here, but you domain logic may be used at any point.
+RequestInterface & ResponseInterface messages
+---------------------------------------------
+
+The Application expects a HTTP request to be mapped to a
+`Spot\Api\Application\Request\RequestInterface` instance, which is executed to
+result in a `Spot\Api\Application\Response\ResponseInterface` which in turn
+will be used to generate a HTTP response. These messages consist of at least a
+name, a content-type and attributes. They also implement the `ArrayAccess`
+interface to allow direct access to their attributes.
 
 More to come...
 ---------------
