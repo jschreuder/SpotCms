@@ -60,10 +60,10 @@ class ApiServiceProvider implements ServiceProviderInterface
             $module->register($this->container);
         }
         if ($module instanceof RoutingProviderInterface) {
-            $module->provideRouting($this->container, $this);
+            $module->registerRouting($this->container, $this);
         }
         if ($module instanceof RepositoryProviderInterface) {
-            $module->provideRepositories($this->container);
+            $module->registerRepositories($this->container);
         }
     }
 

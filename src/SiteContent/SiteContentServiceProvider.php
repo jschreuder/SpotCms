@@ -33,14 +33,14 @@ class SiteContentServiceProvider implements RepositoryProviderInterface, Routing
         $this->uriSegment = $uriSegment;
     }
 
-    public function provideRepositories(Container $container)
+    public function registerRepositories(Container $container)
     {
         $container['repository.pages'] = function (Container $container) {
             return new PageRepository($container['db'], $container['repository.objects']);
         };
     }
 
-    public function provideRouting(Container $container, ApiServiceProvider $builder)
+    public function registerRouting(Container $container, ApiServiceProvider $builder)
     {
         // Pages API Calls
         $container['handler.pages.create'] = function (Container $container) {

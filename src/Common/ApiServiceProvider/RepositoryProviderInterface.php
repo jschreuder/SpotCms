@@ -6,5 +6,5 @@ use Pimple\Container;
 
 interface RepositoryProviderInterface
 {
-    public function provideRepositories(Container $container);
+    public function registerRepositories(Container $container);
 }

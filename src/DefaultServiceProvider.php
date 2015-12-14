@@ -54,14 +54,14 @@ class DefaultServiceProvider implements
         };
     }
 
-    public function provideRepositories(Container $container)
+    public function registerRepositories(Container $container)
     {
         $container['repository.objects'] = function (Container $container) {
             return new ObjectRepository($container['db']);
         };
     }
 
-    public function provideRouting(Container $container, ApiServiceProvider $builder)
+    public function registerRouting(Container $container, ApiServiceProvider $builder)
     {
         $container['errorHandler.badRequest'] = function () {
             return new ErrorHandler('error.badRequest', 400, 'Bad Request');

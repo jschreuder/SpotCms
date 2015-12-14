@@ -57,9 +57,9 @@ class ApiServiceProviderSpec extends ObjectBehavior
     {
         $serviceModule->register($this->container)
             ->shouldBeCalled();
-        $routeModule->provideRouting($this->container, $this)
+        $routeModule->registerRouting($this->container, $this)
             ->shouldBeCalled();
-        $repoModule->provideRepositories($this->container)
+        $repoModule->registerRepositories($this->container)
             ->shouldBeCalled();
 
         $this->addModule($serviceModule);

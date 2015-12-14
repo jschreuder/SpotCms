@@ -8,5 +8,5 @@ interface RoutingProviderInterface
 {
     const JSON_API_CT = 'application/vnd.api+json';
 
-    public function provideRouting(Container $container, ApiServiceProvider $builder);
+    public function registerRouting(Container $container, ApiServiceProvider $builder);
 }
