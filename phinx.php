@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 $env = require __DIR__ . '/config/env.php';
 $db = require __DIR__ . '/config/' . $env . '.php';
