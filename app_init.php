@@ -10,14 +10,16 @@ ini_set('display_errors', 'no');
 date_default_timezone_set('UTC');
 mb_internal_encoding('UTF-8');
 
+// Setup DiC with Environment config
 $environment = require __DIR__. '/config/env.php';
 $container = new Pimple\Container(require __DIR__ . '/config/' . $environment . '.php');
 $container['environment'] = $environment;
 
-// Register services to container
+// Have Monolog log all PHP errors
+Monolog\ErrorHandler::register($container['logger']);
+
+// Register services to DiC
 $serviceProvider = new Spot\DefaultServiceProvider();
 $serviceProvider->init($container);
 
-Monolog\ErrorHandler::register($container['logger']);
-
-return $container;
+return $container['app'];

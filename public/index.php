@@ -1,12 +1,9 @@
 <?php declare(strict_types=1);
 
-/** @var  Pimple\Container $container */
-$container = require __DIR__.'/../env_init.php';
-
 /** @var  Spot\Api\ApplicationInterface $app */
-$app = $container['app'];
+$app = require __DIR__.'/../app_init.php';
 
-// Setup request, force JSON decoding on body
+// Create request from globals
 $request = Zend\Diactoros\ServerRequestFactory::fromGlobals();
 
 // Execute the application
