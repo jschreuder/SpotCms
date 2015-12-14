@@ -15,13 +15,6 @@ class MultiEntityGenerator extends SingleEntityGenerator
 {
     public function generateResponse(ResponseInterface $response) : HttpResponse
     {
-        if (!$response instanceof Response) {
-            $this->log(LogLevel::ERROR, 'Did not receive an ArrayResponse instance.');
-            return new JsonApiErrorResponse([
-                'title' => 'Server Error: generator does not support response',
-                'status' => '500',
-            ], 500);
-        }
         if (!isset($response['data']) || !is_array($response['data'])) {
             $this->log(LogLevel::ERROR, 'No set of data present in Response.');
             return new JsonApiErrorResponse([

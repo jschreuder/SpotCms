@@ -65,14 +65,6 @@ class CreatePageHandler implements RequestHandlerInterface
     /** {@inheritdoc} */
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        if (!$request instanceof Request) {
-            $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException(
-                'An error occurred during CreatePageHandler.',
-                new ServerErrorResponse([], $request)
-            );
-        }
-
         try {
             $page = new Page(
                 Uuid::uuid4(),

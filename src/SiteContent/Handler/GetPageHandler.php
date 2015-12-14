@@ -50,14 +50,6 @@ class GetPageHandler implements RequestHandlerInterface
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        if (!$request instanceof Request) {
-            $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException(
-                'An error occurred during GetPageHandler.',
-                new ServerErrorResponse([], $request)
-            );
-        }
-
         try {
             try {
                 $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));

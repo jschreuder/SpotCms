@@ -48,14 +48,6 @@ class ListPagesHandler implements RequestHandlerInterface
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        if (!$request instanceof Request) {
-            $this->log(LogLevel::ERROR, 'Did not receive an ArrayRequest instance.');
-            throw new ResponseException(
-                'An error occurred during ListPagesHandler.',
-                new ServerErrorResponse([], $request)
-            );
-        }
-
         try {
             $parentUuid = isset($request['parent_uuid']) ? Uuid::fromString($request['parent_uuid']) : null;
             return new Response(self::MESSAGE, [
