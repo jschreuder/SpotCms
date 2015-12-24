@@ -30,7 +30,7 @@ class ExecutorBus implements ExecutorInterface
         $this->logger = $logger;
     }
 
-    public function setExecutor(string $name, $executor) : self
+    public function setExecutor(string $name, $executor) : ExecutorBus
     {
         $this->executors[$name] = $executor;
         return $this;

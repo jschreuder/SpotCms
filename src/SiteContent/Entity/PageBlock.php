@@ -81,7 +81,7 @@ class PageBlock implements \ArrayAccess
         return $this->sortOrder;
     }
 
-    public function setSortOrder(int $sortOrder) : self
+    public function setSortOrder(int $sortOrder) : PageBlock
     {
         $this->sortOrder = $sortOrder;
         return $this;
@@ -92,7 +92,7 @@ class PageBlock implements \ArrayAccess
         return $this->status;
     }
 
-    public function setStatus(PageStatusValue $status) : self
+    public function setStatus(PageStatusValue $status) : PageBlock
     {
         $this->status = $status;
         return $this;

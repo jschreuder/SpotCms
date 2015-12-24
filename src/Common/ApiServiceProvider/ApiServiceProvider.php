@@ -67,19 +67,19 @@ class ApiServiceProvider implements ServiceProviderInterface
         }
     }
 
-    public function addParser(string $method, string $path, string $httpRequestParser) : self
+    public function addParser(string $method, string $path, string $httpRequestParser) : ApiServiceProvider
     {
         $this->routeCollector->addRoute($method, $path, $httpRequestParser);
         return $this;
     }
 
-    public function addExecutor(string $requestName, string $executor) : self
+    public function addExecutor(string $requestName, string $executor) : ApiServiceProvider
     {
         $this->executorBus->setExecutor($requestName, $executor);
         return $this;
     }
 
-    public function addGenerator(string $responseName, string $contentType, string $generator) : self
+    public function addGenerator(string $responseName, string $contentType, string $generator) : ApiServiceProvider
     {
         $this->generatorBus->setGenerator($responseName, $contentType, $generator);
         return $this;

@@ -64,7 +64,7 @@ class Page
         return $this->title;
     }
 
-    public function setTitle(string $title) : self
+    public function setTitle(string $title) : Page
     {
         $this->title = $title;
         return $this;
@@ -75,7 +75,7 @@ class Page
         return $this->slug;
     }
 
-    public function setSlug(string $slug) : self
+    public function setSlug(string $slug) : Page
     {
         $this->slug = $slug;
         return $this;
@@ -86,7 +86,7 @@ class Page
         return $this->shortTitle;
     }
 
-    public function setShortTitle(string $shortTitle) : self
+    public function setShortTitle(string $shortTitle) : Page
     {
         $this->shortTitle = $shortTitle;
         return $this;
@@ -103,7 +103,7 @@ class Page
         return $this->sortOrder;
     }
 
-    public function setSortOrder(int $sortOrder) : self
+    public function setSortOrder(int $sortOrder) : Page
     {
         $this->sortOrder = $sortOrder;
         return $this;
@@ -120,7 +120,7 @@ class Page
         return $this;
     }
 
-    public function setBlocks(array $blocks) : self
+    public function setBlocks(array $blocks) : Page
     {
         $this->relatedBlocks = [];
         foreach ($blocks as $block) {
@@ -135,13 +135,13 @@ class Page
         return $this;
     }
 
-    public function addBlock(PageBlock $block) : self
+    public function addBlock(PageBlock $block) : Page
     {
         $this->relatedBlocks[] = $block;
         return $this;
     }
 
-    public function removeBlock(PageBlock $block) : self
+    public function removeBlock(PageBlock $block) : Page
     {
         foreach ($this->relatedBlocks as $idx => $relBlock) {
             if ($relBlock->getUuid()->equals($block->getUuid())) {

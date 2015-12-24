@@ -33,7 +33,7 @@ class HttpRequestParserBus implements HttpRequestParserInterface
         $this->logger = $logger;
     }
 
-    public function setRouter(Router $router) : self
+    public function setRouter(Router $router) : HttpRequestParserBus
     {
         $this->router = $router;
         return $this;

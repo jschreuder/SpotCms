@@ -30,7 +30,7 @@ class GeneratorBus implements GeneratorInterface
         $this->logger = $logger;
     }
 
-    public function setGenerator(string $name, string $type, $generator) : self
+    public function setGenerator(string $name, string $type, $generator) : GeneratorBus
     {
         $this->generators[$name][$type] = $generator;
         return $this;
