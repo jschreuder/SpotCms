@@ -2,3 +2,12 @@ suites:
     acme_suite:
         namespace: Spot
         psr4_prefix: Spot
+
+extensions:
+    - PhpSpec\Extension\CodeCoverageExtension
+
+code_coverage:
+    format:
+        - clover
+    output:
+        clover: coverage.xml

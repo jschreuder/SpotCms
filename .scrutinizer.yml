@@ -2,3 +2,10 @@ build:
     environment:
         php:
             version: 7.0
+    tests:
+        override:
+            -
+                command: 'bin/phpspec run'
+                coverage:
+                    file: 'coverage.xml'
+                    format: 'php-clover'
