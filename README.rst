@@ -10,6 +10,9 @@ SpotApi
 .. image:: https://scrutinizer-ci.com/g/jschreuder/SpotApi/badges/quality-score.png?b=master
    :target: https://scrutinizer-ci.com/g/jschreuder/SpotApi/?branch=master
    :alt: Scrutinizer Code Quality
+.. image:: https://scrutinizer-ci.com/g/jschreuder/SpotApi/badges/coverage.png?b=master
+   :target: https://scrutinizer-ci.com/g/jschreuder/SpotApi/?branch=master
+   :alt: Code Coverage
 
 At the moment this is very much just a proof-of-concept. There are many tasks
 for which a literal MVC implementation isn't ideal in my opinion. The 3 main
