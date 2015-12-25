@@ -76,6 +76,32 @@ will be used to generate a HTTP response. These messages consist of at least a
 name, a content-type and attributes. They also implement the `ArrayAccess`
 interface to allow direct access to their attributes.
 
+How to handle multiple use-cases: buses
+---------------------------------------
+
+In the examples above it shows how this works, and works well for single
+use-cases. But if you want this to handle more than one request you may want to
+use a bus. For each of the three stages a bus has been implemented and is fully
+compatible with a single-use-case implementation of the layer.
+
+**HttpRequestParserBus**
+
+This bus is the most complex, as it uses a FastRouter instance to map a PSR7
+message to a native Request implementing the `HttpRequestParserInterface`. You
+can register paths & HTTP methods with it and map them to names from your DiC
+that must create valid `HttpRequestParserInterface` instances. This bus will
+then delegate the actual parsing to that instance.
+
+**ExecutorBus & GeneratorBus**
+
+These work similar to the HttpRequestParserBus but use simple direct matches
+instead of a router. They take the Request or Response object's name and check
+if it is known and leads to a valid name from your DiC which in turn should
+create valid `ExecutorInterface` or `GeneratorInterface` instances.
+
+While more complex applications might benefit from routers in these buses, for
+most use-cases these simple ones will suffice.
+
 More to come...
 ---------------
 
