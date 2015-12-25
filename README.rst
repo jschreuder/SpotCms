@@ -24,8 +24,6 @@ But instead of modeling any of these directly as classes, I tried to model each
 more conceptually and acknowledge the fact that PHP applications are basically
 HTTP request handlers.
 
-.. image:: docs/img/schematic.png
-
 The Application
 ---------------
 
@@ -63,6 +61,10 @@ Response message.
 
 This is probably often a JSON or XML object as that is what this is meant to
 enable, but HTML is a distinct possibility as well.
+
+**How this all fits together visually: **
+
+.. image:: docs/img/schematic.png
 
 RequestInterface & ResponseInterface messages
 ---------------------------------------------
