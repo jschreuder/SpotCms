@@ -9,3 +9,10 @@ build:
                 coverage:
                     file: 'coverage.xml'
                     format: 'php-clover'
+
+filter:
+    paths: ["src/*"]
+    excluded_paths:
+        - "src/Common/ParticleFixes/*"
+        - "src/SiteContent/SiteContentServiceProvider.php"
+        - "src/DefaultServiceProvider.php"
