@@ -24,6 +24,8 @@ But instead of modeling any of these directly as classes, I tried to model each
 more conceptually and acknowledge the fact that PHP applications are basically
 HTTP request handlers.
 
+.. image:: docs/img/schematic.png
+
 The Application
 ---------------
 
