@@ -7,7 +7,7 @@ use Spot\Api\Request\Message\RequestInterface;
 
 class ServerErrorResponse implements ResponseInterface
 {
-    use \Spot\Api\Message\AttributesArrayAccessTrait;
+    use AttributesArrayAccessTrait;
 
     /** @var  array */
     private $attributes;

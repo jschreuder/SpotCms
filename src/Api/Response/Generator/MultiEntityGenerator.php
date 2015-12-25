@@ -6,7 +6,6 @@ use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LogLevel;
 use Spot\Api\Response\Http\JsonApiErrorResponse;
 use Spot\Api\Response\Http\JsonApiResponse;
-use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Tobscure\JsonApi\Collection;
 use Tobscure\JsonApi\Document;

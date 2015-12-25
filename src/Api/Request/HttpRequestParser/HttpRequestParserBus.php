@@ -7,7 +7,6 @@ use Pimple\Container;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\NotFoundRequest;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Request\Message\ServerErrorRequest;
@@ -71,7 +70,7 @@ class HttpRequestParserBus implements HttpRequestParserInterface
                     $this->log(LogLevel::INFO, 'Found route found for ' . $method . ' ' . $path);
                     break;
                 default:
-                    throw new \RuntimeException('Routing errored for ' . $method . ' ' . $path);
+                    throw new \RuntimeException('Routing erred for ' . $method . ' ' . $path);
             }
         } catch (RequestException $exception) {
             $request = $exception->getRequestObject();
