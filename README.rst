@@ -62,7 +62,7 @@ Response message.
 This is probably often a JSON or XML object as that is what this is meant to
 enable, but HTML is a distinct possibility as well.
 
-**How this all fits together visually: **
+**How this all fits together visually**
 
 .. image:: docs/img/schematic.png
 
