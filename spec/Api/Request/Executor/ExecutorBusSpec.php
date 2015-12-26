@@ -98,4 +98,23 @@ class ExecutorBusSpec extends ObjectBehavior
 
         $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
     }
+
+    /**
+     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     */
+    public function it_willErrorOnInvalidExecutor($request)
+    {
+        $requestName = 'request.name';
+        $executorName = 'executor.test';
+
+        $this->setExecutor($requestName, $executorName)
+            ->shouldReturn($this);
+        $this->container[$executorName] = new \stdClass();
+
+        $request->getRequestName()
+            ->willReturn($requestName);
+        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
+
+        $this->shouldThrow(\RuntimeException::class)->duringExecuteRequest($request);
+    }
 }

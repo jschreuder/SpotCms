@@ -86,13 +86,34 @@ class GeneratorBusSpec extends ObjectBehavior
     /**
      * @param  \Spot\Api\Response\Message\ResponseInterface $response
      */
-    public function it_willErrorOnUndefinedExecutor($response)
+    public function it_willErrorOnUndefinedGenerator($response)
     {
         $responseName = 'request.name';
         $generatorName = 'executor.test';
 
         $this->setGenerator($responseName, 'application/vnd.api+json', $generatorName)
             ->shouldReturn($this);
+
+        $response->getResponseName()
+            ->willReturn($responseName);
+        $response->getContentType()
+            ->willReturn('application/json;q=0.5, text/html,*/*;q=0.3');
+
+        $this->generateResponse($response)
+            ->shouldReturnAnInstanceOf(HttpResponse::class);
+    }
+
+    /**
+     * @param  \Spot\Api\Response\Message\ResponseInterface $response
+     */
+    public function it_willErrorOnInvalidGenerator($response)
+    {
+        $responseName = 'request.name';
+        $generatorName = 'executor.test';
+
+        $this->setGenerator($responseName, 'application/vnd.api+json', $generatorName)
+            ->shouldReturn($this);
+        $this->container[$generatorName] = new \stdClass();
 
         $response->getResponseName()
             ->willReturn($responseName);

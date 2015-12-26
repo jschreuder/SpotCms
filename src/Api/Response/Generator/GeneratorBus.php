@@ -52,7 +52,7 @@ class GeneratorBus implements GeneratorInterface
     private function getGenerator(string $name, string $contentType) : GeneratorInterface
     {
         // When wildcard and no specific wildcard handler was set: default to first generator
-        if ($contentType === '*/*' and !isset($this->generators[$name][$contentType])) {
+        if ($contentType === '*/*' && !isset($this->generators[$name][$contentType])) {
             return $this->container[reset($this->generators[$name])];
         }
         return $this->container[$this->generators[$name][$contentType]];
@@ -89,27 +89,8 @@ class GeneratorBus implements GeneratorInterface
     }
 
     /** {@inheritdoc} */
-    private function supports(ResponseInterface $response) : bool
-    {
-        foreach ($this->getRequestedContentTypes($response) as $contentType) {
-            if ($this->hasGenerator($response->getResponseName(), $contentType)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** {@inheritdoc} */
     public function generateResponse(ResponseInterface $response) : HttpResponse
     {
-        if (!$this->supports($response)) {
-            $this->log(LogLevel::ERROR, 'Unsupported response: ' . $response->getResponseName());
-            return new JsonApiErrorResponse([
-                'title' => 'Server Error: no generator with support for response',
-                'status' => '500',
-            ], 500);
-        }
-
         try {
             $requestGenerator = $this->getGeneratorForResponse($response);
             $httpResponse = $requestGenerator->generateResponse($response);
