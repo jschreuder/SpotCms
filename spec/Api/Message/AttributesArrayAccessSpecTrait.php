@@ -30,4 +30,9 @@ trait AttributesArrayAccessSpecTrait
 
         $this->getAttributes()->shouldReturn($array);
     }
+
+    public function it_errorsOnUnknownKeys()
+    {
+        $this->shouldThrow(\OutOfBoundsException::class)->duringOffsetGet('i-do-not-exist');
+    }
 }
