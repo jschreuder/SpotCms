@@ -1,11 +1,11 @@
 <?php
 
-namespace spec\Spot\Common\Request;
+namespace spec\Spot\Application\Request;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Spot\Api\Request\Message\RequestInterface;
-use Spot\Common\Request\ValidationFailedException;
+use Spot\Application\Request\ValidationFailedException;
 
 /** @mixin  ValidationFailedException */
 class ValidationFailedExceptionSpec extends ObjectBehavior

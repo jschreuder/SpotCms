@@ -12,9 +12,9 @@ use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
 use Spot\Api\Request\Executor\ExecutorBus;
 use Spot\Api\Request\BodyParser\JsonApiParser;
 use Spot\Api\Response\Generator\GeneratorBus;
-use Spot\Common\ApiServiceProvider\ApiServiceProvider;
-use Spot\Common\ApiServiceProvider\RepositoryProviderInterface;
-use Spot\Common\ApiServiceProvider\RoutingProviderInterface;
+use Spot\Application\ServiceProvider\ApiServiceProvider;
+use Spot\Application\ServiceProvider\RepositoryProviderInterface;
+use Spot\Application\ServiceProvider\RoutingProviderInterface;
 use Spot\DataModel\Repository\ObjectRepository;
 
 class DefaultServiceProvider implements

@@ -1,11 +1,11 @@
 <?php
 
-namespace spec\Spot\Common\ApiServiceProvider;
+namespace spec\Spot\Application\ServiceProvider;
 
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Common\ApiServiceProvider\ApiServiceProvider;
+use Spot\Application\ServiceProvider\ApiServiceProvider;
 
 /** @mixin  ApiServiceProvider */
 class ApiServiceProviderSpec extends ObjectBehavior
@@ -54,8 +54,8 @@ class ApiServiceProviderSpec extends ObjectBehavior
 
     /**
      * @param  \Pimple\ServiceProviderInterface $serviceModule
-     * @param  \Spot\Common\ApiServiceProvider\RoutingProviderInterface $routeModule
-     * @param  \Spot\Common\ApiServiceProvider\RepositoryProviderInterface $repoModule
+     * @param  \Spot\Application\ServiceProvider\RoutingProviderInterface $routeModule
+     * @param  \Spot\Application\ServiceProvider\RepositoryProviderInterface $repoModule
      */
     public function it_canAddModules($serviceModule, $routeModule, $repoModule)
     {

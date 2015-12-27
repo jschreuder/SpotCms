@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Spot\Common\Request;
+namespace Spot\Application\Request;
 
 use Psr\Http\Message\RequestInterface as HttpRequestInterface;
 use Particle\Validator\ValidationResult;
