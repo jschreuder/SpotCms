@@ -42,6 +42,7 @@ class PageRepository
                 'status' => $page->getStatus()->toString(),
             ]);
             $this->pdo->commit();
+            $page->metaDataSetTimestamps(new \DateTimeImmutable(), new \DateTimeImmutable());
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
             throw $exception;
@@ -189,11 +190,12 @@ class PageRepository
                 'type' => $block->getType(),
                 'parameters' => json_encode($block->getParameters()),
                 'location' => $block->getLocation(),
-                'sort_order' => $page->getSortOrder(),
-                'status' => $page->getStatus()->toString(),
+                'sort_order' => $block->getSortOrder(),
+                'status' => $block->getStatus()->toString(),
             ]);
             $this->objectRepository->update(Page::TYPE, $page->getUuid());
             $this->pdo->commit();
+            $block->metaDataSetTimestamps(new \DateTimeImmutable(), new \DateTimeImmutable());
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
             throw $exception;

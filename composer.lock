@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "070c22eccb82741f99639c142e310fa5",
-    "content-hash": "4b8e9aaea9fc3e2523c63e24ae9dbc9d",
+    "hash": "9b9355ca040750f4523279861a1bafb7",
+    "content-hash": "22e48223f78924b82fd64d3fe2372bb7",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -1338,6 +1338,61 @@
             "time": "2015-06-21 13:59:46"
         },
         {
+            "name": "spot/api",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/WebspotCode/SpotApi.git",
+                "reference": "e4c7cf38bdd3d1b72543f141e5f96106d6ead51f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WebspotCode/SpotApi/zipball/e4c7cf38bdd3d1b72543f141e5f96106d6ead51f",
+                "reference": "e4c7cf38bdd3d1b72543f141e5f96106d6ead51f",
+                "shasum": ""
+            },
+            "require": {
+                "psr/http-message-implementation": "~1.0",
+                "psr/log-implementation": "~1.0"
+            },
+            "require-dev": {
+                "henrikbjorn/phpspec-code-coverage": "^2.0",
+                "monolog/monolog": "^1.17",
+                "nikic/fast-route": "~0.6.0",
+                "phpspec/phpspec": "dev-master",
+                "phpspec/prophecy": "dev-master",
+                "pimple/pimple": "^3.0",
+                "tobscure/json-api": "~0.2.1",
+                "zendframework/zend-diactoros": "^1.1"
+            },
+            "suggest": {
+                "nikic/fast-route": "Required for the HttpRequestParserBus",
+                "pimple/pimple": "Required for the HttpRequestParserBus, ExecutorBus & GeneratorBus",
+                "tobscure/json-api": "Required for the Single- and MultiEntityGenerator and ErrorHandler"
+            },
+            "type": "application",
+            "autoload": {
+                "psr-4": {
+                    "Spot\\Api\\": "src"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jelmer Schreuder",
+                    "email": "j.schreuder@mijnpraktijk.com"
+                }
+            ],
+            "description": "SpotApi, a web-API application framework",
+            "support": {
+                "source": "https://github.com/WebspotCode/SpotApi/tree/master",
+                "issues": "https://github.com/WebspotCode/SpotApi/issues"
+            },
+            "time": "2015-12-27 14:04:02"
+        },
+        {
             "name": "symfony/config",
             "version": "v2.8.1",
             "source": {
@@ -1867,6 +1922,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "spot/api": 20,
         "phpspec/phpspec": 20,
         "phpspec/prophecy": 20
     },

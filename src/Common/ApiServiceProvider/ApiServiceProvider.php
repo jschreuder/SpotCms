@@ -31,6 +31,9 @@ class ApiServiceProvider implements ServiceProviderInterface
     /** @var  GeneratorBus */
     private $generatorBus;
 
+    /** @var  \ReflectionMethod[] */
+    private $moduleRegistrars;
+
     public function __construct(
         Container $container,
         HttpRequestParserBus $router,
@@ -45,6 +48,12 @@ class ApiServiceProvider implements ServiceProviderInterface
         $this->executorBus = $executorBus;
         $this->generatorBus = $generatorBus;
 
+        $this->moduleRegistrars = [
+            new \ReflectionMethod($this, 'registerServices'),
+            new \ReflectionMethod($this, 'registerRouting'),
+            new \ReflectionMethod($this, 'registerRepositories'),
+        ];
+
         foreach ($modules as $module) {
             $this->addModule($module);
         }
@@ -56,15 +65,26 @@ class ApiServiceProvider implements ServiceProviderInterface
      */
     public function addModule($module)
     {
-        if ($module instanceof ServiceProviderInterface) {
-            $module->register($this->container);
+        foreach ($this->moduleRegistrars as $moduleRegistrar) {
+            if ($moduleRegistrar->getParameters()[0]->getClass()->isInstance($module)) {
+                $moduleRegistrar->invoke($this, $module);
+            }
         }
-        if ($module instanceof RoutingProviderInterface) {
-            $module->registerRouting($this->container, $this);
-        }
-        if ($module instanceof RepositoryProviderInterface) {
-            $module->registerRepositories($this->container);
-        }
+    }
+
+    public function registerServices(ServiceProviderInterface $serviceProvider)
+    {
+        $serviceProvider->register($this->container);
+    }
+
+    public function registerRouting(RoutingProviderInterface $routingProvider)
+    {
+        $routingProvider->registerRouting($this->container, $this);
+    }
+
+    public function registerRepositories(RepositoryProviderInterface $repositoryProvider)
+    {
+        $repositoryProvider->registerRepositories($this->container);
     }
 
     public function addParser(string $method, string $path, string $httpRequestParser) : ApiServiceProvider

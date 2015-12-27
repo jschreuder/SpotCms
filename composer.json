@@ -13,7 +13,14 @@
     "config": {
         "bin-dir": "bin"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/WebspotCode/SpotApi"
+        }
+    ],
     "require": {
+        "spot/api": "dev-master",
         "zendframework/zend-diactoros": "^1.1",
         "monolog/monolog": "^1.17",
         "pimple/pimple": "^3.0",
