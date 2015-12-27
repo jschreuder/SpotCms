@@ -15,6 +15,7 @@ class ResponseSpec extends ObjectBehavior
     use AttributesArrayAccessSpecTrait;
 
     private $name = 'array.response';
+    private $contentType = 'application/vnd.api+json';
     private $data = ['answer' => 42];
     private $request;
 
@@ -24,7 +25,7 @@ class ResponseSpec extends ObjectBehavior
     public function let($request)
     {
         $this->request = $request;
-        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
+        $request->getAcceptContentType()->willReturn($this->contentType);
         $this->beConstructedWith($this->name, $this->data, $request);
     }
 
@@ -45,14 +46,9 @@ class ResponseSpec extends ObjectBehavior
             ->shouldReturn($this->data);
     }
 
-    public function it_implementsArrayAccess()
+    public function it_canGetItsContentType()
     {
-        $this->offsetExists('test')->shouldReturn(false);
-        $this->shouldThrow(\OutOfBoundsException::class)->duringOffsetGet('test');
-        $this->offsetSet('test', 42);
-        $this->offsetGet('test')->shouldReturn(42);
-        $this->offsetExists('test')->shouldReturn(true);
-        $this->offsetUnset('test');
-        $this->offsetExists('test')->shouldReturn(false);
+        $this->getContentType()
+            ->shouldReturn($this->contentType);
     }
 }

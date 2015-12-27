@@ -25,6 +25,9 @@ class ApiServiceProviderSpec extends ObjectBehavior
     /** @var  \Spot\Api\Response\Generator\GeneratorBus */
     private $generatorBus;
 
+    /** @var  object[] */
+    private $modules;
+
     /**
      * @param  \Pimple\Container $container
      * @param  \Spot\Api\Request\HttpRequestParser\HttpRequestParserBus $router
@@ -39,8 +42,9 @@ class ApiServiceProviderSpec extends ObjectBehavior
         $this->routeCollector = $routeCollector;
         $this->executorBus = $executorBus;
         $this->generatorBus = $generatorBus;
+        $this->modules = [new \stdClass()];
 
-        $this->beConstructedWith($container, $router, $routeCollector, $executorBus, $generatorBus, []);
+        $this->beConstructedWith($container, $router, $routeCollector, $executorBus, $generatorBus, $this->modules);
     }
 
     public function it_isInitializable()
@@ -115,5 +119,15 @@ class ApiServiceProviderSpec extends ObjectBehavior
     public function it_canReturnTheGeneratorBus()
     {
         $this->getGenerator()->shouldReturn($this->generatorBus);
+    }
+
+    /**
+     * @param   \Pimple\Container $container
+     */
+    public function it_canRegisterTheApp($container)
+    {
+        $container->offsetSet('app', new Argument\Token\TypeToken(\Closure::class))
+            ->shouldBeCalled();
+        $this->register($container);
     }
 }

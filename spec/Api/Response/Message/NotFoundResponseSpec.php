@@ -15,6 +15,7 @@ class NotFoundResponseSpec extends ObjectBehavior
     use AttributesArrayAccessSpecTrait;
 
     private $name = 'error.notFound';
+    private $contentType = 'application/vnd.api+json';
     private $request;
 
     /**
@@ -23,7 +24,7 @@ class NotFoundResponseSpec extends ObjectBehavior
     public function let($request)
     {
         $this->request = $request;
-        $request->getAcceptContentType()->willReturn('application/vnd.api+json');
+        $request->getAcceptContentType()->willReturn($this->contentType);
         $this->beConstructedWith([], $request);
     }
 
@@ -36,5 +37,11 @@ class NotFoundResponseSpec extends ObjectBehavior
     {
         $this->getResponseName()
             ->shouldReturn($this->name);
+    }
+
+    public function it_canGetItsContentType()
+    {
+        $this->getContentType()
+            ->shouldReturn($this->contentType);
     }
 }

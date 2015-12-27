@@ -66,7 +66,30 @@ class ErrorHandlerSpec extends ObjectBehavior
      */
     public function it_canGenerateAResponse($response)
     {
+        $response->offsetExists('errors')->willReturn(false);
         $httpResponse = $this->generateResponse($response);
         $httpResponse->shouldHaveType(JsonApiErrorResponse::class);
+
+        $body = $httpResponse->getBody();
+        $body->getContents()->shouldReturn('{"errors":[{"title":"Test a nest on a vest to rest."}]}');
+    }
+
+    /**
+     * @param  \Spot\Api\Response\Message\ResponseInterface $response
+     * @param  \Psr\Http\Message\RequestInterface $httpRequest
+     */
+    public function it_canGenerateAResponseWithGivenErrors($response)
+    {
+        $response->offsetExists('errors')->willReturn(true);
+        $response->offsetGet('errors')->willReturn([
+            ['title' => 'One'],
+            ['title' => 'Two'],
+        ]);
+
+        $httpResponse = $this->generateResponse($response);
+        $httpResponse->shouldHaveType(JsonApiErrorResponse::class);
+
+        $body = $httpResponse->getBody();
+        $body->getContents()->shouldReturn('{"errors":[{"title":"One"},{"title":"Two"}]}');
     }
 }

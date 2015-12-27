@@ -2,33 +2,11 @@
 
 namespace Spot\Api\Response\Message;
 
-use Spot\Api\Message\AttributesArrayAccessTrait;
-use Spot\Api\Request\Message\RequestInterface;
-
-class NotFoundResponse implements ResponseInterface
+class NotFoundResponse extends AbstractResponse
 {
-    use AttributesArrayAccessTrait;
-
-    /** @var  array */
-    private $attributes;
-
-    /** @var  string */
-    private $contentType;
-
-    public function __construct(array $attributes, RequestInterface $request)
-    {
-        $this->attributes = $attributes;
-        $this->contentType = $request->getAcceptContentType();
-    }
-
     /** {@inheritdoc} */
     public function getResponseName() : string
     {
         return 'error.notFound';
-    }
-
-    public function getContentType() : string
-    {
-        return $this->contentType;
     }
 }

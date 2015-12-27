@@ -15,6 +15,7 @@ class BadRequestSpec extends ObjectBehavior
     use AttributesArrayAccessSpecTrait;
 
     private $name = 'error.badRequest';
+    private $contentType = 'application/vnd.api+json';
 
     /** @var  \Psr\Http\Message\RequestInterface */
     private $httpRequest;
@@ -25,7 +26,7 @@ class BadRequestSpec extends ObjectBehavior
     public function let($httpRequest)
     {
         $this->httpRequest = $httpRequest;
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/vnd.api+json');
+        $httpRequest->getHeaderLine('Accept')->willReturn($this->contentType);
         $this->beConstructedWith([], $httpRequest);
     }
 
@@ -38,5 +39,11 @@ class BadRequestSpec extends ObjectBehavior
     {
         $this->getRequestName()
             ->shouldReturn($this->name);
+    }
+
+    public function it_canGetItsContentType()
+    {
+        $this->getAcceptContentType()
+            ->shouldReturn($this->contentType);
     }
 }
