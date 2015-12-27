@@ -26,7 +26,8 @@
         "henrikbjorn/phpspec-code-coverage": "^2.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "2.3.*"
+        "phpspec/phpspec": "dev-master",
+        "phpspec/prophecy": "dev-master"
     },
     "autoload": {
         "psr-4": {
