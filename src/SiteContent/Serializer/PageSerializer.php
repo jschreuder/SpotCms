@@ -38,8 +38,8 @@ class PageSerializer implements SerializerInterface
             'sort_order' => $page->getSortOrder(),
             'status' => $page->getStatus()->toString(),
             'meta' => [
-                'created' => $page->metaDataGetCreated()->format('c'),
-                'updated' => $page->metaDataGetCreated()->format('c'),
+                'created' => $page->metaDataGetCreatedTimestamp()->format('c'),
+                'updated' => $page->metaDataGetCreatedTimestamp()->format('c'),
             ],
         ];
     }

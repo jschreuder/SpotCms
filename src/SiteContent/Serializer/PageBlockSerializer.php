@@ -37,8 +37,8 @@ class PageBlockSerializer implements SerializerInterface
             'sort_order' => $pageBlock->getSortOrder(),
             'status' => $pageBlock->getStatus()->toString(),
             'meta' => [
-                'created' => $pageBlock->metaDataGetCreated()->format('c'),
-                'updated' => $pageBlock->metaDataGetCreated()->format('c'),
+                'created' => $pageBlock->metaDataGetCreatedTimestamp()->format('c'),
+                'updated' => $pageBlock->metaDataGetCreatedTimestamp()->format('c'),
             ],
         ];
     }

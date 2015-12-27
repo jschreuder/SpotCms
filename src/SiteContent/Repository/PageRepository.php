@@ -99,7 +99,7 @@ class PageRepository
             $row['parent_uuid'] ? Uuid::fromBytes($row['parent_uuid']) : null,
             intval($row['sort_order']),
             PageStatusValue::get($row['status'])
-        ))->metaDataSet(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
+        ))->metaDataSetTimestamps(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
     }
 
     public function getByUuid(UuidInterface $uuid) : Page
@@ -258,7 +258,7 @@ class PageRepository
             $row['location'],
             intval($row['sort_order']),
             PageStatusValue::get($row['status'])
-        ))->metaDataSet(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
+        ))->metaDataSetTimestamps(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
     }
 
     /**

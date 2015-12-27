@@ -3,12 +3,12 @@
 namespace Spot\SiteContent\Entity;
 
 use Ramsey\Uuid\UuidInterface;
-use Spot\DataModel\Entity\ObjectMetaDataTrait;
+use Spot\DataModel\Entity\TimestampedMetaDataTrait;
 use Spot\SiteContent\Value\PageStatusValue;
 
 class Page
 {
-    use ObjectMetaDataTrait;
+    use TimestampedMetaDataTrait;
 
     const TYPE = 'pages';
 
