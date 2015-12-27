@@ -1,17 +1,14 @@
 SpotCMS
 =======
 
-.. image:: https://secure.travis-ci.org/jschreuder/SpotApi.png
-   :target: http://travis-ci.org/jschreuder/SpotApi
+.. image:: https://secure.travis-ci.org/jschreuder/SpotCms.png
+   :target: http://travis-ci.org/jschreuder/SpotCms
    :alt: Build status
-.. image:: https://codeclimate.com/github/jschreuder/SpotApi/badges/gpa.svg
-   :target: https://codeclimate.com/github/jschreuder/SpotApi
-   :alt: Code Climate
-.. image:: https://scrutinizer-ci.com/g/jschreuder/SpotApi/badges/quality-score.png?b=master
-   :target: https://scrutinizer-ci.com/g/jschreuder/SpotApi/?branch=master
+.. image:: https://scrutinizer-ci.com/g/jschreuder/SpotCms/badges/quality-score.png?b=master
+   :target: https://scrutinizer-ci.com/g/jschreuder/SpotCms/?branch=master
    :alt: Scrutinizer Code Quality
-.. image:: https://scrutinizer-ci.com/g/jschreuder/SpotApi/badges/coverage.png?b=master
-   :target: https://scrutinizer-ci.com/g/jschreuder/SpotApi/?branch=master
+.. image:: https://scrutinizer-ci.com/g/jschreuder/SpotCms/badges/coverage.png?b=master
+   :target: https://scrutinizer-ci.com/g/jschreuder/SpotCms/?branch=master
    :alt: Code Coverage
 
 SpotCMS based on `SpotAPI <https://github.com/WebspotCode/SpotApi>`_.
