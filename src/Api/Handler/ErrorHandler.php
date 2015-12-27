@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Spot\Api\Request\Handler;
+namespace Spot\Api\Handler;
 
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Spot\Api\Request\Executor\ExecutorInterface;

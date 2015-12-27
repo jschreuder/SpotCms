@@ -6,7 +6,7 @@ use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use Pimple\Container;
-use Spot\Api\Request\Handler\ErrorHandler;
+use Spot\Api\Handler\ErrorHandler;
 use Spot\Api\ApplicationInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
 use Spot\Api\Request\Executor\ExecutorBus;

@@ -1,11 +1,11 @@
 <?php
 
-namespace spec\Spot\Api\Request\Handler;
+namespace spec\Spot\Api\Handler;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Spot\Api\Response\Http\JsonApiErrorResponse;
-use Spot\Api\Request\Handler\ErrorHandler;
+use Spot\Api\Handler\ErrorHandler;
 use Spot\Api\Response\Message\Response;
 
 /** @mixin  ErrorHandler */
@@ -27,7 +27,7 @@ class ErrorHandlerSpec extends ObjectBehavior
 
     public function it_isInitializable()
     {
-        $this->shouldHaveType(ErrorHandler::class);
+        $this->shouldHaveType(\Spot\Api\Handler\ErrorHandler::class);
     }
 
     /**

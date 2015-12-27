@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
-use Spot\Api\Request\Handler\RequestHandlerInterface;
+use Spot\Api\Handler\ParseAndExecuteHandlerInterface;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\Response;
@@ -20,7 +20,7 @@ use Spot\Common\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
-class GetPageBlockHandler implements RequestHandlerInterface
+class GetPageBlockHandler implements ParseAndExecuteHandlerInterface
 {
     use LoggableTrait;
 
