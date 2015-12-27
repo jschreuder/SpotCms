@@ -1,4 +1,4 @@
-SpotApi
+SpotCMS
 =======
 
 .. image:: https://secure.travis-ci.org/jschreuder/SpotApi.png
@@ -14,7 +14,7 @@ SpotApi
    :target: https://scrutinizer-ci.com/g/jschreuder/SpotApi/?branch=master
    :alt: Code Coverage
 
-SpotCms based on SpotApi.
+SpotCMS based on `SpotAPI<https://github.com/WebspotCode/SpotApi>`_.
 
 License
 -------
