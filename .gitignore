@@ -3,5 +3,4 @@
 /config/*.php
 /logs/
 /vendor/
-composer.lock
 composer.phar
