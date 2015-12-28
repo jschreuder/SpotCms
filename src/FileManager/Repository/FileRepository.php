@@ -34,11 +34,14 @@ class FileRepository
     {
         $this->pdo->beginTransaction();
         try {
-            $file->setName($this->getUniqueFileName($file->getPath(), $file->getName()));
             $this->objectRepository->create(File::TYPE, $file->getUuid());
+
+            $file->setName($this->getUniqueFileName($file->getPath(), $file->getName()));
             if (!$this->fileSystem->writeStream($file->getUuid()->toString(), $file->getStream())) {
                 throw new \RuntimeException('Failed to process uploaded file.');
             }
+            $file->setStream($this->fileSystem->readStream($file->getUuid()->toString()));
+
             $this->pdo->prepare('
                 INSERT INTO files (file_uuid, name, path, mime_type)
                      VALUES (:file_uuid, :name, :path, :mime_type)
@@ -52,6 +55,9 @@ class FileRepository
             $file->metaDataSetTimestamps(new \DateTimeImmutable(), new \DateTimeImmutable());
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
+            if ($this->fileSystem->has($file->getUuid()->toString())) {
+                $this->fileSystem->delete($file->getUuid()->toString());
+            }
             throw $exception;
         }
     }

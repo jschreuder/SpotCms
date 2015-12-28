@@ -27,6 +27,14 @@ class FilePathValueSpec extends ObjectBehavior
         $this->toString()->shouldReturn($this->value);
     }
 
+    public function it_willAcceptValidPaths()
+    {
+        $this->get('/')->toString()->shouldReturn('/');
+        $this->get('/one/')->toString()->shouldReturn('/one/');
+        $this->get('/one/two/')->toString()->shouldReturn('/one/two/');
+        $this->get('/with space - and _/')->toString()->shouldReturn('/with space - and _/');
+    }
+
     public function it_willNotAcceptInvalidFileNames()
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringGet("/some\0file/");
