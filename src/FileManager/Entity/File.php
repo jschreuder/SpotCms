@@ -4,6 +4,9 @@ namespace Spot\FileManager\Entity;
 
 use Ramsey\Uuid\UuidInterface;
 use Spot\DataModel\Entity\TimestampedMetaDataTrait;
+use Spot\FileManager\Value\FileNameValue;
+use Spot\FileManager\Value\FilePathValue;
+use Spot\FileManager\Value\MimeTypeValue;
 
 class File
 {
@@ -14,17 +17,21 @@ class File
     /** @var  UuidInterface */
     private $fileUuid;
 
-    /** @var  string */
+    /** @var  FileNameValue */
     private $name;
 
-    /** @var  string */
+    /** @var  FilePathValue */
     private $path;
 
-    /** @var  string */
+    /** @var  MimeTypeValue */
     private $mimeType;
 
-    public function __construct(UuidInterface $fileUuid, string $name, string $path, string $mimeType)
-    {
+    public function __construct(
+        UuidInterface $fileUuid,
+        FileNameValue $name,
+        FilePathValue $path,
+        MimeTypeValue $mimeType
+    ) {
         $this->fileUuid = $fileUuid;
         $this
             ->setName($name)
@@ -37,34 +44,34 @@ class File
         return $this->fileUuid;
     }
 
-    public function getName() : string
+    public function getName() : FileNameValue
     {
         return $this->name;
     }
 
-    public function setName(string $name) : File
+    public function setName(FileNameValue $name) : File
     {
         $this->name = $name;
         return $this;
     }
 
-    public function getPath() : string
+    public function getPath() : FilePathValue
     {
         return $this->path;
     }
 
-    public function setPath(string $path) : File
+    public function setPath(FilePathValue $path) : File
     {
         $this->path = $path;
         return $this;
     }
 
-    public function getMimeType() : string
+    public function getMimeType() : MimeTypeValue
     {
         return $this->mimeType;
     }
 
-    public function setMimeType(string $mimeType) : File
+    public function setMimeType(MimeTypeValue $mimeType) : File
     {
         $this->mimeType = $mimeType;
         return $this;

@@ -14,7 +14,7 @@ class PageStatusValue implements ValueInterface
      * @param   string $value
      * @return  self
      */
-    public static function get(string $value) : ValueInterface
+    public static function get(string $value) : PageStatusValue
     {
         return new self($value);
     }
@@ -27,7 +27,7 @@ class PageStatusValue implements ValueInterface
     /** @var  string */
     private $value;
 
-    public function __construct(string $value)
+    private function __construct(string $value)
     {
         if (!in_array($value, self::getValidStatuses(), true)) {
             throw new \InvalidArgumentException('Invalid PageStatus given: ' . $value);

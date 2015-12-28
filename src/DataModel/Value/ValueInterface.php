@@ -4,7 +4,8 @@ namespace Spot\DataModel\Value;
 
 interface ValueInterface
 {
-    public static function get(string $value) : ValueInterface;
+    /** @return  ValueInterface */
+    public static function get(string $value);
 
     public function toString() : string;
 }

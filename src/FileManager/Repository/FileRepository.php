@@ -8,6 +8,9 @@ use Ramsey\Uuid\UuidInterface;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\DataModel\Repository\ObjectRepository;
 use Spot\FileManager\Entity\File;
+use Spot\FileManager\Value\FileNameValue;
+use Spot\FileManager\Value\FilePathValue;
+use Spot\FileManager\Value\MimeTypeValue;
 
 class FileRepository
 {
@@ -38,9 +41,9 @@ class FileRepository
                      VALUES (:file_uuid, :name, :path, :mime_type)
             ')->execute([
                 'file_uuid' => $file->getUuid()->getBytes(),
-                'name' => $file->getName(),
-                'path' => $file->getPath(),
-                'mime_type' => $file->getMimeType(),
+                'name' => $file->getName()->toString(),
+                'path' => $file->getPath()->toString(),
+                'mime_type' => $file->getMimeType()->toString(),
             ]);
             $this->pdo->commit();
             $file->metaDataSetTimestamps(new \DateTimeImmutable(), new \DateTimeImmutable());
@@ -63,9 +66,9 @@ class FileRepository
             ');
             $query->execute([
                 'file_uuid' => $file->getUuid()->getBytes(),
-                'name' => $file->getName(),
-                'path' => $file->getPath(),
-                'mime_type' => $file->getMimeType(),
+                'name' => $file->getName()->toString(),
+                'path' => $file->getPath()->toString(),
+                'mime_type' => $file->getMimeType()->toString(),
             ]);
 
             // When at least one of the fields changes, the rowCount will be 1 and an update occurred
@@ -99,9 +102,9 @@ class FileRepository
     {
         return (new File(
             Uuid::fromBytes($row['file_uuid']),
-            $row['name'],
-            $row['path'],
-            $row['mime_type']
+            FileNameValue::get($row['name']),
+            FilePathValue::get($row['path']),
+            MimeTypeValue::get($row['mime_type'])
         ))->metaDataSetTimestamps(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
     }
 
@@ -156,5 +159,24 @@ class FileRepository
             $files[] = $this->getFileFromRow($row);
         }
         return $files;
+    }
+
+    /** @return  string[] */
+    public function getDirectoriesInPath(string $path) : array
+    {
+        $query = $this->pdo->prepare('
+                SELECT path
+                  FROM files
+                 WHERE path LIKE :path
+              GROUP BY path
+              ORDER BY path ASC
+        ');
+        $query->execute(['path' => $path . '%']);
+
+        $directories = [];
+        while ($directory = $query->fetchColumn()) {
+            $directories[] = FilePathValue::get($directory);
+        }
+        return $directories;
     }
 }
