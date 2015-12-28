@@ -52,7 +52,7 @@ class FileRepository
                 'mime_type' => $file->getMimeType()->toString(),
             ]);
             $this->pdo->commit();
-            $file->metaDataSetTimestamps(new \DateTimeImmutable(), new \DateTimeImmutable());
+            $file->metaDataSetInsertTimestamp(new \DateTimeImmutable());
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
             if ($this->fileSystem->has($file->getUuid()->toString())) {
@@ -93,6 +93,7 @@ class FileRepository
                 $this->objectRepository->update(File::TYPE, $file->getUuid());
             }
 
+            $file->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
             $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
@@ -119,12 +120,14 @@ class FileRepository
     {
         $uuid = Uuid::fromBytes($row['file_uuid']);
         return (new File(
-            $uuid,
-            FileNameValue::get($row['name']),
-            FilePathValue::get($row['path']),
-            MimeTypeValue::get($row['mime_type']),
-            $this->fileSystem->readStream($uuid->toString())
-        ))->metaDataSetTimestamps(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
+                $uuid,
+                FileNameValue::get($row['name']),
+                FilePathValue::get($row['path']),
+                MimeTypeValue::get($row['mime_type']),
+                $this->fileSystem->readStream($uuid->toString())
+            ))
+            ->metaDataSetInsertTimestamp(new \DateTimeImmutable($row['created']))
+            ->metaDataSetUpdateTimestamp(new \DateTimeImmutable($row['updated']));
     }
 
     public function getByUuid(UuidInterface $uuid) : File

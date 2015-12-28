@@ -11,9 +11,16 @@ trait TimestampedMetaDataTrait
     private $metaUpdatedTimestamp;
 
     /** @return  self */
-    public function metaDataSetTimestamps(\DateTimeInterface $created, \DateTimeInterface $updated)
+    public function metaDataSetInsertTimestamp(\DateTimeInterface $created)
     {
         $this->metaCreatedTimestamp = $created;
+        $this->metaUpdatedTimestamp = $created;
+        return $this;
+    }
+
+    /** @return  self */
+    public function metaDataSetUpdateTimestamp(\DateTimeInterface $updated)
+    {
         $this->metaUpdatedTimestamp = $updated;
         return $this;
     }

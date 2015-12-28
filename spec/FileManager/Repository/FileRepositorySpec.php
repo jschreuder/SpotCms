@@ -95,10 +95,8 @@ class FileRepositorySpec extends ObjectBehavior
         $this->pdo->commit()
             ->shouldBeCalled();
 
-        $file->metaDataSetTimestamps(
-            new Argument\Token\TypeToken(\DateTimeImmutable::class),
-            new Argument\Token\TypeToken(\DateTimeImmutable::class)
-        )->willReturn($file);
+        $file->metaDataSetInsertTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
+            ->willReturn($file);
 
         $this->createFromUpload($file);
 
@@ -191,5 +189,133 @@ class FileRepositorySpec extends ObjectBehavior
 
         // cleanup
         fclose($stream);
+    }
+
+    /**
+     * @param  \Spot\FileManager\Entity\File $file
+     * @param  \PDOStatement $updateStatement
+     */
+    public function it_canUpdateFileMetaData($file, $updateStatement)
+    {
+        $uuid = Uuid::uuid4();
+        $name = FileNameValue::get('file.name');
+        $path = FilePathValue::get('/uploads/');
+        $mime = MimeTypeValue::get('text/xml');
+
+        $file->getUuid()->willReturn($uuid);
+        $file->getName()->willReturn($name);
+        $file->setName($name)->willReturn($file);
+        $file->getPath()->willReturn($path);
+        $file->getMimeType()->willReturn($mime);
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('UPDATE files'))
+            ->willReturn($updateStatement);
+        $updateStatement->execute([
+            'file_uuid' => $uuid->getBytes(),
+            'name' => $name->toString(),
+            'path' => $path->toString(),
+            'mime_type' => $mime->toString(),
+            ])
+            ->shouldBeCalled();
+        $updateStatement->rowCount()
+            ->willReturn(1);
+
+        $this->objectRepository->update(File::TYPE, $uuid)
+            ->shouldBeCalled();
+
+        $this->pdo->commit()
+            ->shouldBeCalled();
+
+        $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
+            ->willReturn($file);
+
+        $this->updateMetaData($file);
+    }
+
+    /**
+     * @param  \Spot\FileManager\Entity\File $file
+     * @param  \PDOStatement $updateStatement
+     */
+    public function it_canUpdateFileMetaDataWithoutActualChanges($file, $updateStatement)
+    {
+        $uuid = Uuid::uuid4();
+        $name = FileNameValue::get('file.name');
+        $path = FilePathValue::get('/uploads/');
+        $mime = MimeTypeValue::get('text/xml');
+
+        $file->getUuid()->willReturn($uuid);
+        $file->getName()->willReturn($name);
+        $file->setName($name)->willReturn($file);
+        $file->getPath()->willReturn($path);
+        $file->getMimeType()->willReturn($mime);
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('UPDATE files'))
+            ->willReturn($updateStatement);
+        $updateStatement->execute([
+            'file_uuid' => $uuid->getBytes(),
+            'name' => $name->toString(),
+            'path' => $path->toString(),
+            'mime_type' => $mime->toString(),
+        ])
+            ->shouldBeCalled();
+        $updateStatement->rowCount()
+            ->willReturn(0);
+
+        $this->objectRepository->update(File::TYPE, $uuid)
+            ->shouldNotBeCalled();
+
+        $this->pdo->commit()
+            ->shouldBeCalled();
+
+        $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
+            ->willReturn($file);
+
+        $this->updateMetaData($file);
+    }
+
+    /**
+     * @param  \Spot\FileManager\Entity\File $file
+     */
+    public function it_canDeleteAFile($file)
+    {
+        $uuid = Uuid::uuid4();
+        $file->getUuid()->willReturn($uuid);
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+        $this->fileSystem->delete($uuid->toString())
+            ->willReturn(true);
+        $this->objectRepository->delete(File::TYPE, $uuid)
+            ->shouldBeCalled();
+        $this->pdo->commit()
+            ->shouldBeCalled();
+
+        $this->delete($file);
+    }
+
+    /**
+     * @param  \Spot\FileManager\Entity\File $file
+     */
+    public function it_canWillErrorAndRollBackWhenDeleteFails($file)
+    {
+        $uuid = Uuid::uuid4();
+        $file->getUuid()->willReturn($uuid);
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+        $this->fileSystem->delete($uuid->toString())
+            ->willReturn(false);
+        $this->objectRepository->delete(File::TYPE, $uuid)
+            ->shouldNotBeCalled();
+        $this->pdo->rollBack()
+            ->shouldBeCalled();
+
+        $this->shouldThrow(\RuntimeException::class)->duringDelete($file);
     }
 }

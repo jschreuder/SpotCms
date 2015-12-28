@@ -42,7 +42,7 @@ class PageRepository
                 'status' => $page->getStatus()->toString(),
             ]);
             $this->pdo->commit();
-            $page->metaDataSetTimestamps(new \DateTimeImmutable(), new \DateTimeImmutable());
+            $page->metaDataSetInsertTimestamp(new \DateTimeImmutable());
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
             throw $exception;
@@ -93,14 +93,16 @@ class PageRepository
     private function getPageFromRow(array $row) : Page
     {
         return (new Page(
-            Uuid::fromBytes($row['page_uuid']),
-            $row['title'],
-            $row['slug'],
-            $row['short_title'],
-            $row['parent_uuid'] ? Uuid::fromBytes($row['parent_uuid']) : null,
-            intval($row['sort_order']),
-            PageStatusValue::get($row['status'])
-        ))->metaDataSetTimestamps(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
+                Uuid::fromBytes($row['page_uuid']),
+                $row['title'],
+                $row['slug'],
+                $row['short_title'],
+                $row['parent_uuid'] ? Uuid::fromBytes($row['parent_uuid']) : null,
+                intval($row['sort_order']),
+                PageStatusValue::get($row['status'])
+            ))
+            ->metaDataSetInsertTimestamp(new \DateTimeImmutable($row['created']))
+            ->metaDataSetUpdateTimestamp(new \DateTimeImmutable($row['updated']));
     }
 
     public function getByUuid(UuidInterface $uuid) : Page
@@ -195,7 +197,7 @@ class PageRepository
             ]);
             $this->objectRepository->update(Page::TYPE, $page->getUuid());
             $this->pdo->commit();
-            $block->metaDataSetTimestamps(new \DateTimeImmutable(), new \DateTimeImmutable());
+            $block->metaDataSetInsertTimestamp(new \DateTimeImmutable());
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
             throw $exception;
@@ -253,14 +255,16 @@ class PageRepository
     private function getPageBlockFromRow(Page $page, array $row)
     {
         return (new PageBlock(
-            Uuid::fromBytes($row['page_block_uuid']),
-            $page,
-            $row['type'],
-            !is_null($row['parameters']) ? json_decode($row['parameters'], true) : [],
-            $row['location'],
-            intval($row['sort_order']),
-            PageStatusValue::get($row['status'])
-        ))->metaDataSetTimestamps(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
+                Uuid::fromBytes($row['page_block_uuid']),
+                $page,
+                $row['type'],
+                !is_null($row['parameters']) ? json_decode($row['parameters'], true) : [],
+                $row['location'],
+                intval($row['sort_order']),
+                PageStatusValue::get($row['status'])
+            ))
+            ->metaDataSetInsertTimestamp(new \DateTimeImmutable($row['created']))
+            ->metaDataSetUpdateTimestamp(new \DateTimeImmutable($row['updated']));
     }
 
     /**
