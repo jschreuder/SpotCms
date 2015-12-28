@@ -16,14 +16,25 @@ class MimeTypeValue implements ValueInterface
 
     private function __construct(string $mimeType)
     {
-        if (preg_match('#^[a-z0-9_\-\.\+]+/[a-z0-9_\-\.\+]+$#iD', $mimeType) === 0) {
-            throw new \InvalidArgumentException('Invalid mime-type given: ' . $mimeType);
-        }
+        $this->validateMimeType($mimeType);
         $this->value = $mimeType;
     }
 
     public function toString() : string
     {
         return $this->value;
+    }
+
+    /**
+     * A mime-type must match the expected regex pattern
+     *
+     * @return  void
+     * @throws  \InvalidArgumentException
+     */
+    private function validateMimeType(string $mimeType)
+    {
+        if (preg_match('#^[a-z0-9_\-\.\+]+/[a-z0-9_\-\.\+]+$#iD', $mimeType) === 0) {
+            throw new \InvalidArgumentException('Invalid mime-type given: ' . $mimeType);
+        }
     }
 }

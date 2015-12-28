@@ -29,14 +29,25 @@ class PageStatusValue implements ValueInterface
 
     private function __construct(string $value)
     {
-        if (!in_array($value, self::getValidStatuses(), true)) {
-            throw new \InvalidArgumentException('Invalid PageStatus given: ' . $value);
-        }
+        $this->validateStatus($value);
         $this->value = $value;
     }
 
     public function toString() : string
     {
         return $this->value;
+    }
+
+    /**
+     * Status must be one of the expected values
+     *
+     * @return  void
+     * @throws  \InvalidArgumentException
+     */
+    private function validateStatus(string $value)
+    {
+        if (!in_array($value, self::getValidStatuses(), true)) {
+            throw new \InvalidArgumentException('Invalid PageStatus given: ' . $value);
+        }
     }
 }

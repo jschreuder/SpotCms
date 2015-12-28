@@ -10,7 +10,8 @@ trait TimestampedMetaDataTrait
     /** @var  \DateTimeInterface */
     private $metaUpdatedTimestamp;
 
-    public function metaDataSetTimestamps(\DateTimeInterface $created, \DateTimeInterface $updated) : self
+    /** @return  self */
+    public function metaDataSetTimestamps(\DateTimeInterface $created, \DateTimeInterface $updated)
     {
         $this->metaCreatedTimestamp = $created;
         $this->metaUpdatedTimestamp = $updated;

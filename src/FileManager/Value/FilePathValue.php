@@ -16,26 +16,49 @@ class FilePathValue implements ValueInterface
 
     private function __construct(string $path)
     {
+        $this->validatePath($path);
+        if ($path !== '/') {
+            $segments = explode('/', trim($path, '/'));
+            foreach ($segments as $segment) {
+                $this->validateSegments($segment);
+            }
+        }
+        $this->value = $path;
+    }
+
+    /**
+     * Path must not contain illegal characters, not be empty or start/end with something
+     * other than a slash.
+     *
+     * @return  void
+     * @throws  \InvalidArgumentException
+     */
+    private function validatePath(string $path)
+    {
         if (
-            preg_match('#(\.\.|[\0\n\r\t<>])#', $path) !== 0 // must not contain disallowed characters
-            || strlen($path) === 0 // must not be empty
-            || $path[0] !== '/' // must start with a slash
-            || $path[strlen($path) - 1] !== '/' // must end with a slash
+            preg_match('#(\.\.|[\0\n\r\t<>])#', $path) !== 0
+            || strlen($path) === 0
+            || $path[0] !== '/'
+            || $path[strlen($path) - 1] !== '/'
         ) {
             throw new \InvalidArgumentException('Invalid path given: "' . $path . '"');
         }
+    }
 
-        // directories in path must not have leading or trailing spaces and not be empty
-        $segments = explode('/', trim($path, '/'));
-        if ($segments !== ['']) {
-            foreach ($segments as $segment) {
-                if (trim($segment) !== $segment || strlen($segment) === 0) {
-                    throw new \InvalidArgumentException('Invalid segment in given path: "' . $segment . '"');
-                }
-            }
+    /**
+     * Directories in path must not have leading or trailing spaces and not be empty
+     *
+     * @return  void
+     * @throws  \InvalidArgumentException
+     */
+    private function validateSegments(string $segment)
+    {
+        if (
+            trim($segment) !== $segment
+            || strlen($segment) === 0
+        ) {
+            throw new \InvalidArgumentException('Invalid segment in given path: "' . $segment . '"');
         }
-
-        $this->value = $path;
     }
 
     public function toString() : string
