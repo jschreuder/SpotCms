@@ -26,17 +26,22 @@ class File
     /** @var  MimeTypeValue */
     private $mimeType;
 
+    /** @var  resource */
+    private $stream;
+
     public function __construct(
         UuidInterface $fileUuid,
         FileNameValue $name,
         FilePathValue $path,
-        MimeTypeValue $mimeType
+        MimeTypeValue $mimeType,
+        $stream
     ) {
         $this->fileUuid = $fileUuid;
         $this
             ->setName($name)
             ->setPath($path)
-            ->setMimeType($mimeType);
+            ->setMimeType($mimeType)
+            ->setStream($stream);
     }
 
     public function getUuid() : UuidInterface
@@ -74,6 +79,25 @@ class File
     public function setMimeType(MimeTypeValue $mimeType) : File
     {
         $this->mimeType = $mimeType;
+        return $this;
+    }
+
+    /** @return  resource */
+    public function getStream()
+    {
+        return $this->stream;
+    }
+
+    /**
+     * @param  resource $stream
+     */
+    public function setStream($stream) : File
+    {
+        if (!is_resource($stream)) {
+            throw new \InvalidArgumentException('Invalid Stream given to File entity.');
+        }
+
+        $this->stream = $stream;
         return $this;
     }
 }

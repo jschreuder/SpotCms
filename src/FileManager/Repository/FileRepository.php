@@ -30,12 +30,15 @@ class FileRepository
         $this->objectRepository = $objectRepository;
     }
 
-    public function createFromUpload(File $file, string $uploadPath)
+    public function createFromUpload(File $file)
     {
         $this->pdo->beginTransaction();
         try {
+            $file->setName($this->getUniqueFileName($file->getPath(), $file->getName()));
             $this->objectRepository->create(File::TYPE, $file->getUuid());
-            $this->fileSystem->putStream($file->getUuid()->toString(), fopen($uploadPath, 'r'));
+            if (!$this->fileSystem->writeStream($file->getUuid()->toString(), $file->getStream())) {
+                throw new \RuntimeException('Failed to process uploaded file.');
+            }
             $this->pdo->prepare('
                 INSERT INTO files (file_uuid, name, path, mime_type)
                      VALUES (:file_uuid, :name, :path, :mime_type)
@@ -53,7 +56,15 @@ class FileRepository
         }
     }
 
-    public function update(File $file)
+    public function updateContent(File $file)
+    {
+        if (!$this->fileSystem->putStream($file->getUuid()->toString(), $file->getStream())) {
+            throw new \RuntimeException('Failed to update file content.');
+        }
+        $this->objectRepository->update(File::TYPE, $file->getUuid());
+    }
+
+    public function updateMetaData(File $file)
     {
         $this->pdo->beginTransaction();
         try {
@@ -100,11 +111,13 @@ class FileRepository
 
     private function getFileFromRow(array $row) : File
     {
+        $uuid = Uuid::fromBytes($row['file_uuid']);
         return (new File(
-            Uuid::fromBytes($row['file_uuid']),
+            $uuid,
             FileNameValue::get($row['name']),
             FilePathValue::get($row['path']),
-            MimeTypeValue::get($row['mime_type'])
+            MimeTypeValue::get($row['mime_type']),
+            $this->fileSystem->readStream($uuid->toString())
         ))->metaDataSetTimestamps(new \DateTimeImmutable($row['created']), new \DateTimeImmutable($row['updated']));
     }
 
@@ -159,6 +172,37 @@ class FileRepository
             $files[] = $this->getFileFromRow($row);
         }
         return $files;
+    }
+
+    public function getUniqueFileName(FilePathValue $path, FileNameValue $name) : FileNameValue
+    {
+        $nameInfo = pathinfo($name->toString());
+        $nameRegex = preg_quote($nameInfo['filename']) . '(_[0-9]+)?\.' . preg_quote($nameInfo['extension'] ?? '');
+
+        $query = $this->pdo->prepare('
+                SELECT name
+                  FROM files
+                 WHERE path = :path AND name REGEXP :name
+              ORDER BY name ASC
+        ');
+        $query->execute(['path' => $path->toString(), $nameRegex]);
+
+        if ($query->rowCount() === 0) {
+            return $name;
+        }
+
+        $max = 0;
+        while ($row = $query->fetchColumn()) {
+            if ($row === $name->toString()) {
+                continue;
+            }
+            preg_match('#' . $nameRegex . '#', $row, $match);
+            $number = intval(substr($match[1], 1));
+            $max = max($max, $number);
+        }
+        return FileNameValue::get(
+            $nameInfo['filename'] . '_' . strval($max + 1) . '.' . ($nameInfo['extension'] ?? '')
+        );
     }
 
     /** @return  string[] */
