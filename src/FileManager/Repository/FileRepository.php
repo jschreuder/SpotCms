@@ -180,37 +180,6 @@ class FileRepository
         return $files;
     }
 
-    public function getUniqueFileName(FilePathValue $path, FileNameValue $name) : FileNameValue
-    {
-        $nameInfo = pathinfo($name->toString());
-        $nameRegex = preg_quote($nameInfo['filename']) . '(_[0-9]+)?\.' . preg_quote($nameInfo['extension'] ?? '');
-
-        $query = $this->pdo->prepare('
-                SELECT name
-                  FROM files
-                 WHERE path = :path AND name REGEXP :name
-              ORDER BY name ASC
-        ');
-        $query->execute(['path' => $path->toString(), $nameRegex]);
-
-        if ($query->rowCount() === 0) {
-            return $name;
-        }
-
-        $max = 0;
-        while ($row = $query->fetchColumn()) {
-            if ($row === $name->toString()) {
-                continue;
-            }
-            preg_match('#' . $nameRegex . '#', $row, $match);
-            $number = intval(substr($match[1], 1));
-            $max = max($max, $number);
-        }
-        return FileNameValue::get(
-            $nameInfo['filename'] . '_' . strval($max + 1) . '.' . ($nameInfo['extension'] ?? '')
-        );
-    }
-
     /** @return  string[] */
     public function getDirectoriesInPath(string $path) : array
     {
@@ -228,5 +197,36 @@ class FileRepository
             $directories[] = FilePathValue::get($directory);
         }
         return $directories;
+    }
+
+    private function getUniqueFileName(FilePathValue $path, FileNameValue $name) : FileNameValue
+    {
+        $nameInfo = pathinfo($name->toString());
+        $nameRegex = preg_quote($nameInfo['filename']) . '(_[0-9]+)?\.' . preg_quote($nameInfo['extension'] ?? '');
+
+        $query = $this->pdo->prepare('
+                SELECT name
+                  FROM files
+                 WHERE path = :path AND name REGEXP :name
+              ORDER BY name ASC
+        ');
+        $query->execute(['path' => $path->toString(), 'name' => $nameRegex]);
+
+        if ($query->rowCount() === 0) {
+            return $name;
+        }
+
+        $max = 0;
+        while ($row = $query->fetchColumn()) {
+            if ($row === $name->toString()) {
+                continue;
+            }
+            preg_match('#' . $nameRegex . '#', $row, $match);
+            $number = intval(substr($match[1], 1));
+            $max = max($max, $number);
+        }
+        return FileNameValue::get(
+            $nameInfo['filename'] . '_' . strval($max + 1) . '.' . ($nameInfo['extension'] ?? '')
+        );
     }
 }
