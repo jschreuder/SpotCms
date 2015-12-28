@@ -37,9 +37,7 @@ class FilePathValue implements ValueInterface
     {
         if (
             preg_match('#(\.\.|[\0\n\r\t<>])#', $path) !== 0
-            || strlen($path) === 0
-            || $path[0] !== '/'
-            || $path[strlen($path) - 1] !== '/'
+            || !in_array($path, [('/' . trim($path, '/') . '/'), '/'])
         ) {
             throw new \InvalidArgumentException('Invalid path given: "' . $path . '"');
         }
@@ -53,10 +51,7 @@ class FilePathValue implements ValueInterface
      */
     private function validateSegments(string $segment)
     {
-        if (
-            trim($segment) !== $segment
-            || strlen($segment) === 0
-        ) {
+        if (trim($segment) !== $segment || strlen($segment) === 0) {
             throw new \InvalidArgumentException('Invalid segment in given path: "' . $segment . '"');
         }
     }
