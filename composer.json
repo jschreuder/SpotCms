@@ -20,7 +20,7 @@
         }
     ],
     "require": {
-        "spot/api": "dev-master",
+        "spot/api": "~1.0.0-dev",
         "zendframework/zend-diactoros": "^1.1",
         "monolog/monolog": "^1.17",
         "pimple/pimple": "^3.0",

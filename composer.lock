@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9b9355ca040750f4523279861a1bafb7",
-    "content-hash": "22e48223f78924b82fd64d3fe2372bb7",
+    "hash": "1d92a3b98f6a045b6e5f034492e9cb45",
+    "content-hash": "b469d3c06140ff4cf7a16546a3450a9d",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -1339,7 +1339,7 @@
         },
         {
             "name": "spot/api",
-            "version": "dev-master",
+            "version": "1.0.0-beta1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WebspotCode/SpotApi.git",
