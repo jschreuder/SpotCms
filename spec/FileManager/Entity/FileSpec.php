@@ -44,6 +44,11 @@ class FileSpec extends ObjectBehavior
         $this->shouldHaveType(File::class);
     }
 
+    public function it_canGiveItsUuid()
+    {
+        $this->getUuid()->shouldReturn($this->uuid);
+    }
+
     public function it_canGiveItsName()
     {
         $this->getName()->shouldReturn($this->name);
@@ -95,5 +100,23 @@ class FileSpec extends ObjectBehavior
     public function it_errorsOnInvalidStream()
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringSetStream(null);
+    }
+
+    public function it_canSetInsertMetaDataTimestamp()
+    {
+        $ts = new \DateTimeImmutable();
+        $this->metaDataSetInsertTimestamp($ts);
+        $this->metaDataGetCreatedTimestamp()->shouldReturn($ts);
+        $this->metaDataGetUpdatedTimestamp()->shouldReturn($ts);
+    }
+
+    public function it_canSetUpdateMetaDataTimestamp()
+    {
+        $inserted = new \DateTimeImmutable();
+        $updated = new \DateTimeImmutable();
+        $this->metaDataSetInsertTimestamp($inserted);
+        $this->metaDataSetUpdateTimestamp($updated);
+        $this->metaDataGetCreatedTimestamp()->shouldReturn($inserted);
+        $this->metaDataGetUpdatedTimestamp()->shouldReturn($updated);
     }
 }

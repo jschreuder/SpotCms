@@ -27,6 +27,11 @@ class FilePathValueSpec extends ObjectBehavior
         $this->toString()->shouldReturn($this->value);
     }
 
+    public function it_canGetJustTheLastPart()
+    {
+        $this->getDirectoryName()->shouldReturn('dìr');
+    }
+
     public function it_willAcceptValidPaths()
     {
         $this->get('/')->toString()->shouldReturn('/');
