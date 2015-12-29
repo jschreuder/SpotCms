@@ -107,17 +107,82 @@ class FileRepositorySpec extends ObjectBehavior
     }
 
     /**
+     * @param  \PDOStatement $uniqueStatement
+     * @param  \PDOStatement $insertStatement
+     */
+    public function it_canCreateANewFileWithAUniqueName($uniqueStatement, $insertStatement)
+    {
+        $uuid = Uuid::uuid4();
+        $name = FileNameValue::get('file.name');
+        $newName = FileNameValue::get('file_4.name');
+        $path = FilePathValue::get('/uploads/');
+        $mime = MimeTypeValue::get('text/xml');
+        $stream = tmpfile();
+        $stream2 = tmpfile();
+
+        $file = new File($uuid, $name, $path, $mime, $stream);
+
+        $this->fileSystem->writeStream($uuid->toString(), $stream)
+            ->willReturn(true);
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+        $this->objectRepository->create(File::TYPE, $uuid)
+            ->shouldBeCalled();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('name REGEXP :name'))
+            ->willReturn($uniqueStatement);
+        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_[0-9]+)?\.name'])
+            ->shouldBeCalled();
+        $uniqueStatement->rowCount()
+            ->willReturn(3);
+        $uniqueStatement->fetchColumn()
+            ->willReturn(
+                'file.name',
+                'file_2.name',
+                'file_3.name',
+                false
+            );
+
+        $this->fileSystem->readStream($uuid->toString())
+            ->willReturn($stream2);
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('INSERT INTO files'))
+            ->willReturn($insertStatement);
+        $insertStatement->execute([
+            'file_uuid' => $uuid->getBytes(),
+            'name' => $newName->toString(),
+            'path' => $path->toString(),
+            'mime_type' => $mime->toString(),
+        ]);
+
+        $this->pdo->commit()
+            ->shouldBeCalled();
+
+        $this->createFromUpload($file);
+
+        // cleanup
+        fclose($stream);
+        fclose($stream2);
+    }
+
+    /**
      * @param  \Spot\FileManager\Entity\File $file
      */
     public function it_rollsBackAfterException($file)
     {
         $uuid = Uuid::uuid4();
+        $stream = tmpfile();
         $file->getUuid()->willReturn($uuid);
+        $file->getStream()->willReturn($stream);
 
         $this->pdo->beginTransaction()
             ->shouldBeCalled();
         $this->objectRepository->create(File::TYPE, $uuid)
-            ->willThrow(new \RuntimeException());
+            ->shouldBeCalled();
+
+        $this->fileSystem->writeStream($uuid->toString(), $stream)
+            ->willReturn(false);
 
         $this->pdo->rollBack()
             ->shouldBeCalled();
@@ -278,6 +343,41 @@ class FileRepositorySpec extends ObjectBehavior
             ->willReturn($file);
 
         $this->updateMetaData($file);
+    }
+
+    /**
+     * @param  \Spot\FileManager\Entity\File $file
+     * @param  \PDOStatement $updateStatement
+     */
+    public function it_willRollBackAfterFailedUpdateFileMetaData($file, $updateStatement)
+    {
+        $uuid = Uuid::uuid4();
+        $name = FileNameValue::get('file.name');
+        $path = FilePathValue::get('/uploads/');
+        $mime = MimeTypeValue::get('text/xml');
+
+        $file->getUuid()->willReturn($uuid);
+        $file->getName()->willReturn($name);
+        $file->setName($name)->willReturn($file);
+        $file->getPath()->willReturn($path);
+        $file->getMimeType()->willReturn($mime);
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('UPDATE files'))
+            ->willThrow(new \RuntimeException());
+
+        $this->objectRepository->update(File::TYPE, $uuid)
+            ->shouldNotBeCalled();
+
+        $this->pdo->rollBack()
+            ->shouldBeCalled();
+
+        $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
+            ->shouldNotBeCalled();
+
+        $this->shouldThrow(\RuntimeException::class)->duringUpdateMetaData($file);
     }
 
     /**
