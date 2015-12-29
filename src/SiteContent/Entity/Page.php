@@ -137,13 +137,16 @@ class Page
 
     public function addBlock(PageBlock $block) : Page
     {
+        if (is_null($this->relatedBlocks)) {
+            throw new \RuntimeException('Page block were not yet loaded.');
+        }
         $this->relatedBlocks[] = $block;
         return $this;
     }
 
     public function removeBlock(PageBlock $block) : Page
     {
-        foreach ($this->relatedBlocks as $idx => $relBlock) {
+        foreach ($this->getBlocks() as $idx => $relBlock) {
             if ($relBlock->getUuid()->equals($block->getUuid())) {
                 unset($this->relatedBlocks[$idx]);
                 return $this;
@@ -154,7 +157,7 @@ class Page
 
     public function getBlockByUuid(UuidInterface $uuid) : PageBlock
     {
-        foreach ($this->relatedBlocks as $block) {
+        foreach ($this->getBlocks() as $block) {
             if ($block->getUuid()->equals($uuid)) {
                 return $block;
             }
@@ -162,6 +165,7 @@ class Page
         throw new \OutOfBoundsException('Block not found in Page\'s blocks: ' . $uuid->toString());
     }
 
+    /** @return  PageBlock[] */
     public function getBlocks() : array
     {
         if (is_null($this->relatedBlocks)) {
