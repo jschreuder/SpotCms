@@ -585,16 +585,16 @@
         },
         {
             "name": "spot/api",
-            "version": "1.0.0-beta1",
+            "version": "1.0.0-beta2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WebspotCode/SpotApi.git",
-                "reference": "e4c7cf38bdd3d1b72543f141e5f96106d6ead51f"
+                "reference": "97914553b155467f2c763215a8c4c4d10c694c7d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WebspotCode/SpotApi/zipball/e4c7cf38bdd3d1b72543f141e5f96106d6ead51f",
-                "reference": "e4c7cf38bdd3d1b72543f141e5f96106d6ead51f",
+                "url": "https://api.github.com/repos/WebspotCode/SpotApi/zipball/97914553b155467f2c763215a8c4c4d10c694c7d",
+                "reference": "97914553b155467f2c763215a8c4c4d10c694c7d",
                 "shasum": ""
             },
             "require": {
@@ -633,10 +633,10 @@
             ],
             "description": "SpotApi, a web-API application framework",
             "support": {
-                "source": "https://github.com/WebspotCode/SpotApi/tree/master",
+                "source": "https://github.com/WebspotCode/SpotApi/tree/1.0.0-beta2",
                 "issues": "https://github.com/WebspotCode/SpotApi/issues"
             },
-            "time": "2015-12-27 14:04:02"
+            "time": "2015-12-29 03:46:41"
         },
         {
             "name": "symfony/config",
@@ -1271,16 +1271,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "53e967bf312c21f78ec3a19c530d98e1bdb5b26f"
+                "reference": "e55e3e32a870bd4f05425fa4f717b52bd40e5659"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/53e967bf312c21f78ec3a19c530d98e1bdb5b26f",
-                "reference": "53e967bf312c21f78ec3a19c530d98e1bdb5b26f",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/e55e3e32a870bd4f05425fa4f717b52bd40e5659",
+                "reference": "e55e3e32a870bd4f05425fa4f717b52bd40e5659",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.0.2",
+                "php": "^5.3|^7.0",
                 "phpdocumentor/reflection-docblock": "~2.0",
                 "sebastian/comparator": "~1.1",
                 "sebastian/recursion-context": "~1.0"
@@ -1324,7 +1325,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2015-12-14 17:14:23"
+            "time": "2015-12-28 13:26:33"
         },
         {
             "name": "phpunit/php-code-coverage",
