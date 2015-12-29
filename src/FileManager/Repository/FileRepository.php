@@ -5,7 +5,7 @@ namespace Spot\FileManager\Repository;
 use League\Flysystem\FilesystemInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Spot\DataModel\Repository\NoUniqueResultException;
+use Spot\DataModel\Repository\RepositorySqlSelectTrait;
 use Spot\DataModel\Repository\ObjectRepository;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\Value\FileNameValue;
@@ -14,6 +14,8 @@ use Spot\FileManager\Value\MimeTypeValue;
 
 class FileRepository
 {
+    use RepositorySqlSelectTrait;
+
     /** @var  FilesystemInterface */
     private $fileSystem;
 
@@ -42,10 +44,10 @@ class FileRepository
             }
             $file->setStream($this->fileSystem->readStream($file->getUuid()->toString()));
 
-            $this->pdo->prepare('
+            $this->executeSql('
                 INSERT INTO files (file_uuid, name, path, mime_type)
                      VALUES (:file_uuid, :name, :path, :mime_type)
-            ')->execute([
+            ', [
                 'file_uuid' => $file->getUuid()->getBytes(),
                 'name' => $file->getName()->toString(),
                 'path' => $file->getPath()->toString(),
@@ -74,14 +76,13 @@ class FileRepository
     {
         $this->pdo->beginTransaction();
         try {
-            $query = $this->pdo->prepare('
+            $query = $this->executeSql('
                 UPDATE files
                    SET name = :name,
                        path = :path,
                        mime_type = :mime_type
                  WHERE file_uuid = :file_uuid
-            ');
-            $query->execute([
+            ', [
                 'file_uuid' => $file->getUuid()->getBytes(),
                 'name' => $file->getName()->toString(),
                 'path' => $file->getPath()->toString(),
@@ -132,49 +133,34 @@ class FileRepository
 
     public function getByUuid(UuidInterface $uuid) : File
     {
-        $query = $this->pdo->prepare('
+        return $this->getFileFromRow($this->getRow('
                 SELECT file_uuid, name, path, mime_type, created, updated
                   FROM files
             INNER JOIN objects ON (file_uuid = uuid AND type = "files")
                  WHERE file_uuid = :file_uuid
-        ');
-        $query->execute(['file_uuid' => $uuid->getBytes()]);
-
-        if ($query->rowCount() !== 1) {
-            throw new NoUniqueResultException('Expected a unique result, but got ' . $query->rowCount() . ' results.');
-        }
-
-        return $this->getFileFromRow($query->fetch(\PDO::FETCH_ASSOC));
+        ', ['file_uuid' => $uuid->getBytes()]));
     }
 
     public function getByFullPath(string $path) : File
     {
-        $query = $this->pdo->prepare('
+        return $this->getFileFromRow($this->getRow('
                 SELECT file_uuid, name, path, mime_type, created, updated
                   FROM files
             INNER JOIN objects ON (file_uuid = uuid AND type = "files")
                  WHERE CONCAT(path, "/", name) = :full_path
-        ');
-        $query->execute(['full_path' => $path]);
-
-        if ($query->rowCount() !== 1) {
-            throw new NoUniqueResultException('Expected a unique result, but got ' . $query->rowCount() . ' results.');
-        }
-
-        return $this->getFileFromRow($query->fetch(\PDO::FETCH_ASSOC));
+        ', ['full_path' => $path]));
     }
 
     /** @return  File[] */
     public function getFilesInPath(string $path) : array
     {
-        $query = $this->pdo->prepare('
+        $query = $this->executeSql('
                 SELECT file_uuid, name, path, mime_type, created, updated
                   FROM files
             INNER JOIN objects ON (file_uuid = uuid AND type = "files")
                  WHERE path = :path
               ORDER BY name ASC
-        ');
-        $query->execute(['path' => $path]);
+        ', ['path' => $path]);
 
         $files = [];
         while ($row = $query->fetch(\PDO::FETCH_ASSOC)) {
@@ -186,14 +172,13 @@ class FileRepository
     /** @return  string[] */
     public function getDirectoriesInPath(string $path) : array
     {
-        $query = $this->pdo->prepare('
+        $query = $this->executeSql('
               SELECT path
                 FROM files
                WHERE path LIKE CONCAT(:path, "%") AND path != :path
             GROUP BY path
             ORDER BY path ASC
-        ');
-        $query->execute(['path' => $path]);
+        ', ['path' => $path]);
 
         $directories = [];
         while ($directory = $query->fetchColumn()) {
@@ -210,13 +195,12 @@ class FileRepository
         $nameInfo = pathinfo($name->toString());
         $nameRegex = preg_quote($nameInfo['filename']) . '(_[0-9]+)?\.' . preg_quote($nameInfo['extension'] ?? '');
 
-        $query = $this->pdo->prepare('
+        $query = $this->executeSql('
               SELECT name
                 FROM files
                WHERE path = :path AND name REGEXP :name
             ORDER BY name ASC
-        ');
-        $query->execute(['path' => $path->toString(), 'name' => $nameRegex]);
+        ', ['path' => $path->toString(), 'name' => $nameRegex]);
 
         if ($query->rowCount() === 0) {
             return $name;
