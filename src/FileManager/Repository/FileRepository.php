@@ -5,7 +5,7 @@ namespace Spot\FileManager\Repository;
 use League\Flysystem\FilesystemInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Spot\DataModel\Repository\RepositorySqlSelectTrait;
+use Spot\DataModel\Repository\SqlRepositoryTrait;
 use Spot\DataModel\Repository\ObjectRepository;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\Value\FileNameValue;
@@ -14,7 +14,7 @@ use Spot\FileManager\Value\MimeTypeValue;
 
 class FileRepository
 {
-    use RepositorySqlSelectTrait;
+    use SqlRepositoryTrait;
 
     /** @var  FilesystemInterface */
     private $fileSystem;

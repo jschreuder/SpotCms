@@ -6,14 +6,14 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\DataModel\Repository\ObjectRepository;
-use Spot\DataModel\Repository\RepositorySqlSelectTrait;
+use Spot\DataModel\Repository\SqlRepositoryTrait;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Value\PageStatusValue;
 
 class PageRepository
 {
-    use RepositorySqlSelectTrait;
+    use SqlRepositoryTrait;
 
     /** @var  \PDO */
     private $pdo;

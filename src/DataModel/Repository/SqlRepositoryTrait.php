@@ -2,7 +2,7 @@
 
 namespace Spot\DataModel\Repository;
 
-trait RepositorySqlSelectTrait
+trait SqlRepositoryTrait
 {
     /** @var  \PDO */
     private $pdo;
