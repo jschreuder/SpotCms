@@ -327,7 +327,7 @@ class FileRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
         $name = 'children-of-the-gods.ep';
-        $path = '/season1/1x01/';
+        $path = '/sg-1/season1/';
         $mime = 'stargate/sg-1';
         $stream = tmpfile();
 
@@ -375,7 +375,7 @@ class FileRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
         $name = 'the-enemy-within.ep';
-        $path = '/season1/1x02/';
+        $path = '/sg-1/season1/';
         $mime = 'stargate/sg-1';
         $stream = tmpfile();
 
@@ -408,7 +408,7 @@ class FileRepositorySpec extends ObjectBehavior
     public function it_errorsWithoutResultWhenFetchingFileByItsFullPath($statement)
     {
         $name = 'emancipation.ep';
-        $path = '/season1/1x03/';
+        $path = '/sg-1/season1/';
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
@@ -416,5 +416,127 @@ class FileRepositorySpec extends ObjectBehavior
         $statement->rowCount()->willReturn(0);
 
         $this->shouldThrow(NoUniqueResultException::class)->duringGetByFullPath($path . $name);
+    }
+
+    /**
+     * @param  \PDOStatement $statement
+     */
+    public function it_canGetMultipleFilesInPath($statement)
+    {
+        $path = '/sg-1/season1/';
+        $uuid1 = Uuid::uuid4();
+        $name1 = 'the-broca-divide.ep';
+        $mime1 = 'stargate/sg-1';
+        $stream1 = tmpfile();
+        $uuid2 = Uuid::uuid4();
+        $name2 = 'the-first-commandment.ep';
+        $mime2 = 'stargate/sg-1';
+        $stream2 = tmpfile();
+        $uuid3 = Uuid::uuid4();
+        $name3 = 'cold-lazarus.ep';
+        $mime3 = 'stargate/sg-1';
+        $stream3 = tmpfile();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
+            ->willReturn($statement);
+        $statement->execute(['path' => $path])->shouldBeCalled();
+        $statement->fetch(\PDO::FETCH_ASSOC)->willReturn(
+            [
+                'file_uuid' => $uuid1->getBytes(),
+                'name' => $name1,
+                'path' => $path,
+                'mime_type' => $mime1,
+                'created' => date('Y-m-d H:i:s'),
+                'updated' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'file_uuid' => $uuid2->getBytes(),
+                'name' => $name2,
+                'path' => $path,
+                'mime_type' => $mime2,
+                'created' => date('Y-m-d H:i:s'),
+                'updated' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'file_uuid' => $uuid3->getBytes(),
+                'name' => $name3,
+                'path' => $path,
+                'mime_type' => $mime3,
+                'created' => date('Y-m-d H:i:s'),
+                'updated' => date('Y-m-d H:i:s'),
+            ],
+            false
+        );
+
+        $this->fileSystem->readStream($uuid1->toString())
+            ->willReturn($stream1);
+        $this->fileSystem->readStream($uuid2->toString())
+            ->willReturn($stream2);
+        $this->fileSystem->readStream($uuid3->toString())
+            ->willReturn($stream3);
+
+        $files = $this->getFilesInPath($path);
+
+        $files[0]->shouldBeAnInstanceOf(File::class);
+        $files[0]->getName()->toString()->shouldReturn($name1);
+        $files[0]->getPath()->toString()->shouldReturn($path);
+        $files[0]->getMimeType()->toString()->shouldReturn($mime1);
+        $files[0]->getStream()->shouldReturn($stream1);
+        $files[1]->shouldBeAnInstanceOf(File::class);
+        $files[1]->getName()->toString()->shouldReturn($name2);
+        $files[1]->getPath()->toString()->shouldReturn($path);
+        $files[1]->getMimeType()->toString()->shouldReturn($mime2);
+        $files[1]->getStream()->shouldReturn($stream2);
+        $files[2]->shouldBeAnInstanceOf(File::class);
+        $files[2]->getName()->toString()->shouldReturn($name3);
+        $files[2]->getPath()->toString()->shouldReturn($path);
+        $files[2]->getMimeType()->toString()->shouldReturn($mime3);
+        $files[2]->getStream()->shouldReturn($stream3);
+    }
+
+    /**
+     * @param  \PDOStatement $statement
+     */
+    public function it_canGetNoFilesBackForAPath($statement)
+    {
+        $path = '/sg-1/season11/';
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
+            ->willReturn($statement);
+        $statement->execute(['path' => $path])->shouldBeCalled();
+        $statement->fetch(\PDO::FETCH_ASSOC)->willReturn(false);
+
+        $this->getFilesInPath($path)->shouldHaveCount(0);
+    }
+
+    /**
+     * @param  \PDOStatement $statement
+     */
+    public function it_canGetSubdirectoriesInAPath($statement)
+    {
+        $path = '/sgu/';
+        $directories = [
+            $path . 'season1/',
+            $path . 'season1/minisodes/',
+            $path . 'season2/',
+            $path . 'season2/minisodes/deleted/',
+            $path . 'specials/minisodes/',
+        ];
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
+            ->willReturn($statement);
+        $statement->execute(['path' => $path])->shouldBeCalled();
+        $statement->fetchColumn()->willReturn(
+            $directories[0],
+            $directories[1],
+            $directories[2],
+            $directories[3],
+            $directories[4],
+            false
+        );
+
+        $result = $this->getDirectoriesInPath($path);
+        $result[0]->toString()->shouldReturn($directories[0]);
+        $result[1]->toString()->shouldReturn($directories[2]);
+        $result[2]->toString()->shouldReturn($directories[4]);
     }
 }

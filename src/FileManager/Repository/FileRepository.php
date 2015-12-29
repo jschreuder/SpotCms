@@ -187,16 +187,19 @@ class FileRepository
     public function getDirectoriesInPath(string $path) : array
     {
         $query = $this->pdo->prepare('
-                SELECT path
-                  FROM files
-                 WHERE path LIKE :path
-              GROUP BY path
-              ORDER BY path ASC
+              SELECT path
+                FROM files
+               WHERE path LIKE CONCAT(:path, "%") AND path != :path
+            GROUP BY path
+            ORDER BY path ASC
         ');
-        $query->execute(['path' => $path . '%']);
+        $query->execute(['path' => $path]);
 
         $directories = [];
         while ($directory = $query->fetchColumn()) {
+            if (count($directories) > 0 && strpos($directory, end($directories)->toString()) === 0) {
+                continue;
+            }
             $directories[] = FilePathValue::get($directory);
         }
         return $directories;
@@ -208,10 +211,10 @@ class FileRepository
         $nameRegex = preg_quote($nameInfo['filename']) . '(_[0-9]+)?\.' . preg_quote($nameInfo['extension'] ?? '');
 
         $query = $this->pdo->prepare('
-                SELECT name
-                  FROM files
-                 WHERE path = :path AND name REGEXP :name
-              ORDER BY name ASC
+              SELECT name
+                FROM files
+               WHERE path = :path AND name REGEXP :name
+            ORDER BY name ASC
         ');
         $query->execute(['path' => $path->toString(), 'name' => $nameRegex]);
 
