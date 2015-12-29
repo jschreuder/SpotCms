@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
+use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\DataModel\Repository\ObjectRepository;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\Repository\FileRepository;
@@ -317,5 +318,103 @@ class FileRepositorySpec extends ObjectBehavior
             ->shouldBeCalled();
 
         $this->shouldThrow(\RuntimeException::class)->duringDelete($file);
+    }
+
+    /**
+     * @param  \PDOStatement $statement
+     */
+    public function it_canFetchAFileByItsUuid($statement)
+    {
+        $uuid = Uuid::uuid4();
+        $name = 'children-of-the-gods.ep';
+        $path = '/season1/1x01/';
+        $mime = 'stargate/sg-1';
+        $stream = tmpfile();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
+            ->willReturn($statement);
+        $statement->execute(['file_uuid' => $uuid->getBytes()])->shouldBeCalled();
+        $statement->rowCount()->willReturn(1);
+        $statement->fetch(\PDO::FETCH_ASSOC)->willReturn([
+            'file_uuid' => $uuid->getBytes(),
+            'name' => $name,
+            'path' => $path,
+            'mime_type' => $mime,
+            'created' => date('Y-m-d H:i:s'),
+            'updated' => date('Y-m-d H:i:s'),
+        ]);
+        $this->fileSystem->readStream($uuid->toString())
+            ->willReturn($stream);
+
+        $file = $this->getByUuid($uuid);
+        $file->shouldBeAnInstanceOf(File::class);
+        $file->getName()->toString()->shouldReturn($name);
+        $file->getPath()->toString()->shouldReturn($path);
+        $file->getMimeType()->toString()->shouldReturn($mime);
+        $file->getStream()->shouldReturn($stream);
+    }
+
+    /**
+     * @param  \PDOStatement $statement
+     */
+    public function it_errorsWithoutResultWhenFetchingFileByItsUuid($statement)
+    {
+        $uuid = Uuid::uuid4();
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
+            ->willReturn($statement);
+        $statement->execute(['file_uuid' => $uuid->getBytes()])->shouldBeCalled();
+        $statement->rowCount()->willReturn(0);
+
+        $this->shouldThrow(NoUniqueResultException::class)->duringGetByUuid($uuid);
+    }
+
+    /**
+     * @param  \PDOStatement $statement
+     */
+    public function it_canFetchAFileByItsFullPath($statement)
+    {
+        $uuid = Uuid::uuid4();
+        $name = 'the-enemy-within.ep';
+        $path = '/season1/1x02/';
+        $mime = 'stargate/sg-1';
+        $stream = tmpfile();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
+            ->willReturn($statement);
+        $statement->execute(['full_path' => $path . $name])->shouldBeCalled();
+        $statement->rowCount()->willReturn(1);
+        $statement->fetch(\PDO::FETCH_ASSOC)->willReturn([
+            'file_uuid' => $uuid->getBytes(),
+            'name' => $name,
+            'path' => $path,
+            'mime_type' => $mime,
+            'created' => date('Y-m-d H:i:s'),
+            'updated' => date('Y-m-d H:i:s'),
+        ]);
+        $this->fileSystem->readStream($uuid->toString())
+            ->willReturn($stream);
+
+        $file = $this->getByFullPath($path . $name);
+        $file->shouldBeAnInstanceOf(File::class);
+        $file->getName()->toString()->shouldReturn($name);
+        $file->getPath()->toString()->shouldReturn($path);
+        $file->getMimeType()->toString()->shouldReturn($mime);
+        $file->getStream()->shouldReturn($stream);
+    }
+
+    /**
+     * @param  \PDOStatement $statement
+     */
+    public function it_errorsWithoutResultWhenFetchingFileByItsFullPath($statement)
+    {
+        $name = 'emancipation.ep';
+        $path = '/season1/1x03/';
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
+            ->willReturn($statement);
+        $statement->execute(['full_path' => $path . $name])->shouldBeCalled();
+        $statement->rowCount()->willReturn(0);
+
+        $this->shouldThrow(NoUniqueResultException::class)->duringGetByFullPath($path . $name);
     }
 }
