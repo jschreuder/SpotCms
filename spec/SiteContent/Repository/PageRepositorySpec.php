@@ -6,6 +6,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
 use Spot\SiteContent\Entity\Page;
+use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
@@ -455,5 +456,224 @@ class PageRepositorySpec extends ObjectBehavior
         $page2->getUuid()->toString()->shouldReturn($uuid2->toString());
         $page2->getParentUuid()->shouldReturn(null);
         $page2->getBlocks()->shouldReturn([]);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\Page $page
+     * @param  \Spot\SiteContent\Entity\PageBlock $block
+     * @param  \PDOStatement $statement
+     */
+    public function it_canAddABlockToAPage($page, $block, $statement)
+    {
+        $uuid = Uuid::uuid4();
+        $page->getUuid()->willReturn($uuid);
+
+        $blockUuid = Uuid::uuid4();
+        $blockType = 'type';
+        $blockLocation = 'main';
+        $blockSortOrder = 42;
+        $blockStatus = PageStatusValue::get('concept');
+        $block->getUuid()->willReturn($blockUuid);
+        $block->getPage()->willReturn($page);
+        $block->getType()->willReturn($blockType);
+        $block->getParameters()->willReturn([]);
+        $block->getLocation()->willReturn($blockLocation);
+        $block->getSortOrder()->willReturn($blockSortOrder);
+        $block->getStatus()->willReturn($blockStatus);
+        $block->metaDataSetInsertTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
+            ->shouldBeCalled();
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+        $this->objectRepository->create(PageBlock::TYPE, $blockUuid)
+            ->shouldBeCalled();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('INSERT INTO page_blocks'))
+            ->willReturn($statement);
+        $statement->execute([
+            'page_block_uuid' => $blockUuid->getBytes(),
+            'page_uuid' => $uuid->getBytes(),
+            'type' => $blockType,
+            'parameters' => json_encode([]),
+            'location' => $blockLocation,
+            'sort_order' => $blockSortOrder,
+            'status' => $blockStatus->toString(),
+        ])->shouldBeCalled();
+
+        $this->objectRepository->update(Page::TYPE, $uuid)
+            ->shouldBeCalled();
+        $this->pdo->commit()
+            ->shouldBeCalled();
+
+        $this->addBlockToPage($block, $page);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\Page $page
+     * @param  \Spot\SiteContent\Entity\PageBlock $block
+     */
+    public function it_willRollBackWhenAddingBlockToAPageFails($page, $block)
+    {
+        $uuid = Uuid::uuid4();
+        $page->getUuid()->willReturn($uuid);
+
+        $blockUuid = Uuid::uuid4();
+        $block->getUuid()->willReturn($blockUuid);
+        $block->getPage()->willReturn($page);
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+        $this->objectRepository->create(PageBlock::TYPE, $blockUuid)
+            ->willThrow(new \RuntimeException());
+
+        $this->pdo->rollBack()
+            ->shouldBeCalled();
+
+        $this->shouldThrow(\RuntimeException::class)->duringAddBlockToPage($block, $page);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\Page $page1
+     * @param  \Spot\SiteContent\Entity\Page $page2
+     * @param  \Spot\SiteContent\Entity\PageBlock $block
+     */
+    public function it_willErrorWhenTryingToAddBlockToWrongPage($page1, $page2, $block)
+    {
+        $uuid1 = Uuid::uuid4();
+        $page1->getUuid()->willReturn($uuid1);
+        $uuid2 = Uuid::uuid4();
+        $page2->getUuid()->willReturn($uuid2);
+
+        $block->getPage()->willReturn($page2);
+
+        $this->shouldThrow(\OutOfBoundsException::class)->duringAddBlockToPage($block, $page1);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\Page $page
+     * @param  \Spot\SiteContent\Entity\PageBlock $block
+     * @param  \PDOStatement $statement
+     */
+    public function it_canUpdateABlock($page, $block, $statement)
+    {
+        $uuid = Uuid::uuid4();
+        $page->getUuid()->willReturn($uuid);
+        $page->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
+            ->shouldBeCalled();
+
+        $blockUuid = Uuid::uuid4();
+        $blockSortOrder = 42;
+        $blockStatus = PageStatusValue::get('concept');
+        $block->getUuid()->willReturn($blockUuid);
+        $block->getPage()->willReturn($page);
+        $block->getParameters()->willReturn([]);
+        $block->getSortOrder()->willReturn($blockSortOrder);
+        $block->getStatus()->willReturn($blockStatus);
+        $block->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
+            ->shouldBeCalled();
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('UPDATE page_blocks'))
+            ->willReturn($statement);
+        $statement->execute([
+            'page_block_uuid' => $blockUuid->getBytes(),
+            'parameters' => json_encode([]),
+            'sort_order' => $blockSortOrder,
+            'status' => $blockStatus->toString(),
+        ])->shouldBeCalled();
+        $statement->rowCount()
+            ->willReturn(1);
+
+        $this->objectRepository->update(Page::TYPE, $uuid)
+            ->shouldBeCalled();
+        $this->objectRepository->update(PageBlock::TYPE, $blockUuid)
+            ->shouldBeCalled();
+        $this->pdo->commit()
+            ->shouldBeCalled();
+
+        $this->updateBlockForPage($block, $page);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\Page $page
+     * @param  \Spot\SiteContent\Entity\PageBlock $block
+     */
+    public function it_willRollBackWhenUpdateABlockFails($page, $block)
+    {
+        $uuid = Uuid::uuid4();
+        $page->getUuid()->willReturn($uuid);
+
+        $blockUuid = Uuid::uuid4();
+        $block->getUuid()->willReturn($blockUuid);
+        $block->getPage()->willReturn($page);
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('UPDATE page_blocks'))
+            ->willThrow(new \RuntimeException());
+
+        $this->pdo->rollBack()
+            ->shouldBeCalled();
+
+        $this->shouldThrow(\RuntimeException::class)->duringUpdateBlockForPage($block, $page);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\Page $page1
+     * @param  \Spot\SiteContent\Entity\Page $page2
+     * @param  \Spot\SiteContent\Entity\PageBlock $block
+     */
+    public function it_willErrorWhenTryingToUpdateABlockToWrongPage($page1, $page2, $block)
+    {
+        $uuid1 = Uuid::uuid4();
+        $page1->getUuid()->willReturn($uuid1);
+        $uuid2 = Uuid::uuid4();
+        $page2->getUuid()->willReturn($uuid2);
+
+        $block->getPage()->willReturn($page2);
+
+        $this->shouldThrow(\OutOfBoundsException::class)->duringUpdateBlockForPage($block, $page1);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\Page $page
+     * @param  \Spot\SiteContent\Entity\PageBlock $block
+     */
+    public function it_canDeleteABlockFromAPage($page, $block)
+    {
+        $uuid = Uuid::uuid4();
+        $page->getUuid()->willReturn($uuid);
+        $page->removeBlock($block)->shouldBeCalled();
+
+        $blockUuid = Uuid::uuid4();
+        $block->getUuid()->willReturn($blockUuid);
+        $block->getPage()->willReturn($page);
+        $block->setStatus(PageStatusValue::get('deleted'))->shouldBeCalled();
+
+        $this->objectRepository->delete(PageBlock::TYPE, $blockUuid)
+            ->shouldBeCalled();
+        $this->objectRepository->update(Page::TYPE, $uuid)
+            ->shouldBeCalled();
+
+        $this->deleteBlockFromPage($block, $page);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\Page $page1
+     * @param  \Spot\SiteContent\Entity\Page $page2
+     * @param  \Spot\SiteContent\Entity\PageBlock $block
+     */
+    public function it_willErrorWhenTryingToDeleteABlockFromWrongPage($page1, $page2, $block)
+    {
+        $uuid1 = Uuid::uuid4();
+        $page1->getUuid()->willReturn($uuid1);
+        $uuid2 = Uuid::uuid4();
+        $page2->getUuid()->willReturn($uuid2);
+
+        $block->getPage()->willReturn($page2);
+
+        $this->shouldThrow(\OutOfBoundsException::class)->duringDeleteBlockFromPage($block, $page1);
     }
 }

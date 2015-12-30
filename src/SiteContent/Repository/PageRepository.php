@@ -219,6 +219,8 @@ class PageRepository
                 $this->objectRepository->update(PageBlock::TYPE, $block->getUuid());
             }
 
+            $page->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
+            $block->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
             $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
