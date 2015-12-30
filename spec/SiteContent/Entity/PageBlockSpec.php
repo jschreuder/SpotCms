@@ -106,6 +106,7 @@ class PageBlockSpec extends ObjectBehavior
         $this->offsetExists('thx')->shouldReturn(false);
         $this['thx'] = 1138;
         $this->offsetExists('thx')->shouldReturn(true);
+        $this->offsetGet('thx')->shouldReturn(1138);
         unset($this['thx']);
         $this->offsetExists('thx')->shouldReturn(false);
 
