@@ -12,12 +12,14 @@ use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\RequestInterface;
+use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Common\ParticleFixes\Validator;
+use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
@@ -45,22 +47,22 @@ class AddPageBlockHandler implements HttpRequestParserInterface, ExecutorInterfa
 
         $validator = new Validator();
         $validator->required('data.type')->equals('pageBlocks');
-        $validator->optional('data.attributes.page_uuid')->uuid()->equals($attributes['page_uuid']);
+        $validator->required('data.attributes.page_uuid')->uuid();
         $validator->required('data.attributes.type')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
         $validator->optional('data.attributes.parameters');
         $validator->required('data.attributes.location')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
         $validator->required('data.attributes.sort_order')->integer();
         $validator->required('data.attributes.status')->inArray(PageStatusValue::getValidStatuses(), true);
 
-        $data = $filter->filter($httpRequest->getParsedBody());
+        $parameters = $httpRequest->getParsedBody();
+        $parameters['data']['attributes']['page_uuid'] = $attributes['page_uuid'];
+        $data = $filter->filter($parameters);
         $validationResult = $validator->validate($data);
         if ($validationResult->isNotValid()) {
             throw new ValidationFailedException($validationResult, $httpRequest);
         }
 
-        $request = new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes'], $httpRequest);
-        $request['page_uuid'] = $attributes['page_uuid'];
-        return $request;
+        return new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes'], $httpRequest);
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
@@ -79,6 +81,10 @@ class AddPageBlockHandler implements HttpRequestParserInterface, ExecutorInterfa
             $this->pageRepository->addBlockToPage($pageBlock, $page);
             return new Response(self::MESSAGE, ['data' => $pageBlock, 'includes' => ['pages']], $request);
         } catch (\Throwable $exception) {
+            if ($exception instanceof NoResultException) {
+                return new NotFoundResponse([], $request);
+            }
+
             $this->log(LogLevel::ERROR, $exception->getMessage());
             throw new ResponseException(
                 'An error occurred during AddPageBlockHandler.',

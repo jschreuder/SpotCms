@@ -44,23 +44,24 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
         $filter->value('attributes.sort_order')->int();
 
         $validator = new Validator();
-        $validator->required('type')->equals('pageBlocks');
-        $validator->optional('id')->uuid()->equals($attributes['uuid']);
-        $validator->optional('attributes.page_id')->uuid()->equals($attributes['page_uuid']);
-        $validator->optional('attributes.parameters');
-        $validator->optional('attributes.sort_order')->integer();
-        $validator->optional('attributes.status')
+        $validator->required('data.type')->equals('pageBlocks');
+        $validator->required('data.id')->uuid()->equals($attributes['uuid']);
+        $validator->required('data.attributes.page_id')->uuid();
+        $validator->optional('data.attributes.parameters');
+        $validator->optional('data.attributes.sort_order')->integer();
+        $validator->optional('data.attributes.status')
             ->inArray([PageStatusValue::CONCEPT, PageStatusValue::PUBLISHED], true);
 
-        $data = $filter->filter($httpRequest->getParsedBody())['data'];
+        $data = $filter->filter($httpRequest->getParsedBody());
+        $request['data']['id'] = $attributes['uuid'];
+        $request['data']['attributes']['page_uuid'] = $attributes['page_uuid'];
         $validationResult = $validator->validate($data);
         if ($validationResult->isNotValid()) {
             throw new ValidationFailedException($validationResult, $httpRequest);
         }
 
-        $request = new Request(self::MESSAGE, $validationResult->getValues()['attributes'], $httpRequest);
-        $request['uuid'] = $attributes['uuid'];
-        $request['page_uuid'] = $attributes['page_uuid'];
+        $request = new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes'], $httpRequest);
+        $request['uuid'] = $data['data']['id'];
         return $request;
     }
 
