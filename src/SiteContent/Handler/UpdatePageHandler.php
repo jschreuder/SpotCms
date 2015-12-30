@@ -44,23 +44,24 @@ class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
         $filter->value('attributes.sort_order')->int();
 
         $validator = new Validator();
-        $validator->required('type')->equals('pages');
-        $validator->optional('id')->uuid()->equals($attributes['uuid']);
-        $validator->optional('attributes.title')->lengthBetween(1, 512);
-        $validator->optional('attributes.slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
-        $validator->optional('attributes.short_title')->lengthBetween(1, 48);
-        $validator->optional('attributes.sort_order')->integer();
-        $validator->optional('attributes.status')
+        $validator->required('data.type')->equals('pages');
+        $validator->required('data.id')->uuid();
+        $validator->optional('data.attributes.title')->lengthBetween(1, 512);
+        $validator->optional('data.attributes.slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
+        $validator->optional('data.attributes.short_title')->lengthBetween(1, 48);
+        $validator->optional('data.attributes.sort_order')->integer();
+        $validator->optional('data.attributes.status')
             ->inArray([PageStatusValue::CONCEPT, PageStatusValue::PUBLISHED], true);
 
-        $data = $filter->filter($httpRequest->getParsedBody())['data'];
+        $data = $filter->filter((array) $httpRequest->getParsedBody());
+        $data['data']['id'] = $attributes['uuid'];
         $validationResult = $validator->validate($data);
         if ($validationResult->isNotValid()) {
             throw new ValidationFailedException($validationResult, $httpRequest);
         }
 
-        $request = new Request(self::MESSAGE, $validationResult->getValues()['attributes'], $httpRequest);
-        $request['uuid'] = $attributes['uuid'];
+        $request = new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes'], $httpRequest);
+        $request['uuid'] = $data['data']['id'];
         return $request;
     }
 

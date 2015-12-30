@@ -54,7 +54,7 @@ class CreatePageHandler implements HttpRequestParserInterface, ExecutorInterface
         $validator->required('data.attributes.sort_order')->integer();
         $validator->required('data.attributes.status')->inArray(PageStatusValue::getValidStatuses(), true);
 
-        $data = $filter->filter($httpRequest->getParsedBody());
+        $data = $filter->filter((array) $httpRequest->getParsedBody());
         $validationResult = $validator->validate($data);
         if ($validationResult->isNotValid()) {
             throw new ValidationFailedException($validationResult, $httpRequest);

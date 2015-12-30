@@ -54,7 +54,7 @@ class AddPageBlockHandler implements HttpRequestParserInterface, ExecutorInterfa
         $validator->required('data.attributes.sort_order')->integer();
         $validator->required('data.attributes.status')->inArray(PageStatusValue::getValidStatuses(), true);
 
-        $parameters = $httpRequest->getParsedBody();
+        $parameters = (array) $httpRequest->getParsedBody();
         $parameters['data']['attributes']['page_uuid'] = $attributes['page_uuid'];
         $data = $filter->filter($parameters);
         $validationResult = $validator->validate($data);

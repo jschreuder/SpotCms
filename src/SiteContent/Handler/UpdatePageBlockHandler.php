@@ -52,9 +52,9 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
         $validator->optional('data.attributes.status')
             ->inArray([PageStatusValue::CONCEPT, PageStatusValue::PUBLISHED], true);
 
-        $data = $filter->filter($httpRequest->getParsedBody());
-        $request['data']['id'] = $attributes['uuid'];
-        $request['data']['attributes']['page_uuid'] = $attributes['page_uuid'];
+        $data = $filter->filter((array) $httpRequest->getParsedBody());
+        $data['data']['id'] = $attributes['uuid'];
+        $data['data']['attributes']['page_uuid'] = $attributes['page_uuid'];
         $validationResult = $validator->validate($data);
         if ($validationResult->isNotValid()) {
             throw new ValidationFailedException($validationResult, $httpRequest);
