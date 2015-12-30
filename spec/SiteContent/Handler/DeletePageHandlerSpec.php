@@ -11,10 +11,10 @@ use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
-use Spot\SiteContent\Handler\GetPageHandler;
+use Spot\SiteContent\Handler\DeletePageHandler;
 
-/** @mixin  GetPageHandler */
-class GetPageHandlerSpec extends ObjectBehavior
+/** @mixin  DeletePageHandler */
+class DeletePageHandlerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
     private $pageRepository;
@@ -35,7 +35,7 @@ class GetPageHandlerSpec extends ObjectBehavior
 
     public function it_isInitializable()
     {
-        $this->shouldHaveType(GetPageHandler::class);
+        $this->shouldHaveType(DeletePageHandler::class);
     }
 
     /**
@@ -48,7 +48,7 @@ class GetPageHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(GetPageHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(DeletePageHandler::MESSAGE);
         $request['uuid']->shouldBe($attributes['uuid']);
     }
 
@@ -71,12 +71,12 @@ class GetPageHandlerSpec extends ObjectBehavior
         $request->offsetGet('uuid')->willReturn($uuid->toString());
         $request->getAcceptContentType()->willReturn('text/xml');
         $this->pageRepository->getByUuid($uuid)->willReturn($page);
+        $this->pageRepository->delete($page)->shouldBeCalled();
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(GetPageHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(DeletePageHandler::MESSAGE);
         $response['data']->shouldBe($page);
-        $response['includes']->shouldBe(['pageBlocks']);
     }
 
     /**

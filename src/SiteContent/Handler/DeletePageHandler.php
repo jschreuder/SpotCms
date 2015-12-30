@@ -11,12 +11,14 @@ use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\RequestInterface;
+use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Common\ParticleFixes\Validator;
+use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
 class DeletePageHandler implements HttpRequestParserInterface, ExecutorInterface
@@ -54,6 +56,10 @@ class DeletePageHandler implements HttpRequestParserInterface, ExecutorInterface
             $this->pageRepository->delete($page);
             return new Response(self::MESSAGE, ['data' => $page], $request);
         } catch (\Throwable $e) {
+            if ($e instanceof NoUniqueResultException) {
+                return new NotFoundResponse([], $request);
+            }
+
             $this->log(LogLevel::ERROR, $e->getMessage());
             throw new ResponseException(
                 'An error occurred during DeletePageHandler.',
