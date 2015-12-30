@@ -18,6 +18,7 @@ use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Common\ParticleFixes\Validator;
+use Spot\DataModel\Repository\NoResultException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
@@ -57,9 +58,7 @@ class GetPageBlockHandler implements HttpRequestParserInterface, ExecutorInterfa
             $block = $page->getBlockByUuid(Uuid::fromString($request['uuid']));
             return new Response(self::MESSAGE, ['data' => $block, 'includes' => ['pages']], $request);
         } catch (\Throwable $e) {
-            if ($e instanceof NoUniqueResultException ) {
-                return new NotFoundResponse([], $request);
-            } elseif ($e instanceof \OutOfBoundsException) {
+            if ($e instanceof NoResultException) {
                 return new NotFoundResponse([], $request);
             }
 

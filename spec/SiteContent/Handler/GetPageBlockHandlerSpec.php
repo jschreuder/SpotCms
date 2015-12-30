@@ -10,6 +10,7 @@ use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
+use Spot\DataModel\Repository\NoResultException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Handler\GetPageBlockHandler;
 
@@ -117,7 +118,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
         $request->getAcceptContentType()->willReturn('text/xml');
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
-        $page->getBlockByUuid($blockUuid)->willThrow(new \OutOfBoundsException());
+        $page->getBlockByUuid($blockUuid)->willThrow(new NoResultException());
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(NotFoundResponse::class);

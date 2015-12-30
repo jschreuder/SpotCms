@@ -6,9 +6,12 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\Message\RequestInterface;
+use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
+use Spot\DataModel\Repository\NoResultException;
+use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Handler\DeletePageBlockHandler;
 
 /** @mixin  DeletePageBlockHandler */
@@ -84,6 +87,42 @@ class DeletePageBlockHandlerSpec extends ObjectBehavior
         $response->shouldHaveType(ResponseInterface::class);
         $response->getResponseName()->shouldReturn(DeletePageBlockHandler::MESSAGE);
         $response['data']->shouldBe($block);
+    }
+
+    /**
+     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     */
+    public function it_canExecuteAPageNotFoundRequest($request)
+    {
+        $uuid = Uuid::uuid4();
+        $request->offsetGet('page_uuid')->willReturn($uuid->toString());
+        $request->getAcceptContentType()->willReturn('text/xml');
+
+        $this->pageRepository->getByUuid($uuid)
+            ->willThrow(new NoUniqueResultException());
+
+        $response = $this->executeRequest($request);
+        $response->shouldHaveType(NotFoundResponse::class);
+    }
+
+    /**
+     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Spot\SiteContent\Entity\Page $page
+     */
+    public function it_canExecuteABlockNotFoundRequest($request, $page)
+    {
+        $pageUuid = Uuid::uuid4();
+        $blockUuid = Uuid::uuid4();
+
+        $request->offsetGet('uuid')->willReturn($blockUuid->toString());
+        $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
+        $request->getAcceptContentType()->willReturn('text/xml');
+
+        $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
+        $page->getBlockByUuid($blockUuid)->willThrow(new NoResultException());
+
+        $response = $this->executeRequest($request);
+        $response->shouldHaveType(NotFoundResponse::class);
     }
 
     /**

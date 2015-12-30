@@ -4,6 +4,7 @@ namespace Spot\SiteContent\Entity;
 
 use Ramsey\Uuid\UuidInterface;
 use Spot\DataModel\Entity\TimestampedMetaDataTrait;
+use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\Value\PageStatusValue;
 
 class Page
@@ -167,7 +168,7 @@ class Page
                 return $this;
             }
         }
-        throw new \OutOfBoundsException('Block not found in Page\'s blocks: ' . $block->getUuid()->toString());
+        throw new NoResultException('Block not found in Page\'s blocks: ' . $block->getUuid()->toString());
     }
 
     public function getBlockByUuid(UuidInterface $uuid) : PageBlock
@@ -177,6 +178,6 @@ class Page
                 return $block;
             }
         }
-        throw new \OutOfBoundsException('Block not found in Page\'s blocks: ' . $uuid->toString());
+        throw new NoResultException('Block not found in Page\'s blocks: ' . $uuid->toString());
     }
 }

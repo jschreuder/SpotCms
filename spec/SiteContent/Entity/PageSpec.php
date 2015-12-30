@@ -6,6 +6,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Value\PageStatusValue;
 
@@ -193,7 +194,7 @@ class PageSpec extends ObjectBehavior
         $block3->getSortOrder()->willReturn(3);
 
         $this->setBlocks([$block3, $block2]);
-        $this->shouldThrow(\OutOfBoundsException::class)->duringRemoveBlock($block1);
+        $this->shouldThrow(NoResultException::class)->duringRemoveBlock($block1);
     }
 
     /**
@@ -240,7 +241,7 @@ class PageSpec extends ObjectBehavior
         $this->setBlocks([$block1, $block2, $block3])
             ->shouldReturn($this);
 
-        $this->shouldThrow(\OutOfBoundsException::class)->duringGetBlockByUuid(Uuid::uuid4());
+        $this->shouldThrow(NoResultException::class)->duringGetBlockByUuid(Uuid::uuid4());
     }
 
     /**

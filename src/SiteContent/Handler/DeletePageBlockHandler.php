@@ -11,12 +11,14 @@ use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\RequestInterface;
+use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Common\ParticleFixes\Validator;
+use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
 class DeletePageBlockHandler implements HttpRequestParserInterface, ExecutorInterface
@@ -56,6 +58,10 @@ class DeletePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
             $this->pageRepository->deleteBlockFromPage($pageBlock, $page);
             return new Response(self::MESSAGE, ['data' => $pageBlock], $request);
         } catch (\Throwable $e) {
+            if ($e instanceof NoResultException) {
+                return new NotFoundResponse([], $request);
+            }
+
             $this->log(LogLevel::ERROR, $e->getMessage());
             throw new ResponseException(
                 'An error occurred during DeletePageBlockHandler.',

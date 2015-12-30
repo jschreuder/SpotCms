@@ -4,7 +4,7 @@ namespace Spot\DataModel\Repository;
 
 use Exception;
 
-class NoUniqueResultException extends NoResultException
+class NoResultException extends \UnderflowException
 {
     public function __construct(
         string $message = 'No unique response when expecting single Entity',
