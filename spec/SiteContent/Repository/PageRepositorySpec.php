@@ -218,7 +218,7 @@ class PageRepositorySpec extends ObjectBehavior
                     'slug' => $slug,
                     'short_title' => $shortTitle,
                     'parent_uuid' => $parentUuid->getBytes(),
-                    'sort_order' => $sortOrder,
+                    'sort_order' => strval($sortOrder),
                     'status' => $status,
                     'created' => $ts->format('c'),
                     'updated' => $ts->format('c'),
@@ -276,7 +276,7 @@ class PageRepositorySpec extends ObjectBehavior
                     'slug' => $slug,
                     'short_title' => $shortTitle,
                     'parent_uuid' => $parentUuid->getBytes(),
-                    'sort_order' => $sortOrder,
+                    'sort_order' => strval($sortOrder),
                     'status' => $status,
                     'created' => $ts->format('c'),
                     'updated' => $ts->format('c'),
@@ -303,7 +303,7 @@ class PageRepositorySpec extends ObjectBehavior
                     'type' => $blockType,
                     'parameters' => json_encode($blockParameters),
                     'location' => $blockLocation,
-                    'sort_order' => $blockSortOrder,
+                    'sort_order' => strval($blockSortOrder),
                     'status' => $blockStatus,
                     'created' => $ts->format('c'),
                     'updated' => $ts->format('c'),
@@ -333,5 +333,127 @@ class PageRepositorySpec extends ObjectBehavior
         $block->getStatus()->toString()->shouldReturn($blockStatus);
         $block->metaDataGetCreatedTimestamp()->format('c')->shouldReturn($ts->format('c'));
         $block->metaDataGetUpdatedTimestamp()->format('c')->shouldReturn($ts->format('c'));
+    }
+
+    /**
+     * @param  \PDOStatement $pageStatement
+     * @param  \PDOStatement $blockStatement
+     */
+    public function it_canGetPagesByParentUuid($pageStatement, $blockStatement)
+    {
+        $parentUuid = Uuid::uuid4();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM pages'))
+            ->willReturn($pageStatement);
+        $pageStatement->execute(['parent_uuid' => $parentUuid->getBytes()])
+            ->shouldBeCalled();
+        $pageStatement->fetch(\PDO::FETCH_ASSOC)
+            ->willReturn(false);
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM page_blocks'))
+            ->willReturn($blockStatement);
+        $blockStatement->execute([])
+            ->shouldBeCalled();
+        $blockStatement->fetch(\PDO::FETCH_ASSOC)
+            ->willReturn(false);
+
+        $this->getAllByParentUuid($parentUuid)->shouldReturn([]);
+    }
+
+    /**
+     * @param  \PDOStatement $pageStatement
+     * @param  \PDOStatement $blockStatement
+     */
+    public function it_canGetPagesFromRoot($pageStatement, $blockStatement)
+    {
+        $uuid1 = Uuid::uuid4();
+        $title1 = 'Fire and Water';
+        $slug1 = '1x12_fire_and_water';
+        $shortTitle1 = '1x12';
+        $sortOrder1 = 112;
+        $status1 = 'published';
+        $ts1 = new \DateTimeImmutable('2015-12-25 02:34:56');
+
+        $uuid2 = Uuid::uuid4();
+        $title2 = 'The Nox';
+        $slug2 = '1x13_the_nox';
+        $shortTitle2 = '1x13';
+        $sortOrder2 = 113;
+        $status2 = 'published';
+        $ts2 = new \DateTimeImmutable('2015-12-24 01:23:45');
+
+        $blockUuid = Uuid::uuid4();
+        $blockType = 'type';
+        $blockParameters = ['answer' => 42, 'thx' => 1138];
+        $blockLocation = 'sidebar';
+        $blockSortOrder = 42;
+        $blockStatus = 'concept';
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM pages'))
+            ->willReturn($pageStatement);
+        $pageStatement->execute([])
+            ->shouldBeCalled();
+        $pageStatement->fetch(\PDO::FETCH_ASSOC)
+            ->willReturn(
+                [
+                    'page_uuid' => $uuid1->getBytes(),
+                    'title' => $title1,
+                    'slug' => $slug1,
+                    'short_title' => $shortTitle1,
+                    'parent_uuid' => null,
+                    'sort_order' => strval($sortOrder1),
+                    'status' => $status1,
+                    'created' => $ts1->format('c'),
+                    'updated' => $ts1->format('c'),
+                ],
+                [
+                    'page_uuid' => $uuid2->getBytes(),
+                    'title' => $title2,
+                    'slug' => $slug2,
+                    'short_title' => $shortTitle2,
+                    'parent_uuid' => null,
+                    'sort_order' => strval($sortOrder2),
+                    'status' => $status2,
+                    'created' => $ts2->format('c'),
+                    'updated' => $ts2->format('c'),
+                ],
+                false
+            );
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM page_blocks'))
+            ->willReturn($blockStatement);
+        $blockStatement->execute([])
+            ->shouldBeCalled();
+        $blockStatement->fetch(\PDO::FETCH_ASSOC)
+            ->willReturn(
+                [
+                    'page_block_uuid' => $blockUuid->getBytes(),
+                    'page_uuid' => $uuid1->getBytes(),
+                    'type' => $blockType,
+                    'parameters' => json_encode($blockParameters),
+                    'location' => $blockLocation,
+                    'sort_order' => strval($blockSortOrder),
+                    'status' => $blockStatus,
+                    'created' => $ts2->format('c'),
+                    'updated' => $ts2->format('c'),
+                ],
+                false
+            );
+
+        $pages = $this->getAllByParentUuid(null);
+
+        $page1 = $pages[0];
+        $page1->shouldHaveType(Page::class);
+        $page1->getUuid()->toString()->shouldReturn($uuid1->toString());
+        $page1->getParentUuid()->shouldReturn(null);
+        $blocks = $page1->getBlocks();
+        $blocks->shouldHaveCount(1);
+        $blocks[0]->getUuid()->toString()->shouldReturn($blockUuid->toString());
+
+        $page2 = $pages[1];
+        $page2->shouldHaveType(Page::class);
+        $page2->getUuid()->toString()->shouldReturn($uuid2->toString());
+        $page2->getParentUuid()->shouldReturn(null);
+        $page2->getBlocks()->shouldReturn([]);
     }
 }

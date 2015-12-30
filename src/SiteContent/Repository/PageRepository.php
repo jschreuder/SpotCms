@@ -133,16 +133,7 @@ class PageRepository
     /** @return  Page[] */
     public function getAllByParentUuid(UuidInterface $uuid = null) : array
     {
-        if (!is_null($uuid)) {
-            $sql = '
-                    SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status, created, updated
-                      FROM pages
-                INNER JOIN objects ON (page_uuid = uuid AND type = "pages")
-                     WHERE parent_uuid = :parent_uuid
-                  ORDER BY sort_order ASC
-            ';
-            $parameters = ['parent_uuid' => $uuid ? $uuid->getBytes() : null];
-        } else {
+        if (is_null($uuid)) {
             $sql = '
                     SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status, created, updated
                       FROM pages
@@ -151,6 +142,15 @@ class PageRepository
                   ORDER BY sort_order ASC
             ';
             $parameters = [];
+        } else {
+            $sql = '
+                    SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status, created, updated
+                      FROM pages
+                INNER JOIN objects ON (page_uuid = uuid AND type = "pages")
+                     WHERE parent_uuid = :parent_uuid
+                  ORDER BY sort_order ASC
+            ';
+            $parameters = ['parent_uuid' => $uuid->getBytes()];
         }
         $query = $this->executeSql($sql, $parameters);
 
