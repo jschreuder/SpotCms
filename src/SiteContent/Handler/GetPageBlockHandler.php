@@ -19,7 +19,6 @@ use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Common\ParticleFixes\Validator;
 use Spot\DataModel\Repository\NoResultException;
-use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
 class GetPageBlockHandler implements HttpRequestParserInterface, ExecutorInterface

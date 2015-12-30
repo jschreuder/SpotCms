@@ -123,7 +123,7 @@ class Page
 
     private function sortBlocks()
     {
-        usort($this->relatedBlocks, function (PageBlock $a, PageBlock $b) : int {
+        usort($this->relatedBlocks, function(PageBlock $a, PageBlock $b) : int {
             if ($a->getSortOrder() === $b->getSortOrder()) {
                 return 0;
             }
