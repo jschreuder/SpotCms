@@ -15,13 +15,13 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
+use Spot\Application\Request\ValidationFailedException;
 use Spot\Common\ParticleFixes\Validator;
-use Spot\Common\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
-class CreatePageHandler implements \Spot\Api\Handler\ParseAndExecuteHandlerInterface
+class CreatePageHandler implements ParseAndExecuteHandlerInterface
 {
     use LoggableTrait;
 
