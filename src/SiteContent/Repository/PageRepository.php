@@ -239,7 +239,7 @@ class PageRepository
         $block->setStatus(PageStatusValue::get(PageStatusValue::DELETED));
     }
 
-    private function getPageBlockFromRow(Page $page, array $row)
+    private function getPageBlockFromRow(Page $page, array $row) : PageBlock
     {
         return (new PageBlock(
                 Uuid::fromBytes($row['page_block_uuid']),

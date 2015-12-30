@@ -107,10 +107,10 @@ class PageRepositorySpec extends ObjectBehavior
     public function it_canUpdateAPage($page, $statement)
     {
         $uuid = Uuid::uuid4();
-        $title = 'Cold Lazarus';
-        $slug = '1x08_cold_lazarus';
-        $shortTitle = '1x08';
-        $sortOrder = 108;
+        $title = 'Thor\'s Hammer';
+        $slug = '1x09_thors_hammer';
+        $shortTitle = '1x09';
+        $sortOrder = 109;
         $status = PageStatusValue::get('published');
         $page->getUuid()->willReturn($uuid);
         $page->getTitle()->willReturn($title);
@@ -151,10 +151,10 @@ class PageRepositorySpec extends ObjectBehavior
     public function it_willRollBackOnErrorDuringUpdate($page)
     {
         $uuid = Uuid::uuid4();
-        $title = 'Cold Lazarus';
-        $slug = '1x08_cold_lazarus';
-        $shortTitle = '1x08';
-        $sortOrder = 108;
+        $title = 'The Torment of Tantalus';
+        $slug = '1x10_the_torment_of_tantalus';
+        $shortTitle = '1x10';
+        $sortOrder = 110;
         $status = PageStatusValue::get('published');
         $page->getUuid()->willReturn($uuid);
         $page->getTitle()->willReturn($title);
@@ -187,5 +187,151 @@ class PageRepositorySpec extends ObjectBehavior
             ->shouldBeCalled();
 
         $this->delete($page);
+    }
+
+    /**
+     * @param  \PDOStatement $pageStatement
+     * @param  \PDOStatement $blockStatement
+     */
+    public function it_canRetrieveAPageByUuid($pageStatement, $blockStatement)
+    {
+        $uuid = Uuid::uuid4();
+        $title = 'Bloodlines';
+        $slug = '1x11_bloodlines';
+        $shortTitle = '1x11';
+        $parentUuid = Uuid::uuid4();
+        $sortOrder = 111;
+        $status = 'published';
+        $ts = new \DateTimeImmutable();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM pages'))
+            ->willReturn($pageStatement);
+        $pageStatement->execute(['page_uuid' => $uuid->getBytes()])
+            ->shouldBeCalled();
+        $pageStatement->rowCount()
+            ->willReturn(1);
+        $pageStatement->fetch(\PDO::FETCH_ASSOC)
+            ->willReturn(
+                [
+                    'page_uuid' => $uuid->getBytes(),
+                    'title' => $title,
+                    'slug' => $slug,
+                    'short_title' => $shortTitle,
+                    'parent_uuid' => $parentUuid->getBytes(),
+                    'sort_order' => $sortOrder,
+                    'status' => $status,
+                    'created' => $ts->format('c'),
+                    'updated' => $ts->format('c'),
+                ],
+                false
+            );
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM page_blocks'))
+            ->willReturn($blockStatement);
+        $blockStatement->execute([])
+            ->shouldBeCalled();
+        $blockStatement->fetch(\PDO::FETCH_ASSOC)
+            ->willReturn(false);
+
+        $page = $this->getByUuid($uuid);
+        $page->shouldHaveType(Page::class);
+        $page->getUuid()->toString()->shouldReturn($uuid->toString());
+        $page->getTitle()->shouldReturn($title);
+        $page->getSlug()->shouldReturn($slug);
+        $page->getShortTitle()->shouldReturn($shortTitle);
+        $page->getParentUuid()->toString()->shouldReturn($parentUuid->toString());
+        $page->getSortOrder()->shouldReturn($sortOrder);
+        $page->getStatus()->toString()->shouldReturn($status);
+        $page->metaDataGetCreatedTimestamp()->format('c')->shouldReturn($ts->format('c'));
+        $page->metaDataGetUpdatedTimestamp()->format('c')->shouldReturn($ts->format('c'));
+        $page->getBlocks()->shouldReturn([]);
+    }
+
+    /**
+     * @param  \PDOStatement $pageStatement
+     * @param  \PDOStatement $blockStatement
+     */
+    public function it_canRetrieveAPageBySlug($pageStatement, $blockStatement)
+    {
+        $uuid = Uuid::uuid4();
+        $title = 'Bloodlines';
+        $slug = '1x11_bloodlines';
+        $shortTitle = '1x11';
+        $parentUuid = Uuid::uuid4();
+        $sortOrder = 111;
+        $status = 'published';
+        $ts = new \DateTimeImmutable();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM pages'))
+            ->willReturn($pageStatement);
+        $pageStatement->execute(['slug' => $slug])
+            ->shouldBeCalled();
+        $pageStatement->rowCount()
+            ->willReturn(1);
+        $pageStatement->fetch(\PDO::FETCH_ASSOC)
+            ->willReturn(
+                [
+                    'page_uuid' => $uuid->getBytes(),
+                    'title' => $title,
+                    'slug' => $slug,
+                    'short_title' => $shortTitle,
+                    'parent_uuid' => $parentUuid->getBytes(),
+                    'sort_order' => $sortOrder,
+                    'status' => $status,
+                    'created' => $ts->format('c'),
+                    'updated' => $ts->format('c'),
+                ],
+                false
+            );
+
+        $blockUuid = Uuid::uuid4();
+        $blockType = 'type';
+        $blockParameters = ['answer' => 42, 'thx' => 1138];
+        $blockLocation = 'sidebar';
+        $blockSortOrder = 42;
+        $blockStatus = 'concept';
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM page_blocks'))
+            ->willReturn($blockStatement);
+        $blockStatement->execute([])
+            ->shouldBeCalled();
+        $blockStatement->fetch(\PDO::FETCH_ASSOC)
+            ->willReturn(
+                [
+                    'page_block_uuid' => $blockUuid->getBytes(),
+                    'page_uuid' => $uuid->getBytes(),
+                    'type' => $blockType,
+                    'parameters' => json_encode($blockParameters),
+                    'location' => $blockLocation,
+                    'sort_order' => $blockSortOrder,
+                    'status' => $blockStatus,
+                    'created' => $ts->format('c'),
+                    'updated' => $ts->format('c'),
+                ],
+                false
+            );
+
+        $page = $this->getBySlug($slug);
+        $page->shouldHaveType(Page::class);
+        $page->getUuid()->toString()->shouldReturn($uuid->toString());
+        $page->getTitle()->shouldReturn($title);
+        $page->getSlug()->shouldReturn($slug);
+        $page->getShortTitle()->shouldReturn($shortTitle);
+        $page->getParentUuid()->toString()->shouldReturn($parentUuid->toString());
+        $page->getSortOrder()->shouldReturn($sortOrder);
+        $page->getStatus()->toString()->shouldReturn($status);
+        $page->metaDataGetCreatedTimestamp()->format('c')->shouldReturn($ts->format('c'));
+        $page->metaDataGetUpdatedTimestamp()->format('c')->shouldReturn($ts->format('c'));
+
+        $block = $page->getBlocks()[0];
+        $block->getUuid()->toString()->shouldReturn($blockUuid->toString());
+        $block->getPage()->shouldReturn($page);
+        $block->getType()->shouldReturn($blockType);
+        $block->getParameters()->shouldReturn($blockParameters);
+        $block->getLocation()->shouldReturn($blockLocation);
+        $block->getSortOrder()->shouldReturn($blockSortOrder);
+        $block->getStatus()->toString()->shouldReturn($blockStatus);
+        $block->metaDataGetCreatedTimestamp()->format('c')->shouldReturn($ts->format('c'));
+        $block->metaDataGetUpdatedTimestamp()->format('c')->shouldReturn($ts->format('c'));
     }
 }
