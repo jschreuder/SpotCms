@@ -173,4 +173,19 @@ class PageRepositorySpec extends ObjectBehavior
 
         $this->shouldThrow(\RuntimeException::class)->duringUpdate($page);
     }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\Page $page
+     */
+    public function it_canDeleteAPage($page)
+    {
+        $uuid = Uuid::uuid4();
+        $page->getUuid()->willReturn($uuid);
+        $page->setStatus(PageStatusValue::get('deleted'))->shouldBeCalled();
+
+        $this->objectRepository->delete(Page::TYPE, $uuid)
+            ->shouldBeCalled();
+
+        $this->delete($page);
+    }
 }
