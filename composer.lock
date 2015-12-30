@@ -585,16 +585,16 @@
         },
         {
             "name": "spot/api",
-            "version": "1.0.0-beta2",
+            "version": "1.0.0-beta3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WebspotCode/SpotApi.git",
-                "reference": "97914553b155467f2c763215a8c4c4d10c694c7d"
+                "reference": "a59475af2743ba37e31e24fd30c99365368e9bd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WebspotCode/SpotApi/zipball/97914553b155467f2c763215a8c4c4d10c694c7d",
-                "reference": "97914553b155467f2c763215a8c4c4d10c694c7d",
+                "url": "https://api.github.com/repos/WebspotCode/SpotApi/zipball/a59475af2743ba37e31e24fd30c99365368e9bd6",
+                "reference": "a59475af2743ba37e31e24fd30c99365368e9bd6",
                 "shasum": ""
             },
             "require": {
@@ -633,10 +633,10 @@
             ],
             "description": "SpotApi, a web-API application framework",
             "support": {
-                "source": "https://github.com/WebspotCode/SpotApi/tree/1.0.0-beta2",
+                "source": "https://github.com/WebspotCode/SpotApi/tree/1.0.0-beta3",
                 "issues": "https://github.com/WebspotCode/SpotApi/issues"
             },
-            "time": "2015-12-29 03:46:41"
+            "time": "2015-12-30 12:49:56"
         },
         {
             "name": "symfony/config",

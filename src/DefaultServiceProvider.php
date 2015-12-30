@@ -12,9 +12,9 @@ use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
 use Spot\Api\Request\Executor\ExecutorBus;
 use Spot\Api\Request\BodyParser\JsonApiParser;
 use Spot\Api\Response\Generator\GeneratorBus;
-use Spot\Application\ServiceProvider\ApiServiceProvider;
-use Spot\Application\ServiceProvider\RepositoryProviderInterface;
-use Spot\Application\ServiceProvider\RoutingProviderInterface;
+use Spot\Api\ApplicationServiceProvider;
+use Spot\Api\ServiceProvider\RepositoryProviderInterface;
+use Spot\Api\ServiceProvider\RoutingProviderInterface;
 use Spot\DataModel\Repository\ObjectRepository;
 
 class DefaultServiceProvider implements
@@ -24,7 +24,7 @@ class DefaultServiceProvider implements
     /** {@inheritdoc} */
     public function init(Container $container)
     {
-        $container->register(new ApiServiceProvider(
+        $container->register((new ApplicationServiceProvider(
             $container,
             new HttpRequestParserBus(
                 $container,
@@ -32,9 +32,8 @@ class DefaultServiceProvider implements
             ),
             new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
             new ExecutorBus($container, $container['logger']),
-            new GeneratorBus($container, $container['logger']),
-            array_merge([$this], $container['modules'] ?? [])
-        ));
+            new GeneratorBus($container, $container['logger'])
+        ))->addModule($this)->addModules($container['modules'] ?? []));
 
         // Support JSON bodies for requests
         $container->extend('app', function (ApplicationInterface $application) {
@@ -61,7 +60,7 @@ class DefaultServiceProvider implements
         };
     }
 
-    public function registerRouting(Container $container, ApiServiceProvider $builder)
+    public function registerRouting(Container $container, ApplicationServiceProvider $builder)
     {
         $container['errorHandler.badRequest'] = function () {
             return new ErrorHandler('error.badRequest', 400, 'Bad Request');

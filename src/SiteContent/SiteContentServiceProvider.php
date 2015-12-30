@@ -7,9 +7,9 @@ use Ramsey\Uuid\UuidInterface;
 use Spot\Api\Response\Generator\MultiEntityGenerator;
 use Spot\Api\Response\Generator\SingleEntityGenerator;
 use Spot\Api\Response\Message\ResponseInterface;
-use Spot\Application\ServiceProvider\ApiServiceProvider;
-use Spot\Application\ServiceProvider\RepositoryProviderInterface;
-use Spot\Application\ServiceProvider\RoutingProviderInterface;
+use Spot\Api\ApplicationServiceProvider;
+use Spot\Api\ServiceProvider\RepositoryProviderInterface;
+use Spot\Api\ServiceProvider\RoutingProviderInterface;
 use Spot\SiteContent\Handler\AddPageBlockHandler;
 use Spot\SiteContent\Handler\CreatePageHandler;
 use Spot\SiteContent\Handler\DeletePageHandler;
@@ -40,7 +40,7 @@ class SiteContentServiceProvider implements RepositoryProviderInterface, Routing
         };
     }
 
-    public function registerRouting(Container $container, ApiServiceProvider $builder)
+    public function registerRouting(Container $container, ApplicationServiceProvider $builder)
     {
         // Pages API Calls
         $container['handler.pages.create'] = function (Container $container) {

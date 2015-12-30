@@ -8,7 +8,8 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
-use Spot\Api\Handler\ParseAndExecuteHandlerInterface;
+use Spot\Api\Request\Executor\ExecutorInterface;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\Message\RequestInterface;
 use Spot\Api\Response\Message\Response;
@@ -20,7 +21,7 @@ use Spot\Common\ParticleFixes\Validator;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
-class UpdatePageHandler implements ParseAndExecuteHandlerInterface
+class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
 {
     use LoggableTrait;
 
