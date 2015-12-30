@@ -120,18 +120,31 @@ class Page
         return $this;
     }
 
-    public function setBlocks(array $blocks) : Page
+    private function sortBlocks()
     {
-        $this->relatedBlocks = [];
-        foreach ($blocks as $block) {
-            $this->addBlock($block);
-        }
         usort($this->relatedBlocks, function (PageBlock $a, PageBlock $b) : int {
             if ($a->getSortOrder() === $b->getSortOrder()) {
                 return 0;
             }
             return $a->getSortOrder() > $b->getSortOrder() ? 1 : -1;
         });
+    }
+
+    /** @return  PageBlock[] */
+    public function getBlocks() : array
+    {
+        if (is_null($this->relatedBlocks)) {
+            throw new \RuntimeException('Page block were not yet loaded.');
+        }
+        return $this->relatedBlocks;
+    }
+
+    public function setBlocks(array $blocks) : Page
+    {
+        $this->relatedBlocks = [];
+        foreach ($blocks as $block) {
+            $this->addBlock($block);
+        }
         return $this;
     }
 
@@ -141,6 +154,7 @@ class Page
             throw new \RuntimeException('Page block were not yet loaded.');
         }
         $this->relatedBlocks[] = $block;
+        $this->sortBlocks();
         return $this;
     }
 
@@ -149,6 +163,7 @@ class Page
         foreach ($this->getBlocks() as $idx => $relBlock) {
             if ($relBlock->getUuid()->equals($block->getUuid())) {
                 unset($this->relatedBlocks[$idx]);
+                $this->relatedBlocks = array_merge($this->relatedBlocks);
                 return $this;
             }
         }
@@ -163,14 +178,5 @@ class Page
             }
         }
         throw new \OutOfBoundsException('Block not found in Page\'s blocks: ' . $uuid->toString());
-    }
-
-    /** @return  PageBlock[] */
-    public function getBlocks() : array
-    {
-        if (is_null($this->relatedBlocks)) {
-            throw new \RuntimeException('Page block were not yet loaded.');
-        }
-        return $this->relatedBlocks;
     }
 }

@@ -127,4 +127,130 @@ class PageSpec extends ObjectBehavior
         $this->setStatus($newStatus)->shouldReturn($this);
         $this->getStatus()->shouldReturn($newStatus);
     }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\PageBlock $block1
+     * @param  \Spot\SiteContent\Entity\PageBlock $block2
+     * @param  \Spot\SiteContent\Entity\PageBlock $block3
+     */
+    public function it_canGetBlocksSet($block1, $block2, $block3)
+    {
+        $block1->getSortOrder()->willReturn(1);
+        $block2->getSortOrder()->willReturn(2);
+        $block3->getSortOrder()->willReturn(3);
+
+        $this->setBlocks([$block3, $block1, $block2, $block1])
+            ->shouldReturn($this);
+
+        $blocks = $this->getBlocks();
+        $blocks[0]->shouldBe($block1);
+        $blocks[1]->shouldBe($block1);
+        $blocks[2]->shouldBe($block2);
+        $blocks[3]->shouldBe($block3);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\PageBlock $block1
+     * @param  \Spot\SiteContent\Entity\PageBlock $block2
+     * @param  \Spot\SiteContent\Entity\PageBlock $block3
+     */
+    public function it_canAddAndRemoveBlocks($block1, $block2, $block3)
+    {
+        $uuid1 = Uuid::uuid4();
+        $block1->getUuid()->willReturn($uuid1);
+        $block1->getSortOrder()->willReturn(1);
+        $uuid2 = Uuid::uuid4();
+        $block2->getUuid()->willReturn($uuid2);
+        $block2->getSortOrder()->willReturn(2);
+        $uuid3 = Uuid::uuid4();
+        $block3->getUuid()->willReturn($uuid3);
+        $block3->getSortOrder()->willReturn(3);
+
+        $this->setBlocks([$block3, $block2]);
+        $this->addBlock($block1);
+        $this->removeBlock($block2);
+
+        $blocks = $this->getBlocks();
+        $blocks[0]->shouldBe($block1);
+        $blocks[1]->shouldBe($block3);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\PageBlock $block1
+     * @param  \Spot\SiteContent\Entity\PageBlock $block2
+     * @param  \Spot\SiteContent\Entity\PageBlock $block3
+     */
+    public function it_errorsWhenAskedToRemoveNonRelatedBlock($block1, $block2, $block3)
+    {
+        $uuid1 = Uuid::uuid4();
+        $block1->getUuid()->willReturn($uuid1);
+        $block1->getSortOrder()->willReturn(1);
+        $uuid2 = Uuid::uuid4();
+        $block2->getUuid()->willReturn($uuid2);
+        $block2->getSortOrder()->willReturn(2);
+        $uuid3 = Uuid::uuid4();
+        $block3->getUuid()->willReturn($uuid3);
+        $block3->getSortOrder()->willReturn(3);
+
+        $this->setBlocks([$block3, $block2]);
+        $this->shouldThrow(\OutOfBoundsException::class)->duringRemoveBlock($block1);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\PageBlock $block1
+     * @param  \Spot\SiteContent\Entity\PageBlock $block2
+     * @param  \Spot\SiteContent\Entity\PageBlock $block3
+     */
+    public function it_canGetASpecificBlock($block1, $block2, $block3)
+    {
+        $uuid1 = Uuid::uuid4();
+        $block1->getUuid()->willReturn($uuid1);
+        $block1->getSortOrder()->willReturn(1);
+        $uuid2 = Uuid::uuid4();
+        $block2->getUuid()->willReturn($uuid2);
+        $block2->getSortOrder()->willReturn(2);
+        $uuid3 = Uuid::uuid4();
+        $block3->getUuid()->willReturn($uuid3);
+        $block3->getSortOrder()->willReturn(3);
+
+        $this->setBlocks([$block1, $block2, $block3])
+            ->shouldReturn($this);
+
+        $this->getBlockByUuid($uuid2)
+            ->shouldReturn($block2);
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\PageBlock $block1
+     * @param  \Spot\SiteContent\Entity\PageBlock $block2
+     * @param  \Spot\SiteContent\Entity\PageBlock $block3
+     */
+    public function it_errorsWhenASpecificBlockDoesNotExist($block1, $block2, $block3)
+    {
+        $uuid1 = Uuid::uuid4();
+        $block1->getUuid()->willReturn($uuid1);
+        $block1->getSortOrder()->willReturn(1);
+        $uuid2 = Uuid::uuid4();
+        $block2->getUuid()->willReturn($uuid2);
+        $block2->getSortOrder()->willReturn(2);
+        $uuid3 = Uuid::uuid4();
+        $block3->getUuid()->willReturn($uuid3);
+        $block3->getSortOrder()->willReturn(3);
+
+        $this->setBlocks([$block1, $block2, $block3])
+            ->shouldReturn($this);
+
+        $this->shouldThrow(\OutOfBoundsException::class)->duringGetBlockByUuid(Uuid::uuid4());
+    }
+
+    /**
+     * @param  \Spot\SiteContent\Entity\PageBlock $block
+     */
+    public function it_throwsExceptionWhenBlockMethodsAreCalledWithoutBlocks($block)
+    {
+        $this->shouldThrow(\RuntimeException::class)->duringGetBlocks();
+        $this->shouldThrow(\RuntimeException::class)->duringAddBlock($block);
+        $this->shouldThrow(\RuntimeException::class)->duringRemoveBlock($block);
+        $this->shouldThrow(\RuntimeException::class)->duringGetBlockByUuid(Uuid::uuid4());
+    }
 }
