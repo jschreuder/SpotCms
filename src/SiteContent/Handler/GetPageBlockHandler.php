@@ -56,11 +56,9 @@ class GetPageBlockHandler implements HttpRequestParserInterface, ExecutorInterfa
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['page_uuid']));
             $block = $page->getBlockByUuid(Uuid::fromString($request['uuid']));
             return new Response(self::MESSAGE, ['data' => $block, 'includes' => ['pages']], $request);
+        } catch (NoResultException $e) {
+            return new NotFoundResponse([], $request);
         } catch (\Throwable $e) {
-            if ($e instanceof NoResultException) {
-                return new NotFoundResponse([], $request);
-            }
-
             $this->log(LogLevel::ERROR, $e->getMessage());
             throw new ResponseException(
                 'An error occurred during GetPageBlockHandler.',

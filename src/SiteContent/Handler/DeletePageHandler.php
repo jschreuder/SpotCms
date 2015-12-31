@@ -55,11 +55,9 @@ class DeletePageHandler implements HttpRequestParserInterface, ExecutorInterface
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));
             $this->pageRepository->delete($page);
             return new Response(self::MESSAGE, ['data' => $page], $request);
+        } catch (NoUniqueResultException $e) {
+            return new NotFoundResponse([], $request);
         } catch (\Throwable $e) {
-            if ($e instanceof NoUniqueResultException) {
-                return new NotFoundResponse([], $request);
-            }
-
             $this->log(LogLevel::ERROR, $e->getMessage());
             throw new ResponseException(
                 'An error occurred during DeletePageHandler.',

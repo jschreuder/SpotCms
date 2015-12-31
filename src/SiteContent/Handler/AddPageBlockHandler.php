@@ -80,11 +80,9 @@ class AddPageBlockHandler implements HttpRequestParserInterface, ExecutorInterfa
             );
             $this->pageRepository->addBlockToPage($pageBlock, $page);
             return new Response(self::MESSAGE, ['data' => $pageBlock, 'includes' => ['pages']], $request);
+        } catch (NoResultException $exception) {
+            return new NotFoundResponse([], $request);
         } catch (\Throwable $exception) {
-            if ($exception instanceof NoResultException) {
-                return new NotFoundResponse([], $request);
-            }
-
             $this->log(LogLevel::ERROR, $exception->getMessage());
             throw new ResponseException(
                 'An error occurred during AddPageBlockHandler.',

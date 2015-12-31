@@ -54,11 +54,9 @@ class GetPageHandler implements HttpRequestParserInterface, ExecutorInterface
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));
             return new Response(self::MESSAGE, ['data' => $page, 'includes' => ['pageBlocks']], $request);
+        } catch (NoUniqueResultException $e) {
+            return new NotFoundResponse([], $request);
         } catch (\Throwable $e) {
-            if ($e instanceof NoUniqueResultException) {
-                return new NotFoundResponse([], $request);
-            }
-
             $this->log(LogLevel::ERROR, $e->getMessage());
             throw new ResponseException(
                 'An error occurred during GetPageHandler.',

@@ -57,11 +57,9 @@ class DeletePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
             $pageBlock = $page->getBlockByUuid(Uuid::fromString($request['uuid']));
             $this->pageRepository->deleteBlockFromPage($pageBlock, $page);
             return new Response(self::MESSAGE, ['data' => $pageBlock], $request);
+        } catch (NoResultException $e) {
+            return new NotFoundResponse([], $request);
         } catch (\Throwable $e) {
-            if ($e instanceof NoResultException) {
-                return new NotFoundResponse([], $request);
-            }
-
             $this->log(LogLevel::ERROR, $e->getMessage());
             throw new ResponseException(
                 'An error occurred during DeletePageBlockHandler.',
