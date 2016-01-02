@@ -4,9 +4,9 @@ namespace spec\Spot\SiteContent\Handler;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Api\Request\Message\RequestInterface;
-use Spot\Api\Response\Message\ResponseInterface;
+use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\ResponseException;
+use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Handler\CreatePageHandler;
@@ -88,7 +88,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Spot\Api\Request\RequestInterface $request
      */
     public function it_canExecuteARequest($request)
     {
@@ -108,7 +108,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Spot\Api\Request\RequestInterface $request
      */
     public function it_willThrowResponseExceptionOnErrors($request)
     {

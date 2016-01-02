@@ -8,9 +8,9 @@ use FastRoute\RouteParser\Std as StdRouteParser;
 use Pimple\Container;
 use Spot\Api\Handler\ErrorHandler;
 use Spot\Api\ApplicationInterface;
+use Spot\Api\Middleware\JsonApiRequestParser;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
 use Spot\Api\Request\Executor\ExecutorBus;
-use Spot\Api\Request\BodyParser\JsonApiParser;
 use Spot\Api\Response\Generator\GeneratorBus;
 use Spot\Api\ApplicationServiceProvider;
 use Spot\Api\ServiceProvider\RepositoryProviderInterface;
@@ -37,7 +37,7 @@ class DefaultServiceProvider implements
 
         // Support JSON bodies for requests
         $container->extend('app', function (ApplicationInterface $application) {
-            return new JsonApiParser($application);
+            return new JsonApiRequestParser($application);
         });
 
         $container['db'] = function (Container $container) {

@@ -5,10 +5,10 @@ namespace spec\Spot\SiteContent\Handler;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\Request\Message\RequestInterface;
+use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\Message\NotFoundResponse;
-use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\ResponseException;
+use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Handler\DeletePageHandler;
@@ -62,7 +62,7 @@ class DeletePageHandlerSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Spot\Api\Request\RequestInterface $request
      * @param  \Spot\SiteContent\Entity\Page $page
      */
     public function it_canExecuteARequest($request, $page)
@@ -80,7 +80,7 @@ class DeletePageHandlerSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Spot\Api\Request\RequestInterface $request
      */
     public function it_canExecuteANotFoundRequest($request)
     {
@@ -95,7 +95,7 @@ class DeletePageHandlerSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Spot\Api\Request\RequestInterface $request
      */
     public function it_canHandleExceptionDuringRequest($request)
     {

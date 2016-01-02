@@ -4,7 +4,7 @@ namespace spec\Spot\Application\Request;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Spot\Api\Request\Message\RequestInterface;
+use Spot\Api\Request\RequestInterface;
 use Spot\Application\Request\ValidationFailedException;
 
 /** @mixin  ValidationFailedException */

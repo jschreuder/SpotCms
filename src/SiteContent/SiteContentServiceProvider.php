@@ -6,7 +6,7 @@ use Pimple\Container;
 use Ramsey\Uuid\UuidInterface;
 use Spot\Api\Response\Generator\MultiEntityGenerator;
 use Spot\Api\Response\Generator\SingleEntityGenerator;
-use Spot\Api\Response\Message\ResponseInterface;
+use Spot\Api\Response\ResponseInterface;
 use Spot\Api\ApplicationServiceProvider;
 use Spot\Api\ServiceProvider\RepositoryProviderInterface;
 use Spot\Api\ServiceProvider\RoutingProviderInterface;

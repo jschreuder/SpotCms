@@ -5,10 +5,10 @@ namespace spec\Spot\SiteContent\Handler;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\Request\Message\RequestInterface;
+use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\Message\NotFoundResponse;
-use Spot\Api\Response\Message\ResponseInterface;
 use Spot\Api\Response\ResponseException;
+use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\DataModel\Repository\NoUniqueResultException;
@@ -66,7 +66,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Spot\Api\Request\RequestInterface $request
      * @param  \Spot\SiteContent\Entity\Page $page
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      */
@@ -89,7 +89,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Spot\Api\Request\RequestInterface $request
      */
     public function it_canExecuteAPageNotFoundRequest($request)
     {
@@ -105,7 +105,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Spot\Api\Request\RequestInterface $request
      * @param  \Spot\SiteContent\Entity\Page $page
      */
     public function it_canExecuteABlockNotFoundRequest($request, $page)
@@ -125,7 +125,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
     }
 
     /**
-     * @param  \Spot\Api\Request\Message\RequestInterface $request
+     * @param  \Spot\Api\Request\RequestInterface $request
      */
     public function it_canHandleExceptionDuringRequest($request)
     {
