@@ -34,7 +34,7 @@ class DeletePageBlockHandlerSpec extends ObjectBehavior
         $this->beConstructedWith($pageRepository, $logger);
     }
 
-    public function it_isInitializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType(DeletePageBlockHandler::class);
     }

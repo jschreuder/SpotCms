@@ -30,7 +30,7 @@ class PageRepositorySpec extends ObjectBehavior
         $this->beConstructedWith($pdo, $objectRepository);
     }
 
-    public function it_isInitializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType(PageRepository::class);
     }

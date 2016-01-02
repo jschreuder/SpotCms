@@ -39,70 +39,70 @@ class FileSpec extends ObjectBehavior
         $this->beConstructedWith($this->uuid, $this->name, $this->path, $this->mimeType, $this->stream);
     }
 
-    public function it_isInitializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType(File::class);
     }
 
-    public function it_canGiveItsUuid()
+    public function it_can_give_its_uuid()
     {
         $this->getUuid()->shouldReturn($this->uuid);
     }
 
-    public function it_canGiveItsName()
+    public function it_can_give_its_name()
     {
         $this->getName()->shouldReturn($this->name);
     }
 
-    public function it_canChangeItsName()
+    public function it_can_change_its_name()
     {
         $newName = FileNameValue::get('other.txt');
         $this->setName($newName)->shouldReturn($this);
         $this->getName()->shouldReturn($newName);
     }
 
-    public function it_canGiveItsPath()
+    public function it_can_give_its_path()
     {
         $this->getPath()->shouldReturn($this->path);
     }
 
-    public function it_canChangeItsPath()
+    public function it_can_change_its_path()
     {
         $newPath = FilePathValue::get('/');
         $this->setPath($newPath)->shouldReturn($this);
         $this->getPath()->shouldReturn($newPath);
     }
 
-    public function it_canGiveItsMimeType()
+    public function it_can_give_its_mime_type()
     {
         $this->getMimeType()->shouldReturn($this->mimeType);
     }
 
-    public function it_canChangeItsMimeType()
+    public function it_can_change_its_mime_type()
     {
         $newMime = MimeTypeValue::get('text/html');
         $this->setMimeType($newMime)->shouldReturn($this);
         $this->getMimeType()->shouldReturn($newMime);
     }
 
-    public function it_canGiveItsStream()
+    public function it_can_give_its_stream()
     {
         $this->getStream()->shouldReturn($this->stream);
     }
 
-    public function it_canReplaceItsStream()
+    public function it_can_replace_its_stream()
     {
         $newStream = tmpfile();
         $this->setStream($newStream)->shouldReturn($this);
         $this->getStream()->shouldReturn($newStream);
     }
 
-    public function it_errorsOnInvalidStream()
+    public function it_errors_on_invalid_stream()
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringSetStream(null);
     }
 
-    public function it_canSetInsertMetaDataTimestamp()
+    public function it_can_set_insert_meta_data_timestamp()
     {
         $ts = new \DateTimeImmutable();
         $this->metaDataSetInsertTimestamp($ts);
@@ -110,7 +110,7 @@ class FileSpec extends ObjectBehavior
         $this->metaDataGetUpdatedTimestamp()->shouldReturn($ts);
     }
 
-    public function it_canSetUpdateMetaDataTimestamp()
+    public function it_can_set_update_meta_data_timestamp()
     {
         $inserted = new \DateTimeImmutable();
         $updated = new \DateTimeImmutable();

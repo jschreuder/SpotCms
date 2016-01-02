@@ -32,7 +32,7 @@ class PageSerializerSpec extends ObjectBehavior
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
     }
 
-    public function it_isInitializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType(PageSerializer::class);
     }

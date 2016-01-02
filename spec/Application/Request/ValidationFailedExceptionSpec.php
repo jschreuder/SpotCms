@@ -38,12 +38,12 @@ class ValidationFailedExceptionSpec extends ObjectBehavior
             ->willReturn($this->messages);
     }
 
-    public function it_isInitializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType(ValidationFailedException::class);
     }
 
-    public function it_shouldHaveARequestObject()
+    public function it_should_have_a_request_object()
     {
         $request = $this->getRequestObject();
         $request->shouldHaveType(RequestInterface::class);

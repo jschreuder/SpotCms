@@ -54,75 +54,75 @@ class PageSpec extends ObjectBehavior
         );
     }
 
-    public function it_isInitializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType(Page::class);
     }
 
-    public function it_canGetItsUuid()
+    public function it_can_get_its_uuid()
     {
         $this->getUuid()->shouldReturn($this->uuid);
     }
 
-    public function it_canGetItsTitle()
+    public function it_can_get_its_title()
     {
         $this->getTitle()->shouldReturn($this->title);
     }
 
-    public function it_canChangeItsTitle()
+    public function it_can_change_its_title()
     {
         $newTitle = 'New Page Title';
         $this->setTitle($newTitle)->shouldReturn($this);
         $this->getTitle()->shouldReturn($newTitle);
     }
 
-    public function it_canGetItsSlug()
+    public function it_can_get_its_slug()
     {
         $this->getSlug()->shouldReturn($this->slug);
     }
 
-    public function it_canChangeItsSlug()
+    public function it_can_change_its_slug()
     {
         $newSlug = 'slug';
         $this->setSlug($newSlug)->shouldReturn($this);
         $this->getSlug()->shouldReturn($newSlug);
     }
 
-    public function it_canGetItsShortTitle()
+    public function it_can_get_its_short_title()
     {
         $this->getShortTitle()->shouldReturn($this->shortTitle);
     }
 
-    public function it_canChangeItsShortTitle()
+    public function it_can_change_its_short_title()
     {
         $newTitle = 'Page';
         $this->setShortTitle($newTitle)->shouldReturn($this);
         $this->getShortTitle()->shouldReturn($newTitle);
     }
 
-    public function it_canGetItsParentsUuid()
+    public function it_can_get_its_parents_uuid()
     {
         $this->getParentUuid()->shouldReturn($this->parentUuid);
     }
 
-    public function it_canGetItsSortOrder()
+    public function it_can_get_its_sort_order()
     {
         $this->getSortOrder()->shouldReturn($this->sortOrder);
     }
 
-    public function it_canChangeItsSortOrder()
+    public function it_can_change_its_sort_order()
     {
         $newSortOrder = 1138;
         $this->setSortOrder($newSortOrder)->shouldReturn($this);
         $this->getSortOrder()->shouldReturn($newSortOrder);
     }
 
-    public function it_canGetItsStatus()
+    public function it_can_get_its_status()
     {
         $this->getStatus()->shouldReturn($this->status);
     }
 
-    public function it_canChangeItsStatus()
+    public function it_can_change_its_status()
     {
         $newStatus = PageStatusValue::get('published');
         $this->setStatus($newStatus)->shouldReturn($this);
@@ -134,7 +134,7 @@ class PageSpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\PageBlock $block2
      * @param  \Spot\SiteContent\Entity\PageBlock $block3
      */
-    public function it_canGetBlocksSet($block1, $block2, $block3)
+    public function it_can_get_blocks_set($block1, $block2, $block3)
     {
         $block1->getSortOrder()->willReturn(1);
         $block2->getSortOrder()->willReturn(2);
@@ -155,7 +155,7 @@ class PageSpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\PageBlock $block2
      * @param  \Spot\SiteContent\Entity\PageBlock $block3
      */
-    public function it_canAddAndRemoveBlocks($block1, $block2, $block3)
+    public function it_can_add_and_remove_blocks($block1, $block2, $block3)
     {
         $uuid1 = Uuid::uuid4();
         $block1->getUuid()->willReturn($uuid1);
@@ -181,7 +181,7 @@ class PageSpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\PageBlock $block2
      * @param  \Spot\SiteContent\Entity\PageBlock $block3
      */
-    public function it_errorsWhenAskedToRemoveNonRelatedBlock($block1, $block2, $block3)
+    public function it_errors_when_asked_to_remove_non_related_block($block1, $block2, $block3)
     {
         $uuid1 = Uuid::uuid4();
         $block1->getUuid()->willReturn($uuid1);
@@ -202,7 +202,7 @@ class PageSpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\PageBlock $block2
      * @param  \Spot\SiteContent\Entity\PageBlock $block3
      */
-    public function it_canGetASpecificBlock($block1, $block2, $block3)
+    public function it_can_get_a_specific_block($block1, $block2, $block3)
     {
         $uuid1 = Uuid::uuid4();
         $block1->getUuid()->willReturn($uuid1);
@@ -226,7 +226,7 @@ class PageSpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\PageBlock $block2
      * @param  \Spot\SiteContent\Entity\PageBlock $block3
      */
-    public function it_errorsWhenASpecificBlockDoesNotExist($block1, $block2, $block3)
+    public function it_errors_when_a_specific_block_does_not_exist($block1, $block2, $block3)
     {
         $uuid1 = Uuid::uuid4();
         $block1->getUuid()->willReturn($uuid1);
@@ -247,7 +247,7 @@ class PageSpec extends ObjectBehavior
     /**
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      */
-    public function it_throwsExceptionWhenBlockMethodsAreCalledWithoutBlocks($block)
+    public function it_throws_exception_when_block_methods_are_called_without_blocks($block)
     {
         $this->shouldThrow(\RuntimeException::class)->duringGetBlocks();
         $this->shouldThrow(\RuntimeException::class)->duringAddBlock($block);

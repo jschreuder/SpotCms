@@ -17,22 +17,22 @@ class FilePathValueSpec extends ObjectBehavior
         $this->beConstructedThrough('get', [$this->value]);
     }
 
-    public function it_isInitializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType(FilePathValue::class);
     }
 
-    public function it_canGetItsStringValue()
+    public function it_can_get_its_string_value()
     {
         $this->toString()->shouldReturn($this->value);
     }
 
-    public function it_canGetJustTheLastPart()
+    public function it_can_get_just_the_last_part()
     {
         $this->getDirectoryName()->shouldReturn('dìr');
     }
 
-    public function it_willAcceptValidPaths()
+    public function it_will_accept_valid_paths()
     {
         $this->get('/')->toString()->shouldReturn('/');
         $this->get('/one/')->toString()->shouldReturn('/one/');
@@ -40,7 +40,7 @@ class FilePathValueSpec extends ObjectBehavior
         $this->get('/with space - and _/')->toString()->shouldReturn('/with space - and _/');
     }
 
-    public function it_willNotAcceptInvalidFileNames()
+    public function it_will_not_accept_invalid_file_names()
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringGet("/some\0file/");
         $this->shouldThrow(\InvalidArgumentException::class)->duringGet("/some\rfile/");

@@ -17,7 +17,7 @@ class PageStatusValueSpec extends ObjectBehavior
         $this->beConstructedThrough('get', [$this->value]);
     }
 
-    public function it_isInitializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType(PageStatusValue::class);
     }
