@@ -41,7 +41,7 @@ class GetPageHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_canParseHttpRequest($httpRequest)
+    public function it_can_parse_a_HttpRequest($httpRequest)
     {
         $uuid = Uuid::uuid4();
         $attributes = ['uuid' => $uuid->toString()];
@@ -55,7 +55,7 @@ class GetPageHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_errorsOnInvalidUuidWhenParsingRequest($httpRequest)
+    public function it_errors_on_invalid_uuid_when_parsing_request($httpRequest)
     {
         $attributes = ['uuid' => 'nope'];
         $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
@@ -65,7 +65,7 @@ class GetPageHandlerSpec extends ObjectBehavior
      * @param  \Spot\Api\Request\RequestInterface $request
      * @param  \Spot\SiteContent\Entity\Page $page
      */
-    public function it_canExecuteARequest($request, $page)
+    public function it_can_execute_a_request($request, $page)
     {
         $uuid = Uuid::uuid4();
         $request->offsetGet('uuid')->willReturn($uuid->toString());
@@ -82,7 +82,7 @@ class GetPageHandlerSpec extends ObjectBehavior
     /**
      * @param  \Spot\Api\Request\RequestInterface $request
      */
-    public function it_canExecuteANotFoundRequest($request)
+    public function it_can_execute_a_not_found_request($request)
     {
         $uuid = Uuid::uuid4();
         $request->offsetGet('uuid')->willReturn($uuid->toString());
@@ -97,7 +97,7 @@ class GetPageHandlerSpec extends ObjectBehavior
     /**
      * @param  \Spot\Api\Request\RequestInterface $request
      */
-    public function it_canHandleExceptionDuringRequest($request)
+    public function it_can_handle_exception_during_request($request)
     {
         $uuid = Uuid::uuid4();
         $request->offsetGet('uuid')->willReturn($uuid->toString());

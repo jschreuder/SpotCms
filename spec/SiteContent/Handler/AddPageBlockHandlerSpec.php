@@ -42,7 +42,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_canParseHttpRequest($httpRequest)
+    public function it_can_parse_a_HttpRequest($httpRequest)
     {
         $post = [
             'data' => [
@@ -69,7 +69,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_errorsOnInvalidUuidWhenParsingRequest($httpRequest)
+    public function it_errors_on_invalid_uuid_when_parsing_request($httpRequest)
     {
         $post = [
             'data' => [
@@ -94,7 +94,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
      * @param  \Spot\Api\Request\RequestInterface $request
      * @param  \Spot\SiteContent\Entity\Page $page
      */
-    public function it_canExecuteARequest($request, $page)
+    public function it_can_execute_a_request($request, $page)
     {
         $uuid = Uuid::uuid4();
         $request->offsetGet('page_uuid')->willReturn($uuid->toString());
@@ -120,7 +120,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
     /**
      * @param  \Spot\Api\Request\RequestInterface $request
      */
-    public function it_canExecuteAPageNotFoundRequest($request)
+    public function it_can_execute_a_page_not_found_request($request)
     {
         $uuid = Uuid::uuid4();
         $request->offsetGet('page_uuid')->willReturn($uuid->toString());
@@ -136,7 +136,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
     /**
      * @param  \Spot\Api\Request\RequestInterface $request
      */
-    public function it_canHandleExceptionDuringRequest($request)
+    public function it_can_handle_exception_during_request($request)
     {
         $pageUuid = Uuid::uuid4();
         $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());

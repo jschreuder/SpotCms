@@ -22,12 +22,12 @@ class PageStatusValueSpec extends ObjectBehavior
         $this->shouldHaveType(PageStatusValue::class);
     }
 
-    public function it_canGetItsStringValue()
+    public function it_can_get_its_string_value()
     {
         $this->toString()->shouldReturn($this->value);
     }
 
-    public function it_throwsExceptionOnInvalidStateValue()
+    public function it_throws_exception_on_invalid_state_value()
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringGet('nope');
     }

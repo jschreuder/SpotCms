@@ -39,7 +39,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_canParseHttpRequest($httpRequest)
+    public function it_can_parse_a_HttpRequest($httpRequest)
     {
         $post = [
             'data' => [
@@ -66,7 +66,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_errorsOnInvalidUuidWhenParsingRequest($httpRequest)
+    public function it_errors_on_invalid_uuid_when_parsing_request($httpRequest)
     {
         $post = [
             'data' => [
@@ -90,7 +90,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
     /**
      * @param  \Spot\Api\Request\RequestInterface $request
      */
-    public function it_canExecuteARequest($request)
+    public function it_can_execute_a_request($request)
     {
         $request->offsetGet('title')->willReturn('Long title');
         $request->offsetGet('slug')->willReturn('long-title');
@@ -110,7 +110,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
     /**
      * @param  \Spot\Api\Request\RequestInterface $request
      */
-    public function it_willThrowResponseExceptionOnErrors($request)
+    public function it_will_throw_ResponseException_on_errors($request)
     {
         $request->offsetGet('title')->willThrow(new \OutOfBoundsException());
         $request->getAcceptContentType()->willReturn('application/json');

@@ -39,7 +39,7 @@ class ListPagesHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_canParseHttpRequest($httpRequest)
+    public function it_can_parse_a_HttpRequest($httpRequest)
     {
         $uuid = Uuid::uuid4();
         $httpRequest->getQueryParams()->willReturn(['parent_uuid' => $uuid->toString()]);
@@ -54,7 +54,7 @@ class ListPagesHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_errorsOnInvalidUuidWhenParsingRequest($httpRequest)
+    public function it_errors_on_invalid_uuid_when_parsing_request($httpRequest)
     {
         $httpRequest->getQueryParams()->willReturn(['parent_uuid' => 'nope']);
         $httpRequest->getHeaderLine('Accept')->willReturn('application/json');
@@ -65,7 +65,7 @@ class ListPagesHandlerSpec extends ObjectBehavior
      * @param  \Spot\Api\Request\RequestInterface $request
      * @param  \Spot\SiteContent\Entity\Page $page
      */
-    public function it_canExecuteARequest($request, $page)
+    public function it_can_execute_a_request($request, $page)
     {
         $uuid = Uuid::uuid4();
         $request->offsetExists('parent_uuid')->willReturn(true);
@@ -85,7 +85,7 @@ class ListPagesHandlerSpec extends ObjectBehavior
     /**
      * @param  \Spot\Api\Request\RequestInterface $request
      */
-    public function it_canHandleExceptionDuringRequest($request)
+    public function it_can_handle_exception_during_request($request)
     {
         $uuid = Uuid::uuid4();
         $request->offsetExists('parent_uuid')->willReturn(true);

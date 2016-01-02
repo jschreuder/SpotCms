@@ -42,7 +42,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_canParseHttpRequest($httpRequest)
+    public function it_can_parse_a_HttpRequest($httpRequest)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();
@@ -58,7 +58,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_errorsOnInvalidUuidWhenParsingRequest($httpRequest)
+    public function it_errors_on_invalid_uuid_when_parsing_request($httpRequest)
     {
         $blockUuid = Uuid::uuid4();
         $attributes = ['uuid' => $blockUuid->toString(), 'page_uuid' => 'nope'];
@@ -70,7 +70,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\Page $page
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      */
-    public function it_canExecuteARequest($request, $page, $block)
+    public function it_can_execute_a_request($request, $page, $block)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();
@@ -91,7 +91,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
     /**
      * @param  \Spot\Api\Request\RequestInterface $request
      */
-    public function it_canExecuteAPageNotFoundRequest($request)
+    public function it_can_execute_a_page_not_found_request($request)
     {
         $uuid = Uuid::uuid4();
         $request->offsetGet('page_uuid')->willReturn($uuid->toString());
@@ -108,7 +108,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
      * @param  \Spot\Api\Request\RequestInterface $request
      * @param  \Spot\SiteContent\Entity\Page $page
      */
-    public function it_canExecuteABlockNotFoundRequest($request, $page)
+    public function it_can_execute_a_block_not_found_request($request, $page)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();
@@ -127,7 +127,7 @@ class GetPageBlockHandlerSpec extends ObjectBehavior
     /**
      * @param  \Spot\Api\Request\RequestInterface $request
      */
-    public function it_canHandleExceptionDuringRequest($request)
+    public function it_can_handle_exception_during_request($request)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();

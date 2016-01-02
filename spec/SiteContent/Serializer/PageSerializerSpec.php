@@ -37,22 +37,22 @@ class PageSerializerSpec extends ObjectBehavior
         $this->shouldHaveType(PageSerializer::class);
     }
 
-    public function it_canGiveItsEntityType()
+    public function it_can_give_its_entity_type()
     {
         $this->getType($this->page)->shouldReturn(Page::TYPE);
     }
 
-    public function it_canGiveAnEntitiesId()
+    public function it_can_give_an_entities_id()
     {
         $this->getId($this->page)->shouldReturn($this->page->getUuid()->toString());
     }
 
-    public function it_errorsWhenGetIdGivenNonPageEntity()
+    public function it_errors_when_get_id_given_non_page_entity()
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringGetId(new \stdClass());
     }
 
-    public function it_canTransformPageToArray()
+    public function it_can_transform_page_to_array()
     {
         $attributes = $this->getAttributes($this->page);
         $attributes['title']->shouldBe($this->page->getTitle());
@@ -67,24 +67,24 @@ class PageSerializerSpec extends ObjectBehavior
         ]);
     }
 
-    public function it_errorsWhenGetAttributesGivenNonPageEntity()
+    public function it_errors_when_get_attributes_given_non_page_entity()
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass());
     }
 
-    public function it_canProvideBlocksRelationship()
+    public function it_can_provide_blocks_relationship()
     {
         $this->page->setBlocks([]);
         $this->getRelationship($this->page, PageBlock::TYPE)
             ->shouldHaveType(Relationship::class);
     }
 
-    public function it_errorsWhenGetRelationshipAsksForUnknownRelation()
+    public function it_errors_when_get_relationship_asks_for_unknown_relation()
     {
         $this->shouldThrow(\OutOfBoundsException::class)->duringGetRelationship($this->page, 'nope');
     }
 
-    public function it_errorsWhenGetRelationshipGivenNonPageEntity()
+    public function it_errors_when_get_relationship_given_non_page_entity()
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationship(new \stdClass(), PageBlock::TYPE);
     }

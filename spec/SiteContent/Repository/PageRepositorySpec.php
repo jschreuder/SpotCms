@@ -39,7 +39,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\Page $page
      * @param  \PDOStatement $statement
      */
-    public function it_canCreateAPage($page, $statement)
+    public function it_can_create_a_page($page, $statement)
     {
         $uuid = Uuid::uuid4();
         $title = 'Cold Lazarus';
@@ -85,7 +85,7 @@ class PageRepositorySpec extends ObjectBehavior
     /**
      * @param  \Spot\SiteContent\Entity\Page $page
      */
-    public function it_willRollBackOnErrorDuringCreate($page)
+    public function it_will_roll_back_on_error_during_create($page)
     {
         $uuid = Uuid::uuid4();
         $page->getUuid()->willReturn($uuid);
@@ -105,7 +105,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\Page $page
      * @param  \PDOStatement $statement
      */
-    public function it_canUpdateAPage($page, $statement)
+    public function it_can_update_a_page($page, $statement)
     {
         $uuid = Uuid::uuid4();
         $title = 'Thor\'s Hammer';
@@ -149,7 +149,7 @@ class PageRepositorySpec extends ObjectBehavior
     /**
      * @param  \Spot\SiteContent\Entity\Page $page
      */
-    public function it_willRollBackOnErrorDuringUpdate($page)
+    public function it_will_roll_back_on_error_during_update($page)
     {
         $uuid = Uuid::uuid4();
         $title = 'The Torment of Tantalus';
@@ -178,7 +178,7 @@ class PageRepositorySpec extends ObjectBehavior
     /**
      * @param  \Spot\SiteContent\Entity\Page $page
      */
-    public function it_canDeleteAPage($page)
+    public function it_can_delete_a_page($page)
     {
         $uuid = Uuid::uuid4();
         $page->getUuid()->willReturn($uuid);
@@ -194,7 +194,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \PDOStatement $pageStatement
      * @param  \PDOStatement $blockStatement
      */
-    public function it_canRetrieveAPageByUuid($pageStatement, $blockStatement)
+    public function it_can_retrieve_a_page_by_uuid($pageStatement, $blockStatement)
     {
         $uuid = Uuid::uuid4();
         $title = 'Bloodlines';
@@ -252,7 +252,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \PDOStatement $pageStatement
      * @param  \PDOStatement $blockStatement
      */
-    public function it_canRetrieveAPageBySlug($pageStatement, $blockStatement)
+    public function it_can_retrieve_a_page_by_slug($pageStatement, $blockStatement)
     {
         $uuid = Uuid::uuid4();
         $title = 'Bloodlines';
@@ -340,7 +340,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \PDOStatement $pageStatement
      * @param  \PDOStatement $blockStatement
      */
-    public function it_canGetPagesByParentUuid($pageStatement, $blockStatement)
+    public function it_can_get_pages_by_parent_uuid($pageStatement, $blockStatement)
     {
         $parentUuid = Uuid::uuid4();
 
@@ -365,7 +365,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \PDOStatement $pageStatement
      * @param  \PDOStatement $blockStatement
      */
-    public function it_canGetPagesFromRoot($pageStatement, $blockStatement)
+    public function it_can_get_pages_from_root($pageStatement, $blockStatement)
     {
         $uuid1 = Uuid::uuid4();
         $title1 = 'Fire and Water';
@@ -463,7 +463,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      * @param  \PDOStatement $statement
      */
-    public function it_canAddABlockToAPage($page, $block, $statement)
+    public function it_can_add_a_block_to_a_page($page, $block, $statement)
     {
         $uuid = Uuid::uuid4();
         $page->getUuid()->willReturn($uuid);
@@ -512,7 +512,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\Page $page
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      */
-    public function it_willRollBackWhenAddingBlockToAPageFails($page, $block)
+    public function it_will_roll_back_when_adding_block_to_a_page_fails($page, $block)
     {
         $uuid = Uuid::uuid4();
         $page->getUuid()->willReturn($uuid);
@@ -537,7 +537,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\Page $page2
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      */
-    public function it_willErrorWhenTryingToAddBlockToWrongPage($page1, $page2, $block)
+    public function it_will_error_when_trying_to_add_block_to_wrong_page($page1, $page2, $block)
     {
         $uuid1 = Uuid::uuid4();
         $page1->getUuid()->willReturn($uuid1);
@@ -554,7 +554,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      * @param  \PDOStatement $statement
      */
-    public function it_canUpdateABlock($page, $block, $statement)
+    public function it_can_update_a_block($page, $block, $statement)
     {
         $uuid = Uuid::uuid4();
         $page->getUuid()->willReturn($uuid);
@@ -600,7 +600,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\Page $page
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      */
-    public function it_willRollBackWhenUpdateABlockFails($page, $block)
+    public function it_will_roll_back_when_update_a_block_fails($page, $block)
     {
         $uuid = Uuid::uuid4();
         $page->getUuid()->willReturn($uuid);
@@ -625,7 +625,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\Page $page2
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      */
-    public function it_willErrorWhenTryingToUpdateABlockToWrongPage($page1, $page2, $block)
+    public function it_will_error_when_trying_to_update_a_block_to_wrong_page($page1, $page2, $block)
     {
         $uuid1 = Uuid::uuid4();
         $page1->getUuid()->willReturn($uuid1);
@@ -641,7 +641,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\Page $page
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      */
-    public function it_canDeleteABlockFromAPage($page, $block)
+    public function it_can_delete_a_block_from_a_page($page, $block)
     {
         $uuid = Uuid::uuid4();
         $page->getUuid()->willReturn($uuid);
@@ -665,7 +665,7 @@ class PageRepositorySpec extends ObjectBehavior
      * @param  \Spot\SiteContent\Entity\Page $page2
      * @param  \Spot\SiteContent\Entity\PageBlock $block
      */
-    public function it_willErrorWhenTryingToDeleteABlockFromWrongPage($page1, $page2, $block)
+    public function it_will_error_when_trying_to_delete_a_block_from_wrong_page($page1, $page2, $block)
     {
         $uuid1 = Uuid::uuid4();
         $page1->getUuid()->willReturn($uuid1);
