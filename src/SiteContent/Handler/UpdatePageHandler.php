@@ -69,21 +69,11 @@ class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
     {
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));
-            if (isset($request['title'])) {
-                $page->setTitle($request['title']);
-            }
-            if (isset($request['slug'])) {
-                $page->setSlug($request['slug']);
-            }
-            if (isset($request['short_title'])) {
-                $page->setShortTitle($request['short_title']);
-            }
-            if (isset($request['sort_order'])) {
-                $page->setSortOrder($request['sort_order']);
-            }
-            if (isset($request['status'])) {
-                $page->setStatus(PageStatusValue::get($request['status']));
-            }
+            $page->setTitle($request['title'] ?? $page->getTitle());
+            $page->setSlug($request['slug'] ?? $page->getSlug());
+            $page->setShortTitle($request['short_title'] ?? $page->getShortTitle());
+            $page->setSortOrder($request['sort_order'] ?? $page->getSortOrder());
+            $page->setStatus(isset($request['status']) ? PageStatusValue::get($request['status']) : $page->getStatus());
             $this->pageRepository->update($page);
             return new Response(self::MESSAGE, ['data' => $page], $request);
         } catch (\Throwable $exception) {
