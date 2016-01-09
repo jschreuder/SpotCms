@@ -39,14 +39,12 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
         $filter = new Filter();
-        $filter->values(['attributes.title', 'attributes.slug', 'attributes.short_title'])
-            ->trim()->stripHtml();
-        $filter->value('attributes.sort_order')->int();
+        $filter->value('data.attributes.sort_order')->int();
 
         $validator = new Validator();
         $validator->required('data.type')->equals('pageBlocks');
-        $validator->required('data.id')->uuid()->equals($attributes['uuid']);
-        $validator->required('data.attributes.page_id')->uuid();
+        $validator->required('data.id')->uuid();
+        $validator->required('data.attributes.page_uuid')->uuid();
         $validator->optional('data.attributes.parameters');
         $validator->optional('data.attributes.sort_order')->integer();
         $validator->optional('data.attributes.status')

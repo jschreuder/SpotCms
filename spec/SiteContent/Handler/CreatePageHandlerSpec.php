@@ -66,7 +66,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
     /**
      * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
      */
-    public function it_errors_on_invalid_uuid_when_parsing_request($httpRequest)
+    public function it_errors_on_invalid_data_in_request($httpRequest)
     {
         $post = [
             'data' => [
