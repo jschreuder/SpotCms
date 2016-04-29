@@ -17,10 +17,7 @@ class PageBlockSerializerSpec extends ObjectBehavior
     /** @var  PageBlock */
     private $block;
 
-    /**
-     * @param  \Spot\SiteContent\Entity\Page $page
-     */
-    public function let($page)
+    public function let(Page $page)
     {
         $this->block = (new PageBlock(
                 Uuid::uuid4(),

@@ -4,10 +4,13 @@ namespace spec\Spot\SiteContent\Handler;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\RequestInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Handler\UpdatePageHandler;
+use Spot\SiteContent\Repository\PageRepository;
 
 /** @mixin  UpdatePageHandler */
 class UpdatePageHandlerSpec extends ObjectBehavior
@@ -18,11 +21,7 @@ class UpdatePageHandlerSpec extends ObjectBehavior
     /** @var  \Psr\Log\LoggerInterface */
     private $logger;
 
-    /**
-     * @param \Spot\SiteContent\Repository\PageRepository $pageRepository
-     * @param \Psr\Log\LoggerInterface $logger
-     */
-    public function let($pageRepository, $logger)
+    public function let(PageRepository $pageRepository, LoggerInterface $logger)
     {
         $this->pageRepository = $pageRepository;
         $this->logger = $logger;
@@ -34,10 +33,7 @@ class UpdatePageHandlerSpec extends ObjectBehavior
         $this->shouldHaveType(UpdatePageHandler::class);
     }
 
-    /**
-     * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
-     */
-    public function it_can_parse_a_HttpRequest($httpRequest)
+    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
     {
         $uuid = Uuid::uuid4();
         $post = [
@@ -69,10 +65,7 @@ class UpdatePageHandlerSpec extends ObjectBehavior
         ]);
     }
 
-    /**
-     * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
-     */
-    public function it_will_error_on_invalid_request_data($httpRequest)
+    public function it_will_error_on_invalid_request_data(ServerRequestInterface $httpRequest)
     {
         $uuid = Uuid::uuid4();
         $post = [

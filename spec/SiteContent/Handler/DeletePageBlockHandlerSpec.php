@@ -4,6 +4,8 @@ namespace spec\Spot\SiteContent\Handler;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\Message\NotFoundResponse;
@@ -12,7 +14,10 @@ use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\DataModel\Repository\NoUniqueResultException;
+use Spot\SiteContent\Entity\Page;
+use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Handler\DeletePageBlockHandler;
+use Spot\SiteContent\Repository\PageRepository;
 
 /** @mixin  DeletePageBlockHandler */
 class DeletePageBlockHandlerSpec extends ObjectBehavior
@@ -23,11 +28,7 @@ class DeletePageBlockHandlerSpec extends ObjectBehavior
     /** @var  \Psr\Log\LoggerInterface */
     private $logger;
 
-    /**
-     * @param \Spot\SiteContent\Repository\PageRepository $pageRepository
-     * @param \Psr\Log\LoggerInterface $logger
-     */
-    public function let($pageRepository, $logger)
+    public function let(PageRepository $pageRepository, LoggerInterface $logger)
     {
         $this->pageRepository = $pageRepository;
         $this->logger = $logger;
@@ -39,10 +40,7 @@ class DeletePageBlockHandlerSpec extends ObjectBehavior
         $this->shouldHaveType(DeletePageBlockHandler::class);
     }
 
-    /**
-     * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
-     */
-    public function it_can_parse_a_HttpRequest($httpRequest)
+    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();
@@ -55,22 +53,14 @@ class DeletePageBlockHandlerSpec extends ObjectBehavior
         $request['page_uuid']->shouldBe($attributes['page_uuid']);
     }
 
-    /**
-     * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
-     */
-    public function it_errors_on_invalid_uuid_when_parsing_request($httpRequest)
+    public function it_errors_on_invalid_uuid_when_parsing_request(ServerRequestInterface $httpRequest)
     {
         $blockUuid = Uuid::uuid4();
         $attributes = ['uuid' => $blockUuid->toString(), 'page_uuid' => 'nope'];
         $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
     }
 
-    /**
-     * @param  \Spot\Api\Request\RequestInterface $request
-     * @param  \Spot\SiteContent\Entity\Page $page
-     * @param  \Spot\SiteContent\Entity\PageBlock $block
-     */
-    public function it_can_execute_a_request($request, $page, $block)
+    public function it_can_execute_a_request(RequestInterface $request, Page $page, PageBlock $block)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();
@@ -89,10 +79,7 @@ class DeletePageBlockHandlerSpec extends ObjectBehavior
         $response['data']->shouldBe($block);
     }
 
-    /**
-     * @param  \Spot\Api\Request\RequestInterface $request
-     */
-    public function it_can_execute_a_page_not_found_request($request)
+    public function it_can_execute_a_page_not_found_request(RequestInterface $request)
     {
         $uuid = Uuid::uuid4();
         $request->offsetGet('page_uuid')->willReturn($uuid->toString());
@@ -105,11 +92,7 @@ class DeletePageBlockHandlerSpec extends ObjectBehavior
         $response->shouldHaveType(NotFoundResponse::class);
     }
 
-    /**
-     * @param  \Spot\Api\Request\RequestInterface $request
-     * @param  \Spot\SiteContent\Entity\Page $page
-     */
-    public function it_can_execute_a_block_not_found_request($request, $page)
+    public function it_can_execute_a_block_not_found_request(RequestInterface $request, Page $page)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();
@@ -125,10 +108,7 @@ class DeletePageBlockHandlerSpec extends ObjectBehavior
         $response->shouldHaveType(NotFoundResponse::class);
     }
 
-    /**
-     * @param  \Spot\Api\Request\RequestInterface $request
-     */
-    public function it_can_handle_exception_during_request($request)
+    public function it_can_handle_exception_during_request(RequestInterface $request)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();

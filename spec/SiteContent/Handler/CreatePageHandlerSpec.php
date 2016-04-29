@@ -4,12 +4,15 @@ namespace spec\Spot\SiteContent\Handler;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Handler\CreatePageHandler;
+use Spot\SiteContent\Repository\PageRepository;
 
 /** @mixin  CreatePageHandler */
 class CreatePageHandlerSpec extends ObjectBehavior
@@ -20,11 +23,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
     /** @var  \Psr\Log\LoggerInterface */
     private $logger;
 
-    /**
-     * @param \Spot\SiteContent\Repository\PageRepository $pageRepository
-     * @param \Psr\Log\LoggerInterface $logger
-     */
-    public function let($pageRepository, $logger)
+    public function let(PageRepository $pageRepository, LoggerInterface $logger)
     {
         $this->pageRepository = $pageRepository;
         $this->logger = $logger;
@@ -36,10 +35,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
         $this->shouldHaveType(CreatePageHandler::class);
     }
 
-    /**
-     * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
-     */
-    public function it_can_parse_a_HttpRequest($httpRequest)
+    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
     {
         $post = [
             'data' => [
@@ -63,10 +59,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
         $request->getAttributes()->shouldBe($post['data']['attributes']);
     }
 
-    /**
-     * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
-     */
-    public function it_errors_on_invalid_data_in_request($httpRequest)
+    public function it_errors_on_invalid_data_in_request(ServerRequestInterface $httpRequest)
     {
         $post = [
             'data' => [
@@ -87,10 +80,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
         $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, []);
     }
 
-    /**
-     * @param  \Spot\Api\Request\RequestInterface $request
-     */
-    public function it_can_execute_a_request($request)
+    public function it_can_execute_a_request(RequestInterface $request)
     {
         $request->offsetGet('title')->willReturn('Long title');
         $request->offsetGet('slug')->willReturn('long-title');
@@ -107,10 +97,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
         $response['data']->shouldHaveType(Page::class);
     }
 
-    /**
-     * @param  \Spot\Api\Request\RequestInterface $request
-     */
-    public function it_will_throw_ResponseException_on_errors($request)
+    public function it_will_throw_ResponseException_on_errors(RequestInterface $request)
     {
         $request->offsetGet('title')->willThrow(new \OutOfBoundsException());
         $request->getAcceptContentType()->willReturn('application/json');
