@@ -34,10 +34,7 @@ class PageBlockSpec extends ObjectBehavior
     /** @var  PageStatusValue */
     private $status;
 
-    /**
-     * @param  \Spot\SiteContent\Entity\Page $page
-     */
-    public function let($page)
+    public function let(Page $page)
     {
         $this->uuid = Uuid::uuid4();
         $this->page = $page;

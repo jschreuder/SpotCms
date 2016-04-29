@@ -4,6 +4,8 @@ namespace spec\Spot\SiteContent\Handler;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\Message\NotFoundResponse;
@@ -11,8 +13,10 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
+use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Handler\AddPageBlockHandler;
+use Spot\SiteContent\Repository\PageRepository;
 
 /** @mixin  AddPageBlockHandler */
 class AddPageBlockHandlerSpec extends ObjectBehavior
@@ -23,11 +27,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
     /** @var  \Psr\Log\LoggerInterface */
     private $logger;
 
-    /**
-     * @param \Spot\SiteContent\Repository\PageRepository $pageRepository
-     * @param \Psr\Log\LoggerInterface $logger
-     */
-    public function let($pageRepository, $logger)
+    public function let(PageRepository $pageRepository, LoggerInterface $logger)
     {
         $this->pageRepository = $pageRepository;
         $this->logger = $logger;
@@ -39,10 +39,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
         $this->shouldHaveType(AddPageBlockHandler::class);
     }
 
-    /**
-     * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
-     */
-    public function it_can_parse_a_HttpRequest($httpRequest)
+    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
     {
         $post = [
             'data' => [
@@ -66,10 +63,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
         $request->getAttributes()->shouldBe(array_merge($attributes, $post['data']['attributes']));
     }
 
-    /**
-     * @param  \Psr\Http\Message\ServerRequestInterface $httpRequest
-     */
-    public function it_errors_on_invalid_uuid_when_parsing_request($httpRequest)
+    public function it_errors_on_invalid_uuid_when_parsing_request(ServerRequestInterface $httpRequest)
     {
         $post = [
             'data' => [
@@ -90,11 +84,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
         $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
     }
 
-    /**
-     * @param  \Spot\Api\Request\RequestInterface $request
-     * @param  \Spot\SiteContent\Entity\Page $page
-     */
-    public function it_can_execute_a_request($request, $page)
+    public function it_can_execute_a_request(RequestInterface $request, Page $page)
     {
         $uuid = Uuid::uuid4();
         $request->offsetGet('page_uuid')->willReturn($uuid->toString());
@@ -117,10 +107,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
         $response['includes']->shouldBe(['pages']);
     }
 
-    /**
-     * @param  \Spot\Api\Request\RequestInterface $request
-     */
-    public function it_can_execute_a_page_not_found_request($request)
+    public function it_can_execute_a_page_not_found_request(RequestInterface $request)
     {
         $uuid = Uuid::uuid4();
         $request->offsetGet('page_uuid')->willReturn($uuid->toString());
@@ -133,10 +120,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
         $response->shouldHaveType(NotFoundResponse::class);
     }
 
-    /**
-     * @param  \Spot\Api\Request\RequestInterface $request
-     */
-    public function it_can_handle_exception_during_request($request)
+    public function it_can_handle_exception_during_request(RequestInterface $request)
     {
         $pageUuid = Uuid::uuid4();
         $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());

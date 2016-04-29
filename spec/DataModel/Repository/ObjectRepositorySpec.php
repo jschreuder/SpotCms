@@ -13,10 +13,7 @@ class ObjectRepositorySpec extends ObjectBehavior
     /** @var  \PDO */
     private $pdo;
 
-    /**
-     * @param  \PDO $pdo
-     */
-    public function let($pdo)
+    public function let(\PDO $pdo)
     {
         $this->pdo = $pdo;
         $this->beConstructedWith($pdo);
@@ -27,10 +24,7 @@ class ObjectRepositorySpec extends ObjectBehavior
         $this->shouldHaveType(ObjectRepository::class);
     }
 
-    /**
-     * @param  \PDOStatement $pdoStatement
-     */
-    public function it_should_be_able_to_create_a_new_object($pdoStatement)
+    public function it_should_be_able_to_create_a_new_object(\PDOStatement $pdoStatement)
     {
         $uuid = Uuid::uuid4();
 
@@ -43,10 +37,7 @@ class ObjectRepositorySpec extends ObjectBehavior
         $this->create('test', $uuid);
     }
 
-    /**
-     * @param  \PDOStatement $pdoStatement
-     */
-    public function it_should_be_able_to_update_an_object($pdoStatement)
+    public function it_should_be_able_to_update_an_object(\PDOStatement $pdoStatement)
     {
         $uuid = Uuid::uuid4();
 
@@ -59,10 +50,7 @@ class ObjectRepositorySpec extends ObjectBehavior
         $this->update('test', $uuid);
     }
 
-    /**
-     * @param  \PDOStatement $pdoStatement
-     */
-    public function it_should_be_able_to_delete_an_object($pdoStatement)
+    public function it_should_be_able_to_delete_an_object(\PDOStatement $pdoStatement)
     {
         $uuid = Uuid::uuid4();
 

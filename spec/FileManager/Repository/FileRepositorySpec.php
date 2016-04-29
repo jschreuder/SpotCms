@@ -26,12 +26,7 @@ class FileRepositorySpec extends ObjectBehavior
     /** @var  ObjectRepository */
     private $objectRepository;
 
-    /**
-     * @param  \League\Flysystem\FilesystemInterface $fileSystem
-     * @param  \PDO $pdo
-     * @param  \Spot\DataModel\Repository\ObjectRepository $objectRepository
-     */
-    public function let($fileSystem, $pdo, $objectRepository)
+    public function let(FilesystemInterface $fileSystem, \PDO $pdo, ObjectRepository $objectRepository)
     {
         $this->fileSystem = $fileSystem;
         $this->pdo = $pdo;
@@ -44,12 +39,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->shouldHaveType(FileRepository::class);
     }
 
-    /**
-     * @param  \Spot\FileManager\Entity\File $file
-     * @param  \PDOStatement $uniqueStatement
-     * @param  \PDOStatement $insertStatement
-     */
-    public function it_can_create_a_new_file($file, $uniqueStatement, $insertStatement)
+    public function it_can_create_a_new_file(File $file, \PDOStatement $uniqueStatement, \PDOStatement $insertStatement)
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
@@ -106,11 +96,10 @@ class FileRepositorySpec extends ObjectBehavior
         fclose($stream2);
     }
 
-    /**
-     * @param  \PDOStatement $uniqueStatement
-     * @param  \PDOStatement $insertStatement
-     */
-    public function it_can_create_a_new_file_with_a_unique_name($uniqueStatement, $insertStatement)
+    public function it_can_create_a_new_file_with_a_unique_name(
+        \PDOStatement $uniqueStatement,
+        \PDOStatement $insertStatement
+    )
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
@@ -166,11 +155,7 @@ class FileRepositorySpec extends ObjectBehavior
         fclose($stream2);
     }
 
-    /**
-     * @param  \Spot\FileManager\Entity\File $file
-     * @param  \PDOStatement $uniqueStatement
-     */
-    public function it_rolls_back_after_exception($file, $uniqueStatement)
+    public function it_rolls_back_after_exception(File $file, \PDOStatement $uniqueStatement)
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
@@ -206,10 +191,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->shouldThrow(\RuntimeException::class)->duringCreateFromUpload($file);
     }
 
-    /**
-     * @param  \Spot\FileManager\Entity\File $file
-     */
-    public function it_can_also_delete_after_exception($file)
+    public function it_can_also_delete_after_exception(File $file)
     {
         $uuid = Uuid::uuid4();
         $file->getUuid()->willReturn($uuid);
@@ -229,10 +211,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->shouldThrow(\RuntimeException::class)->duringCreateFromUpload($file);
     }
 
-    /**
-     * @param  \Spot\FileManager\Entity\File $file
-     */
-    public function it_can_update_a_files_content($file)
+    public function it_can_update_a_files_content(File $file)
     {
         $uuid = Uuid::uuid4();
         $stream = tmpfile();
@@ -250,10 +229,7 @@ class FileRepositorySpec extends ObjectBehavior
         fclose($stream);
     }
 
-    /**
-     * @param  \Spot\FileManager\Entity\File $file
-     */
-    public function it_can_errors_on_upload_failure_with_update_file_content($file)
+    public function it_can_errors_on_upload_failure_with_update_file_content(File $file)
     {
         $uuid = Uuid::uuid4();
         $stream = tmpfile();
@@ -271,11 +247,7 @@ class FileRepositorySpec extends ObjectBehavior
         fclose($stream);
     }
 
-    /**
-     * @param  \Spot\FileManager\Entity\File $file
-     * @param  \PDOStatement $updateStatement
-     */
-    public function it_can_update_file_meta_data($file, $updateStatement)
+    public function it_can_update_file_meta_data(File $file, \PDOStatement $updateStatement)
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
@@ -315,11 +287,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->updateMetaData($file);
     }
 
-    /**
-     * @param  \Spot\FileManager\Entity\File $file
-     * @param  \PDOStatement $updateStatement
-     */
-    public function it_can_update_file_meta_data_without_actual_changes($file, $updateStatement)
+    public function it_can_update_file_meta_data_without_actual_changes(File $file, \PDOStatement $updateStatement)
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
@@ -359,11 +327,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->updateMetaData($file);
     }
 
-    /**
-     * @param  \Spot\FileManager\Entity\File $file
-     * @param  \PDOStatement $updateStatement
-     */
-    public function it_will_roll_back_after_failed_update_file_meta_data($file, $updateStatement)
+    public function it_will_roll_back_after_failed_update_file_meta_data(File $file)
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
@@ -394,10 +358,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->shouldThrow(\RuntimeException::class)->duringUpdateMetaData($file);
     }
 
-    /**
-     * @param  \Spot\FileManager\Entity\File $file
-     */
-    public function it_can_delete_a_file($file)
+    public function it_can_delete_a_file(File $file)
     {
         $uuid = Uuid::uuid4();
         $file->getUuid()->willReturn($uuid);
@@ -414,10 +375,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->delete($file);
     }
 
-    /**
-     * @param  \Spot\FileManager\Entity\File $file
-     */
-    public function it_can_will_error_and_roll_back_when_delete_fails($file)
+    public function it_can_will_error_and_roll_back_when_delete_fails(File $file)
     {
         $uuid = Uuid::uuid4();
         $file->getUuid()->willReturn($uuid);
@@ -434,10 +392,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->shouldThrow(\RuntimeException::class)->duringDelete($file);
     }
 
-    /**
-     * @param  \PDOStatement $statement
-     */
-    public function it_can_fetch_a_file_by_its_uuid($statement)
+    public function it_can_fetch_a_file_by_its_uuid(\PDOStatement $statement)
     {
         $uuid = Uuid::uuid4();
         $name = 'children-of-the-gods.ep';
@@ -468,10 +423,7 @@ class FileRepositorySpec extends ObjectBehavior
         $file->getStream()->shouldReturn($stream);
     }
 
-    /**
-     * @param  \PDOStatement $statement
-     */
-    public function it_errors_without_result_when_fetching_file_by_its_uuid($statement)
+    public function it_errors_without_result_when_fetching_file_by_its_uuid(\PDOStatement $statement)
     {
         $uuid = Uuid::uuid4();
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
@@ -482,10 +434,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->shouldThrow(NoUniqueResultException::class)->duringGetByUuid($uuid);
     }
 
-    /**
-     * @param  \PDOStatement $statement
-     */
-    public function it_can_fetch_a_file_by_its_full_path($statement)
+    public function it_can_fetch_a_file_by_its_full_path(\PDOStatement $statement)
     {
         $uuid = Uuid::uuid4();
         $name = 'the-enemy-within.ep';
@@ -516,10 +465,7 @@ class FileRepositorySpec extends ObjectBehavior
         $file->getStream()->shouldReturn($stream);
     }
 
-    /**
-     * @param  \PDOStatement $statement
-     */
-    public function it_errors_without_result_when_fetching_file_by_its_full_path($statement)
+    public function it_errors_without_result_when_fetching_file_by_its_full_path(\PDOStatement $statement)
     {
         $name = 'emancipation.ep';
         $path = '/sg-1/season1/';
@@ -532,10 +478,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->shouldThrow(NoUniqueResultException::class)->duringGetByFullPath($path . $name);
     }
 
-    /**
-     * @param  \PDOStatement $statement
-     */
-    public function it_can_get_multiple_files_in_path($statement)
+    public function it_can_get_multiple_files_in_path(\PDOStatement $statement)
     {
         $path = '/sg-1/season1/';
         $uuid1 = Uuid::uuid4();
@@ -608,10 +551,7 @@ class FileRepositorySpec extends ObjectBehavior
         $files[2]->getStream()->shouldReturn($stream3);
     }
 
-    /**
-     * @param  \PDOStatement $statement
-     */
-    public function it_can_get_no_files_back_for_a_path($statement)
+    public function it_can_get_no_files_back_for_a_path(\PDOStatement $statement)
     {
         $path = '/sg-1/season11/';
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
@@ -622,10 +562,7 @@ class FileRepositorySpec extends ObjectBehavior
         $this->getFilesInPath($path)->shouldHaveCount(0);
     }
 
-    /**
-     * @param  \PDOStatement $statement
-     */
-    public function it_can_get_subdirectories_in_a_path($statement)
+    public function it_can_get_subdirectories_in_a_path(\PDOStatement $statement)
     {
         $path = '/sgu/';
         $directories = [

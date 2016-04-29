@@ -8,6 +8,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\Entity\Page;
+use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Value\PageStatusValue;
 
 /** @mixin  Page */
@@ -129,12 +130,7 @@ class PageSpec extends ObjectBehavior
         $this->getStatus()->shouldReturn($newStatus);
     }
 
-    /**
-     * @param  \Spot\SiteContent\Entity\PageBlock $block1
-     * @param  \Spot\SiteContent\Entity\PageBlock $block2
-     * @param  \Spot\SiteContent\Entity\PageBlock $block3
-     */
-    public function it_can_get_blocks_set($block1, $block2, $block3)
+    public function it_can_get_blocks_set(PageBlock $block1, PageBlock $block2, PageBlock $block3)
     {
         $block1->getSortOrder()->willReturn(1);
         $block2->getSortOrder()->willReturn(2);
@@ -150,12 +146,7 @@ class PageSpec extends ObjectBehavior
         $blocks[3]->shouldBe($block3);
     }
 
-    /**
-     * @param  \Spot\SiteContent\Entity\PageBlock $block1
-     * @param  \Spot\SiteContent\Entity\PageBlock $block2
-     * @param  \Spot\SiteContent\Entity\PageBlock $block3
-     */
-    public function it_can_add_and_remove_blocks($block1, $block2, $block3)
+    public function it_can_add_and_remove_blocks(PageBlock $block1, PageBlock $block2, PageBlock $block3)
     {
         $uuid1 = Uuid::uuid4();
         $block1->getUuid()->willReturn($uuid1);
@@ -176,12 +167,11 @@ class PageSpec extends ObjectBehavior
         $blocks[1]->shouldBe($block3);
     }
 
-    /**
-     * @param  \Spot\SiteContent\Entity\PageBlock $block1
-     * @param  \Spot\SiteContent\Entity\PageBlock $block2
-     * @param  \Spot\SiteContent\Entity\PageBlock $block3
-     */
-    public function it_errors_when_asked_to_remove_non_related_block($block1, $block2, $block3)
+    public function it_errors_when_asked_to_remove_non_related_block(
+        PageBlock $block1,
+        PageBlock $block2,
+        PageBlock $block3
+    )
     {
         $uuid1 = Uuid::uuid4();
         $block1->getUuid()->willReturn($uuid1);
@@ -197,12 +187,7 @@ class PageSpec extends ObjectBehavior
         $this->shouldThrow(NoResultException::class)->duringRemoveBlock($block1);
     }
 
-    /**
-     * @param  \Spot\SiteContent\Entity\PageBlock $block1
-     * @param  \Spot\SiteContent\Entity\PageBlock $block2
-     * @param  \Spot\SiteContent\Entity\PageBlock $block3
-     */
-    public function it_can_get_a_specific_block($block1, $block2, $block3)
+    public function it_can_get_a_specific_block(PageBlock $block1, PageBlock $block2, PageBlock $block3)
     {
         $uuid1 = Uuid::uuid4();
         $block1->getUuid()->willReturn($uuid1);
@@ -221,12 +206,11 @@ class PageSpec extends ObjectBehavior
             ->shouldReturn($block2);
     }
 
-    /**
-     * @param  \Spot\SiteContent\Entity\PageBlock $block1
-     * @param  \Spot\SiteContent\Entity\PageBlock $block2
-     * @param  \Spot\SiteContent\Entity\PageBlock $block3
-     */
-    public function it_errors_when_a_specific_block_does_not_exist($block1, $block2, $block3)
+    public function it_errors_when_a_specific_block_does_not_exist(
+        PageBlock $block1,
+        PageBlock $block2,
+        PageBlock $block3
+    )
     {
         $uuid1 = Uuid::uuid4();
         $block1->getUuid()->willReturn($uuid1);
@@ -244,10 +228,7 @@ class PageSpec extends ObjectBehavior
         $this->shouldThrow(NoResultException::class)->duringGetBlockByUuid(Uuid::uuid4());
     }
 
-    /**
-     * @param  \Spot\SiteContent\Entity\PageBlock $block
-     */
-    public function it_throws_exception_when_block_methods_are_called_without_blocks($block)
+    public function it_throws_exception_when_block_methods_are_called_without_blocks(PageBlock $block)
     {
         $this->shouldThrow(\RuntimeException::class)->duringGetBlocks();
         $this->shouldThrow(\RuntimeException::class)->duringAddBlock($block);

@@ -2,6 +2,7 @@
 
 namespace spec\Spot\Application\Request;
 
+use Particle\Validator\ValidationResult;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Spot\Api\Request\RequestInterface;
@@ -19,11 +20,7 @@ class ValidationFailedExceptionSpec extends ObjectBehavior
     /** @var  array */
     private $messages;
 
-    /**
-     * @param  \Particle\Validator\ValidationResult $result
-     * @param  \Psr\Http\Message\RequestInterface $httpRequest
-     */
-    public function let($result, $httpRequest)
+    public function let(ValidationResult $result, \Psr\Http\Message\RequestInterface $httpRequest)
     {
         $this->result = $result;
         $this->httpRequest = $httpRequest;
