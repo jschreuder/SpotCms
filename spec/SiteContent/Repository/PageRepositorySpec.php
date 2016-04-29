@@ -203,6 +203,7 @@ class PageRepositorySpec extends ObjectBehavior
                 false
             );
 
+        $this->pdo->quote($uuid->getBytes())->willReturn($uuid->getBytes());
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM page_blocks'))
             ->willReturn($blockStatement);
         $blockStatement->execute([])
@@ -264,6 +265,7 @@ class PageRepositorySpec extends ObjectBehavior
         $blockSortOrder = 42;
         $blockStatus = 'concept';
 
+        $this->pdo->quote($uuid->getBytes())->willReturn($uuid->getBytes());
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM page_blocks'))
             ->willReturn($blockStatement);
         $blockStatement->execute([])
@@ -385,6 +387,8 @@ class PageRepositorySpec extends ObjectBehavior
                 false
             );
 
+        $this->pdo->quote($uuid1->getBytes())->willReturn($uuid1->getBytes());
+        $this->pdo->quote($uuid2->getBytes())->willReturn($uuid2->getBytes());
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM page_blocks'))
             ->willReturn($blockStatement);
         $blockStatement->execute([])
