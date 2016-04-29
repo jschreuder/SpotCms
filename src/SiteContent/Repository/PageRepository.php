@@ -266,7 +266,7 @@ class PageRepository
         /** @var  Page[] $pagesByUuid */
         $pagesByUuid = [];
         foreach ($pages as $page) {
-            $uuids[] = $page->getUuid()->getBytes();
+            $uuids[] = $this->pdo->quote($page->getUuid()->getBytes());
             $pagesByUuid[$page->getUuid()->getBytes()] = $page;
             $page->setBlocks([]);
         }
