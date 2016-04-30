@@ -33,7 +33,7 @@ class FileSpec extends ObjectBehavior
     {
         $this->uuid = Uuid::uuid4();
         $this->name = FileNameValue::get('test.txt');
-        $this->path = FilePathValue::get('/path/to/file/');
+        $this->path = FilePathValue::get('/path/to/file');
         $this->mimeType = MimeTypeValue::get('text/text');
         $this->stream = tmpfile();
         $this->beConstructedWith($this->uuid, $this->name, $this->path, $this->mimeType, $this->stream);

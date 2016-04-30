@@ -43,7 +43,7 @@ class FileRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
-        $path = FilePathValue::get('/uploads/');
+        $path = FilePathValue::get('/uploads');
         $mime = MimeTypeValue::get('text/xml');
         $stream = tmpfile();
         $stream2 = tmpfile();
@@ -104,7 +104,7 @@ class FileRepositorySpec extends ObjectBehavior
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
         $newName = FileNameValue::get('file_4.name');
-        $path = FilePathValue::get('/uploads/');
+        $path = FilePathValue::get('/uploads');
         $mime = MimeTypeValue::get('text/xml');
         $stream = tmpfile();
         $stream2 = tmpfile();
@@ -159,7 +159,7 @@ class FileRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
-        $path = FilePathValue::get('/uploads/');
+        $path = FilePathValue::get('/uploads');
         $stream = tmpfile();
 
         $file->getUuid()->willReturn($uuid);
@@ -251,7 +251,7 @@ class FileRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
-        $path = FilePathValue::get('/uploads/');
+        $path = FilePathValue::get('/uploads');
         $mime = MimeTypeValue::get('text/xml');
 
         $file->getUuid()->willReturn($uuid);
@@ -291,7 +291,7 @@ class FileRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
-        $path = FilePathValue::get('/uploads/');
+        $path = FilePathValue::get('/uploads');
         $mime = MimeTypeValue::get('text/xml');
 
         $file->getUuid()->willReturn($uuid);
@@ -331,7 +331,7 @@ class FileRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
         $name = FileNameValue::get('file.name');
-        $path = FilePathValue::get('/uploads/');
+        $path = FilePathValue::get('/uploads');
         $mime = MimeTypeValue::get('text/xml');
 
         $file->getUuid()->willReturn($uuid);
@@ -396,7 +396,7 @@ class FileRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
         $name = 'children-of-the-gods.ep';
-        $path = '/sg-1/season1/';
+        $path = '/sg-1/season1';
         $mime = 'stargate/sg-1';
         $stream = tmpfile();
 
@@ -438,7 +438,7 @@ class FileRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
         $name = 'the-enemy-within.ep';
-        $path = '/sg-1/season1/';
+        $path = '/sg-1/season1';
         $mime = 'stargate/sg-1';
         $stream = tmpfile();
 
@@ -468,7 +468,7 @@ class FileRepositorySpec extends ObjectBehavior
     public function it_errors_without_result_when_fetching_file_by_its_full_path(\PDOStatement $statement)
     {
         $name = 'emancipation.ep';
-        $path = '/sg-1/season1/';
+        $path = '/sg-1/season1';
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
@@ -480,7 +480,7 @@ class FileRepositorySpec extends ObjectBehavior
 
     public function it_can_get_multiple_files_in_path(\PDOStatement $statement)
     {
-        $path = '/sg-1/season1/';
+        $path = '/sg-1/season1';
         $name1 = 'the-broca-divide.ep';
         $name2 = 'the-first-commandment.ep';
         $name3 = 'cold-lazarus.ep';
@@ -510,7 +510,7 @@ class FileRepositorySpec extends ObjectBehavior
 
     public function it_can_get_no_files_back_for_a_path(\PDOStatement $statement)
     {
-        $path = '/sg-1/season11/';
+        $path = '/sg-1/season11';
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
         $statement->execute(['path' => $path])->shouldBeCalled();
@@ -521,13 +521,13 @@ class FileRepositorySpec extends ObjectBehavior
 
     public function it_can_get_subdirectories_in_a_path(\PDOStatement $statement)
     {
-        $path = '/sgu/';
+        $path = '/sgu';
         $directories = [
-            $path . 'season1/',
-            $path . 'season1/minisodes/',
-            $path . 'season2/',
-            $path . 'season2/minisodes/deleted/',
-            $path . 'specials/minisodes/',
+            $path . '/season1',
+            $path . '/season1/minisodes',
+            $path . '/season2',
+            $path . '/season2/minisodes/deleted',
+            $path . '/specials/minisodes',
         ];
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))

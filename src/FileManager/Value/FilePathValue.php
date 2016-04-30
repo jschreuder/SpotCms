@@ -37,7 +37,7 @@ class FilePathValue implements ValueInterface
     {
         if (
             preg_match('#(\.\.|[\0\n\r\t<>])#', $path) !== 0
-            || !in_array($path, [('/' . trim($path, '/') . '/'), '/'])
+            || !in_array($path, [('/' . trim($path, '/')), '/'])
         ) {
             throw new \InvalidArgumentException('Invalid path given: "' . $path . '"');
         }
