@@ -79,6 +79,9 @@ class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface, G
     {
         /** @var  File $file */
         $file = $response['data'];
-        return new \Zend\Diactoros\Response($file->getStream(), 200, ['Content-Type' => $file->getMimeType()]);
+        return new \Zend\Diactoros\Response($file->getStream(), 200, [
+            'Content-Type' => $file->getMimeType()->toString(),
+            'Content-Disposition' => 'attachment; filename="' . $file->getName()->toString() . '"'
+        ]);
     }
 }
