@@ -29,9 +29,9 @@ class FileSerializer implements SerializerInterface
         }
 
         return [
-            'name' => $file->getName(),
-            'path' => $file->getPath(),
-            'mime_type' => $file->getMimeType(),
+            'name' => $file->getName()->toString(),
+            'path' => $file->getPath()->toString(),
+            'mime_type' => $file->getMimeType()->toString(),
             'meta' => [
                 'created' => $file->metaDataGetCreatedTimestamp()->format('c'),
                 'updated' => $file->metaDataGetCreatedTimestamp()->format('c'),

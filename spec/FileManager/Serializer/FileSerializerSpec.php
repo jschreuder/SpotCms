@@ -53,9 +53,9 @@ class FileSerializerSpec extends ObjectBehavior
     public function it_can_transform_file_to_array()
     {
         $attributes = $this->getAttributes($this->file);
-        $attributes['name']->shouldBe($this->file->getName());
-        $attributes['path']->shouldBe($this->file->getPath());
-        $attributes['mime_type']->shouldBe($this->file->getMimeType());
+        $attributes['name']->shouldBe($this->file->getName()->toString());
+        $attributes['path']->shouldBe($this->file->getPath()->toString());
+        $attributes['mime_type']->shouldBe($this->file->getMimeType()->toString());
         $attributes['meta']->shouldBe([
             'created' => $this->file->metaDataGetCreatedTimestamp()->format('c'),
             'updated' => $this->file->metaDataGetUpdatedTimestamp()->format('c'),
