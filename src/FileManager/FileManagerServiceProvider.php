@@ -58,15 +58,7 @@ class FileManagerServiceProvider implements
             return new SingleEntityGenerator(new FileSerializer(), null, $container['logger']);
         };
         $container['responseGenerator.files.multi'] = function (Container $container) {
-            return new MultiEntityGenerator(
-                new FileSerializer(),
-                function (ResponseInterface $response) : array {
-                    $metaData = [
-                    ];
-                    return $metaData;
-                },
-                $container['logger']
-            );
+            return new MultiEntityGenerator(new FileSerializer(), null, $container['logger']);
         };
 
         // Configure ApiBuilder to use Handlers & Response Generators

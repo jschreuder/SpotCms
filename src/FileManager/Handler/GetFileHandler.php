@@ -61,8 +61,7 @@ class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface, G
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
         try {
-            $path = $request['path'];
-            $file = $this->fileRepository->getByFullPath($path);
+            $file = $this->fileRepository->getByFullPath($request['path']);
             return new Response(self::MESSAGE, ['data' => $file], $request);
         } catch (NoUniqueResultException $e) {
             return new NotFoundResponse([], $request);
