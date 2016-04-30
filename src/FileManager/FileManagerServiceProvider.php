@@ -77,6 +77,6 @@ class FileManagerServiceProvider implements
         $builder
             ->addParser('GET', $this->uriSegment . '/f/{path:.+}', 'handler.files.get')
             ->addExecutor(GetFileHandler::MESSAGE, 'handler.files.get')
-            ->addGenerator(GetFileHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.files.single');
+            ->addGenerator(GetFileHandler::MESSAGE, '*/*', 'handler.files.get');
     }
 }

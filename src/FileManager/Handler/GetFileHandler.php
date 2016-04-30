@@ -5,6 +5,7 @@ namespace Spot\FileManager\Handler;
 use Particle\Filter\Filter;
 use Particle\Validator\Validator;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
+use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Api\LoggableTrait;
@@ -12,6 +13,7 @@ use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\RequestInterface;
+use Spot\Api\Response\Generator\GeneratorInterface;
 use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
@@ -19,9 +21,10 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
+use Spot\FileManager\Entity\File;
 use Spot\FileManager\Repository\FileRepository;
 
-class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface
+class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface, GeneratorInterface
 {
     use LoggableTrait;
 
@@ -44,7 +47,7 @@ class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface
             ->trim(" \t\n\r\0\x0B/");
 
         $validator = new Validator();
-        $validator->required('path')->lengthBetween(2, null);
+        $validator->required('path')->lengthBetween(2, 192 + 96);
 
         $data = $filter->filter($attributes);
         $validationResult = $validator->validate($data);
@@ -70,5 +73,12 @@ class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface
                 new ServerErrorResponse([], $request)
             );
         }
+    }
+
+    public function generateResponse(ResponseInterface $response) : HttpResponse
+    {
+        /** @var  File $file */
+        $file = $response['data'];
+        return new \Zend\Diactoros\Response($file->getStream(), 200, ['Content-Type' => $file->getMimeType()]);
     }
 }

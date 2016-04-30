@@ -53,7 +53,7 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
             ->callback($cleanPath);
 
         $validator = new Validator();
-        $validator->required('path')->lengthBetween(2, 200)->regex('#^[a-z0-9_-]+$#uiD');
+        $validator->required('path')->lengthBetween(2, 192)->regex('#^[a-z0-9_-]+$#uiD');
         $validator->required('files')->callback(function ($array) { return is_array($array) && count($array) > 0; });
 
         $data = $filter->filter($attributes);
@@ -77,7 +77,7 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
             foreach ($uploadedFiles as $uploadedFile) {
                 $file = new File(
                     Uuid::uuid4(),
-                    FileNameValue::get($uploadedFile->getClientFilename()),
+                    FileNameValue::get(substr($uploadedFile->getClientFilename(), 0, 92)),
                     FilePathValue::get($path),
                     MimeTypeValue::get($uploadedFile->getClientMediaType()),
                     $uploadedFile->getStream()
