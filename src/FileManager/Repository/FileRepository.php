@@ -151,22 +151,21 @@ class FileRepository
         ', ['full_path' => $path]));
     }
 
-    /** @return  File[] */
-    public function getFilesInPath(string $path) : array
+    /** @return  string[] */
+    public function getFileNamesInPath(string $path) : array
     {
         $query = $this->executeSql('
-                SELECT file_uuid, name, path, mime_type, created, updated
+                SELECT name
                   FROM files
-            INNER JOIN objects ON (file_uuid = uuid AND type = "files")
                  WHERE path = :path
               ORDER BY name ASC
         ', ['path' => $path]);
 
-        $files = [];
+        $fileNames = [];
         while ($row = $query->fetch(\PDO::FETCH_ASSOC)) {
-            $files[] = $this->getFileFromRow($row);
+            $fileNames[] = $row['name'];
         }
-        return $files;
+        return $fileNames;
     }
 
     /** @return  string[] */

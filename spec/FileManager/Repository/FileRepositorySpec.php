@@ -481,74 +481,31 @@ class FileRepositorySpec extends ObjectBehavior
     public function it_can_get_multiple_files_in_path(\PDOStatement $statement)
     {
         $path = '/sg-1/season1/';
-        $uuid1 = Uuid::uuid4();
         $name1 = 'the-broca-divide.ep';
-        $mime1 = 'stargate/sg-1';
-        $stream1 = tmpfile();
-        $uuid2 = Uuid::uuid4();
         $name2 = 'the-first-commandment.ep';
-        $mime2 = 'stargate/sg-1';
-        $stream2 = tmpfile();
-        $uuid3 = Uuid::uuid4();
         $name3 = 'cold-lazarus.ep';
-        $mime3 = 'stargate/sg-1';
-        $stream3 = tmpfile();
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
         $statement->execute(['path' => $path])->shouldBeCalled();
         $statement->fetch(\PDO::FETCH_ASSOC)->willReturn(
             [
-                'file_uuid' => $uuid1->getBytes(),
                 'name' => $name1,
-                'path' => $path,
-                'mime_type' => $mime1,
-                'created' => date('Y-m-d H:i:s'),
-                'updated' => date('Y-m-d H:i:s'),
             ],
             [
-                'file_uuid' => $uuid2->getBytes(),
                 'name' => $name2,
-                'path' => $path,
-                'mime_type' => $mime2,
-                'created' => date('Y-m-d H:i:s'),
-                'updated' => date('Y-m-d H:i:s'),
             ],
             [
-                'file_uuid' => $uuid3->getBytes(),
                 'name' => $name3,
-                'path' => $path,
-                'mime_type' => $mime3,
-                'created' => date('Y-m-d H:i:s'),
-                'updated' => date('Y-m-d H:i:s'),
             ],
             false
         );
 
-        $this->fileSystem->readStream($uuid1->toString())
-            ->willReturn($stream1);
-        $this->fileSystem->readStream($uuid2->toString())
-            ->willReturn($stream2);
-        $this->fileSystem->readStream($uuid3->toString())
-            ->willReturn($stream3);
+        $files = $this->getFileNamesInPath($path);
 
-        $files = $this->getFilesInPath($path);
-
-        $files[0]->shouldBeAnInstanceOf(File::class);
-        $files[0]->getName()->toString()->shouldReturn($name1);
-        $files[0]->getPath()->toString()->shouldReturn($path);
-        $files[0]->getMimeType()->toString()->shouldReturn($mime1);
-        $files[0]->getStream()->shouldReturn($stream1);
-        $files[1]->shouldBeAnInstanceOf(File::class);
-        $files[1]->getName()->toString()->shouldReturn($name2);
-        $files[1]->getPath()->toString()->shouldReturn($path);
-        $files[1]->getMimeType()->toString()->shouldReturn($mime2);
-        $files[1]->getStream()->shouldReturn($stream2);
-        $files[2]->shouldBeAnInstanceOf(File::class);
-        $files[2]->getName()->toString()->shouldReturn($name3);
-        $files[2]->getPath()->toString()->shouldReturn($path);
-        $files[2]->getMimeType()->toString()->shouldReturn($mime3);
-        $files[2]->getStream()->shouldReturn($stream3);
+        $files[0]->shouldBe($name1);
+        $files[1]->shouldBe($name2);
+        $files[2]->shouldBe($name3);
     }
 
     public function it_can_get_no_files_back_for_a_path(\PDOStatement $statement)
@@ -559,7 +516,7 @@ class FileRepositorySpec extends ObjectBehavior
         $statement->execute(['path' => $path])->shouldBeCalled();
         $statement->fetch(\PDO::FETCH_ASSOC)->willReturn(false);
 
-        $this->getFilesInPath($path)->shouldHaveCount(0);
+        $this->getFileNamesInPath($path)->shouldHaveCount(0);
     }
 
     public function it_can_get_subdirectories_in_a_path(\PDOStatement $statement)

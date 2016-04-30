@@ -11,6 +11,8 @@ use Spot\Api\Response\Generator\SingleEntityGenerator;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Api\ServiceProvider\RepositoryProviderInterface;
 use Spot\Api\ServiceProvider\RoutingProviderInterface;
+use Spot\FileManager\Handler\DeleteFileHandler;
+use Spot\FileManager\Handler\GetDirectoryListingHandler;
 use Spot\FileManager\Handler\GetFileHandler;
 use Spot\FileManager\Handler\UploadFileHandler;
 use Spot\FileManager\Repository\FileRepository;
@@ -52,6 +54,12 @@ class FileManagerServiceProvider implements
         $container['handler.files.get'] = function (Container $container) {
             return new GetFileHandler($container['repository.files'], $container['logger']);
         };
+        $container['handler.files.getDirectory'] = function (Container $container) {
+            return new GetDirectoryListingHandler($container['repository.files'], $container['logger']);
+        };
+        $container['handler.files.delete'] = function (Container $container) {
+            return new DeleteFileHandler($container['repository.files'], $container['logger']);
+        };
 
         // Response Generators for both
         $container['responseGenerator.files.single'] = function (Container $container) {
@@ -70,5 +78,13 @@ class FileManagerServiceProvider implements
             ->addParser('GET', $this->uriSegment . '/f/{path:.+}', 'handler.files.get')
             ->addExecutor(GetFileHandler::MESSAGE, 'handler.files.get')
             ->addGenerator(GetFileHandler::MESSAGE, '*/*', 'handler.files.get');
+        $builder
+            ->addParser('GET', $this->uriSegment . '/d/{path:.*}', 'handler.files.getDirectory')
+            ->addExecutor(GetDirectoryListingHandler::MESSAGE, 'handler.files.getDirectory')
+            ->addGenerator(GetDirectoryListingHandler::MESSAGE, self::JSON_API_CT, 'handler.files.getDirectory');
+        $builder
+            ->addParser('DELETE', $this->uriSegment . '/f/{path:.+}', 'handler.files.delete')
+            ->addExecutor(DeleteFileHandler::MESSAGE, 'handler.files.delete')
+            ->addGenerator(DeleteFileHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.files.single');
     }
 }

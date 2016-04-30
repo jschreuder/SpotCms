@@ -44,7 +44,8 @@ class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface, G
         $filter = new Filter();
         $filter->values(['path'])
             ->string()
-            ->trim(" \t\n\r\0\x0B/");
+            ->trim(" \t\n\r\0\x0B/")
+            ->prepend('/');
 
         $validator = new Validator();
         $validator->required('path')->lengthBetween(2, 192 + 96);
