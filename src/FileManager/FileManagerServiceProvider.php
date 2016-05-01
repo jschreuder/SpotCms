@@ -14,6 +14,8 @@ use Spot\Api\ServiceProvider\RoutingProviderInterface;
 use Spot\FileManager\Handler\DeleteFileHandler;
 use Spot\FileManager\Handler\GetDirectoryListingHandler;
 use Spot\FileManager\Handler\GetFileHandler;
+use Spot\FileManager\Handler\MoveFileHandler;
+use Spot\FileManager\Handler\RenameFileHandler;
 use Spot\FileManager\Handler\UploadFileHandler;
 use Spot\FileManager\Repository\FileRepository;
 use Spot\FileManager\Serializer\DirectoryListingSerializer;
@@ -36,6 +38,10 @@ class FileManagerServiceProvider implements
     {
         $container['fileStorage'] = function (Container $container) {
             return new Filesystem($container['fileManager.adapter']);
+        };
+
+        $container['fileManager.helper'] = function (Container $container) {
+            return new FileManagerHelper();
         };
     }
 
@@ -60,6 +66,16 @@ class FileManagerServiceProvider implements
         };
         $container['handler.files.delete'] = function (Container $container) {
             return new DeleteFileHandler($container['repository.files'], $container['logger']);
+        };
+        $container['handler.files.rename'] = function (Container $container) {
+            return new RenameFileHandler(
+                $container['repository.files'], $container['fileManager.helper'], $container['logger']
+            );
+        };
+        $container['handler.files.move'] = function (Container $container) {
+            return new MoveFileHandler(
+                $container['repository.files'], $container['fileManager.helper'], $container['logger']
+            );
         };
 
         // Response Generators for both
@@ -90,5 +106,13 @@ class FileManagerServiceProvider implements
             ->addParser('DELETE', $this->uriSegment . '/f/{path:.+}', 'handler.files.delete')
             ->addExecutor(DeleteFileHandler::MESSAGE, 'handler.files.delete')
             ->addGenerator(DeleteFileHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.files.single');
+        $builder
+            ->addParser('PATCH', $this->uriSegment . '/rename/{path:.+}', 'handler.files.rename')
+            ->addExecutor(RenameFileHandler::MESSAGE, 'handler.files.rename')
+            ->addGenerator(RenameFileHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.files.single');
+        $builder
+            ->addParser('PATCH', $this->uriSegment . '/move/{path:.+}', 'handler.files.move')
+            ->addExecutor(MoveFileHandler::MESSAGE, 'handler.files.move')
+            ->addGenerator(MoveFileHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.files.single');
     }
 }
