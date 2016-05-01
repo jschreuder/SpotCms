@@ -73,15 +73,8 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
 
             $files = [];
             foreach ($uploadedFiles as $uploadedFile) {
-                $file = new File(
-                    Uuid::uuid4(),
-                    FileNameValue::get(substr($uploadedFile->getClientFilename(), 0, 92)),
-                    FilePathValue::get($path),
-                    MimeTypeValue::get($uploadedFile->getClientMediaType()),
-                    $uploadedFile->getStream()
-                );
-                $this->fileRepository->createFromUpload($file);
-                $files[] = $file;
+                $files[] = $this->createFile($uploadedFile, $path);
+                $this->fileRepository->createFromUpload(end($files));
             }
 
             return new Response(self::MESSAGE, ['data' => $files], $request);
@@ -92,5 +85,16 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
                 new ServerErrorResponse([], $request)
             );
         }
+    }
+
+    private function createFile(UploadedFileInterface $uploadedFile, string $path) : File
+    {
+        return new File(
+            Uuid::uuid4(),
+            FileNameValue::get(substr($uploadedFile->getClientFilename(), 0, 92)),
+            FilePathValue::get($path),
+            MimeTypeValue::get($uploadedFile->getClientMediaType()),
+            $uploadedFile->getStream()
+        );
     }
 }
