@@ -43,7 +43,7 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
         $cleanPath = function ($path) {
-            return str_replace(' ', '_', preg_replace('#[^a-z0-9_-]#uiD', '', $path));
+            return str_replace(' ', '_', preg_replace('#[^a-z0-9_/-]#uiD', '', $path));
         };
 
         $filter = new Filter();
@@ -54,7 +54,7 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
             ->prepend('/');
 
         $validator = new Validator();
-        $validator->required('path')->lengthBetween(2, 192)->regex('#^[a-z0-9_-]+$#uiD');
+        $validator->required('path')->lengthBetween(1, 192)->regex('#^[a-z0-9_/-]+$#uiD');
         $validator->required('files')->callback(function ($array) { return is_array($array) && count($array) > 0; });
 
         $data = $filter->filter($attributes);
@@ -84,6 +84,7 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
                     $uploadedFile->getStream()
                 );
                 $this->fileRepository->createFromUpload($file);
+                $files[] = $file;
             }
 
             return new Response(self::MESSAGE, ['data' => $files], $request);
