@@ -50,7 +50,7 @@ class GetFileHandlerSpec extends ObjectBehavior
         $request['path']->shouldBe($attributes['path']);
     }
 
-    public function it_errors_on_invalid_uuid_when_parsing_request(ServerRequestInterface $httpRequest)
+    public function it_errors_on_invalid_path_when_parsing_request(ServerRequestInterface $httpRequest)
     {
         $attributes = ['path' => '/'];
         $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);

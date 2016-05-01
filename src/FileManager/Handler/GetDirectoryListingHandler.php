@@ -45,11 +45,11 @@ class GetDirectoryListingHandler implements HttpRequestParserInterface, Executor
         $filter = new Filter();
         $filter->values(['path'])
             ->string()
-            ->trim(" \t\n\r\0\x0B/")
+            ->trim("/ \t\n\r\0\x0B")
             ->prepend('/');
 
         $validator = new Validator();
-        $validator->optional('path')->lengthBetween(1, 192 + 96);
+        $validator->optional('path')->lengthBetween(1, 192);
 
         $data = $filter->filter($attributes);
         $validationResult = $validator->validate($data);
@@ -95,7 +95,7 @@ class GetDirectoryListingHandler implements HttpRequestParserInterface, Executor
 
             public function getAttributes($model, array $fields = null)
             {
-                return $model;
+                return ['directories' => $model['directories'], 'files' => $model['files']];
             }
 
             public function getRelationship($model, $name)
