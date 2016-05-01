@@ -73,8 +73,8 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
 
             $files = [];
             foreach ($uploadedFiles as $uploadedFile) {
-                $files[] = $this->createFile($uploadedFile, $path);
-                $this->fileRepository->createFromUpload(end($files));
+                $files[] = $file = $this->createFile($uploadedFile, $path);
+                $this->fileRepository->createFromUpload($file);
             }
 
             return new Response(self::MESSAGE, ['data' => $files], $request);
