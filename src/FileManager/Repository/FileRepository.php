@@ -42,7 +42,7 @@ class FileRepository
             if (!$this->fileSystem->writeStream($file->getUuid()->toString(), $file->getStream())) {
                 throw new \RuntimeException('Failed to process uploaded file.');
             }
-            $file->setStream($this->fileSystem->readStream($file->getUuid()->toString()));
+            $file->setStream($this->getFileStream($file->getUuid()));
 
             $this->executeSql('
                 INSERT INTO files (file_uuid, name, path, mime_type)
@@ -125,7 +125,7 @@ class FileRepository
                 FileNameValue::get($row['name']),
                 FilePathValue::get($row['path']),
                 MimeTypeValue::get($row['mime_type']),
-                $this->fileSystem->readStream($uuid->toString())
+                $this->getFileStream($uuid)
             ))
             ->metaDataSetInsertTimestamp(new \DateTimeImmutable($row['created']))
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable($row['updated']));
@@ -179,6 +179,7 @@ class FileRepository
             ORDER BY path ASC
         ', ['path' => $path]);
 
+        /** @var  FilePathValue[] $directories */
         $directories = [];
         while ($directory = $query->fetchColumn()) {
             if (count($directories) > 0 && strpos($directory, end($directories)->toString()) === 0) {
@@ -187,6 +188,16 @@ class FileRepository
             $directories[] = FilePathValue::get($directory);
         }
         return $directories;
+    }
+
+    /** @return  resource */
+    private function getFileStream(UuidInterface $fileUuid)
+    {
+        $stream = $this->fileSystem->readStream($fileUuid->toString());
+        if (!$stream) {
+            throw new \RuntimeException('Could not retrieve stream for file.');
+        }
+        return $stream;
     }
 
     private function getUniqueFileName(FilePathValue $path, FileNameValue $name) : FileNameValue
