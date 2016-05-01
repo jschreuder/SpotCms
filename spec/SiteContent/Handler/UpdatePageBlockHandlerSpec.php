@@ -8,9 +8,13 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\RequestInterface;
+use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
+use Spot\SiteContent\Entity\Page;
+use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Handler\UpdatePageBlockHandler;
 use Spot\SiteContent\Repository\PageRepository;
+use Spot\SiteContent\Value\PageStatusValue;
 
 /** @mixin  UpdatePageBlockHandler */
 class UpdatePageBlockHandlerSpec extends ObjectBehavior
@@ -89,5 +93,47 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
                 'uuid' => $uuid->toString(),
                 'page_uuid' => $pageUuid->toString(),
             ]);
+    }
+
+    public function it_can_execute_a_request(RequestInterface $request, Page $page, PageBlock $pageBlock)
+    {
+        $pageUuid = Uuid::uuid4();
+        $pageBlockUuid = Uuid::uuid4();
+        $parameters = ['answer' => 42, 'new_gods' => 7];
+        $sortOrder = 2;
+        $oldStatus = PageStatusValue::get(PageStatusValue::PUBLISHED);
+        $request->offsetExists('page_uuid')->willReturn(true);
+        $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
+        $request->offsetExists('uuid')->willReturn(true);
+        $request->offsetGet('uuid')->willReturn($pageBlockUuid->toString());
+        $request->offsetExists('parameters')->willReturn(true);
+        $request->offsetGet('parameters')->willReturn($parameters);
+        $request->offsetExists('sort_order')->willReturn(true);
+        $request->offsetGet('sort_order')->willReturn($sortOrder);
+        $request->offsetExists('status')->willReturn(false);
+        $request->getAcceptContentType()->willReturn('text/xml');
+
+        $pageBlock->offsetSet('answer', $parameters['answer'])->shouldBeCalled();
+        $pageBlock->offsetSet('new_gods', $parameters['new_gods'])->shouldBeCalled();
+        $pageBlock->setSortOrder($sortOrder)->shouldBeCalled();
+        $pageBlock->getStatus()->willReturn($oldStatus);
+        $pageBlock->setStatus($oldStatus)->shouldBeCalled();
+
+        $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
+        $page->getBlockByUuid($pageBlockUuid)->willReturn($pageBlock);
+
+        $this->pageRepository->updateBlockForPage($pageBlock, $page)->shouldBeCalled();
+        $response = $this->executeRequest($request);
+        $response['data']->shouldBe($pageBlock);
+    }
+
+    public function it_can_handle_exception_during_request(RequestInterface $request)
+    {
+        $pageUuid = Uuid::uuid4();
+        $request->offsetGet('page_uuid')->willReturn($pageUuid);
+        $request->getAcceptContentType()->willReturn('text/xml');
+
+        $this->pageRepository->getByUuid($pageUuid)->willThrow(new \RuntimeException());
+        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
     }
 }
