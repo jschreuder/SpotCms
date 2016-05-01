@@ -20,6 +20,7 @@ use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
+use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
 use Spot\FileManager\Serializer\DirectoryListingSerializer;
 use Tobscure\JsonApi\Document;
@@ -35,25 +36,25 @@ class GetDirectoryListingHandler implements HttpRequestParserInterface, Executor
     /** @var  FileRepository */
     private $fileRepository;
 
-    public function __construct(FileRepository $fileRepository, LoggerInterface $logger)
+    /** @var  FileManagerHelper */
+    private $helper;
+
+    public function __construct(FileRepository $fileRepository, FileManagerHelper $helper, LoggerInterface $logger)
     {
         $this->fileRepository = $fileRepository;
+        $this->helper = $helper;
         $this->logger = $logger;
     }
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
         $filter = new Filter();
-        $filter->values(['path'])
-            ->string()
-            ->trim("/ \t\n\r\0\x0B")
-            ->prepend('/');
+        $this->helper->addPathFilter($filter, 'path');
 
         $validator = new Validator();
-        $validator->optional('path')->lengthBetween(1, 192);
+        $this->helper->addPathValidator($validator, 'path');
 
-        $data = $filter->filter($attributes);
-        $validationResult = $validator->validate($data);
+        $validationResult = $validator->validate($filter->filter($attributes));
         if ($validationResult->isNotValid()) {
             throw new ValidationFailedException($validationResult, $httpRequest);
         }

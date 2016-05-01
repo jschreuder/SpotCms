@@ -22,6 +22,7 @@ use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
+use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
 
 class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface, GeneratorInterface
@@ -33,25 +34,25 @@ class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface, G
     /** @var  FileRepository */
     private $fileRepository;
 
-    public function __construct(FileRepository $fileRepository, LoggerInterface $logger)
+    /** @var  FileManagerHelper */
+    private $helper;
+
+    public function __construct(FileRepository $fileRepository, FileManagerHelper $helper, LoggerInterface $logger)
     {
         $this->fileRepository = $fileRepository;
+        $this->helper = $helper;
         $this->logger = $logger;
     }
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
         $filter = new Filter();
-        $filter->values(['path'])
-            ->string()
-            ->trim(" \t\n\r\0\x0B/")
-            ->prepend('/');
+        $this->helper->addPathFilter($filter, 'path');
 
         $validator = new Validator();
-        $validator->required('path')->lengthBetween(2, 192 + 96);
+        $this->helper->addFullPathValidator($validator, 'path');
 
-        $data = $filter->filter($attributes);
-        $validationResult = $validator->validate($data);
+        $validationResult = $validator->validate($filter->filter($attributes));
         if ($validationResult->isNotValid()) {
             throw new ValidationFailedException($validationResult, $httpRequest);
         }

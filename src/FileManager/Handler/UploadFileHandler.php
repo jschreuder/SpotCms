@@ -20,6 +20,7 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\FileManager\Entity\File;
+use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
 use Spot\FileManager\Value\FileNameValue;
 use Spot\FileManager\Value\FilePathValue;
@@ -34,27 +35,23 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
     /** @var  FileRepository */
     private $fileRepository;
 
-    public function __construct(FileRepository $fileRepository, LoggerInterface $logger)
+    /** @var  FileManagerHelper */
+    private $helper;
+
+    public function __construct(FileRepository $fileRepository, FileManagerHelper $helper, LoggerInterface $logger)
     {
         $this->fileRepository = $fileRepository;
+        $this->helper = $helper;
         $this->logger = $logger;
     }
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $cleanPath = function ($path) {
-            return str_replace(' ', '_', preg_replace('#[^a-z0-9_/-]#uiD', '', $path));
-        };
-
         $filter = new Filter();
-        $filter->values(['path'])
-            ->string()
-            ->trim(" \t\n\r\0\x0B/")
-            ->callback($cleanPath)
-            ->prepend('/');
+        $this->helper->addPathFilter($filter, 'path');
 
         $validator = new Validator();
-        $validator->required('path')->lengthBetween(1, 192)->regex('#^[a-z0-9_/-]+$#uiD');
+        $this->helper->addPathValidator($validator, 'path');
         $validator->required('files')->callback(function ($array) { return is_array($array) && count($array) > 0; });
 
         $data = $filter->filter($attributes);

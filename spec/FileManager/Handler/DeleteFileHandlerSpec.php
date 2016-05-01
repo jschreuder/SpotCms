@@ -13,6 +13,7 @@ use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
+use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Handler\DeleteFileHandler;
 use Spot\FileManager\Repository\FileRepository;
 
@@ -22,14 +23,18 @@ class DeleteFileHandlerSpec extends ObjectBehavior
     /** @var  FileRepository */
     private $fileRepository;
 
+    /** @var  FileManagerHelper */
+    private $helper;
+
     /** @var  LoggerInterface */
     private $logger;
 
     public function let(FileRepository $fileRepository, LoggerInterface $logger)
     {
         $this->fileRepository = $fileRepository;
+        $this->helper = new FileManagerHelper();
         $this->logger = $logger;
-        $this->beConstructedWith($fileRepository, $logger);
+        $this->beConstructedWith($fileRepository, $this->helper, $logger);
     }
 
     public function it_is_initializable()
