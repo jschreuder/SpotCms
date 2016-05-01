@@ -21,11 +21,12 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\FileManager\Repository\FileRepository;
+use Spot\FileManager\Serializer\DirectoryListingSerializer;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Resource;
 use Tobscure\JsonApi\SerializerInterface;
 
-class GetDirectoryListingHandler implements HttpRequestParserInterface, ExecutorInterface, GeneratorInterface
+class GetDirectoryListingHandler implements HttpRequestParserInterface, ExecutorInterface
 {
     use LoggableTrait;
 
@@ -67,9 +68,11 @@ class GetDirectoryListingHandler implements HttpRequestParserInterface, Executor
             $directories = $this->fileRepository->getDirectoriesInPath($path);
             $fileNames = $this->fileRepository->getFileNamesInPath($path);
             return new Response(self::MESSAGE, [
-                'path' => $path,
-                'directories' => $directories,
-                'files' => $fileNames
+                'data' => [
+                    'path' => $path,
+                    'directories' => $directories,
+                    'files' => $fileNames
+                ],
             ], $request);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
@@ -78,31 +81,5 @@ class GetDirectoryListingHandler implements HttpRequestParserInterface, Executor
                 new ServerErrorResponse([], $request)
             );
         }
-    }
-
-    public function generateResponse(ResponseInterface $response) : HttpResponse
-    {
-        $document = new Document(new Resource($response->getAttributes(), new class implements SerializerInterface {
-            public function getType($model)
-            {
-                return 'directoryListings';
-            }
-
-            public function getId($model)
-            {
-                return $model['path'];
-            }
-
-            public function getAttributes($model, array $fields = null)
-            {
-                return ['directories' => $model['directories'], 'files' => $model['files']];
-            }
-
-            public function getRelationship($model, $name)
-            {
-                throw new \OutOfBoundsException('Unknown relationship ' . $name . ' for ' . $this->getType($model));
-            }
-        }));
-        return new JsonApiResponse($document);
     }
 }

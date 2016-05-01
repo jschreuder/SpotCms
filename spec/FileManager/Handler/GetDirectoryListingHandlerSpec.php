@@ -65,9 +65,9 @@ class GetDirectoryListingHandlerSpec extends ObjectBehavior
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
         $response->getResponseName()->shouldReturn(GetDirectoryListingHandler::MESSAGE);
-        $response['path']->shouldBe($path);
-        $response['directories']->shouldBe($directories);
-        $response['files']->shouldBe($files);
+        $response['data']['path']->shouldBe($path);
+        $response['data']['directories']->shouldBe($directories);
+        $response['data']['files']->shouldBe($files);
     }
 
     public function it_can_handle_exception_during_request(RequestInterface $request)
@@ -79,30 +79,5 @@ class GetDirectoryListingHandlerSpec extends ObjectBehavior
         $this->fileRepository->getDirectoriesInPath($path)->willThrow(new \RuntimeException());
 
         $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
-    }
-
-    public function it_can_generate_a_response(ResponseInterface $response)
-    {
-        $data = [
-            'path' => '/path/to',
-            'directories' => ['first', 'second'],
-            'files' => ['file.ext', 'about.txt'],
-        ];
-        $response->getAttributes()->willReturn($data);
-
-        $httpResponse = $this->generateResponse($response);
-        $httpResponse->shouldHaveType(JsonApiResponse::class);
-        $contents = $httpResponse->getBody()->getContents();
-        $contents->shouldBe(json_encode([
-            'data' => [
-                'type' => 'directoryListings',
-                'id' => $data['path'],
-                'attributes' => [
-                    'directories' => $data['directories'],
-                    'files' => $data['files'],
-                ],
-            ],
-        ], JsonApiResponse::DEFAULT_JSON_FLAGS));
-
     }
 }

@@ -16,6 +16,7 @@ use Spot\FileManager\Handler\GetDirectoryListingHandler;
 use Spot\FileManager\Handler\GetFileHandler;
 use Spot\FileManager\Handler\UploadFileHandler;
 use Spot\FileManager\Repository\FileRepository;
+use Spot\FileManager\Serializer\DirectoryListingSerializer;
 use Spot\FileManager\Serializer\FileSerializer;
 
 class FileManagerServiceProvider implements
@@ -68,6 +69,9 @@ class FileManagerServiceProvider implements
         $container['responseGenerator.files.multi'] = function (Container $container) {
             return new MultiEntityGenerator(new FileSerializer(), null, $container['logger']);
         };
+        $container['responseGenerator.directoryListing'] = function (Container $container) {
+            return new SingleEntityGenerator(new DirectoryListingSerializer(), null, $container['logger']);
+        };
 
         // Configure ApiBuilder to use Handlers & Response Generators
         $builder
@@ -81,7 +85,7 @@ class FileManagerServiceProvider implements
         $builder
             ->addParser('GET', $this->uriSegment . '/d/{path:.*}', 'handler.files.getDirectory')
             ->addExecutor(GetDirectoryListingHandler::MESSAGE, 'handler.files.getDirectory')
-            ->addGenerator(GetDirectoryListingHandler::MESSAGE, self::JSON_API_CT, 'handler.files.getDirectory');
+            ->addGenerator(GetDirectoryListingHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.directoryListing');
         $builder
             ->addParser('DELETE', $this->uriSegment . '/f/{path:.+}', 'handler.files.delete')
             ->addExecutor(DeleteFileHandler::MESSAGE, 'handler.files.delete')
