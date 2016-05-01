@@ -116,8 +116,6 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
         $pageBlock->offsetSet('answer', $parameters['answer'])->shouldBeCalled();
         $pageBlock->offsetSet('new_gods', $parameters['new_gods'])->shouldBeCalled();
         $pageBlock->setSortOrder($sortOrder)->shouldBeCalled();
-        $pageBlock->getStatus()->willReturn($oldStatus);
-        $pageBlock->setStatus($oldStatus)->shouldBeCalled();
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
         $page->getBlockByUuid($pageBlockUuid)->willReturn($pageBlock);
@@ -143,8 +141,6 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
         $request->offsetGet('status')->willReturn($newStatus->toString());
         $request->getAcceptContentType()->willReturn('text/xml');
 
-        $pageBlock->getSortOrder()->willReturn($sortOrder);
-        $pageBlock->setSortOrder($sortOrder)->shouldBeCalled();
         $pageBlock->setStatus($newStatus)->shouldBeCalled();
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);

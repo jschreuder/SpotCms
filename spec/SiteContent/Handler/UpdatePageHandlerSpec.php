@@ -114,10 +114,6 @@ class UpdatePageHandlerSpec extends ObjectBehavior
         $page->setTitle($title)->shouldBeCalled();
         $page->setSlug($slug)->shouldBeCalled();
         $page->setShortTitle($shortTitle)->shouldBeCalled();
-        $page->getSortOrder()->willReturn($sortOrder);
-        $page->setSortOrder($sortOrder)->shouldBeCalled();
-        $page->getStatus()->willReturn($status);
-        $page->setStatus($status)->shouldBeCalled();
 
         $this->pageRepository->update($page)->shouldBeCalled();
         $response = $this->executeRequest($request);
@@ -143,12 +139,6 @@ class UpdatePageHandlerSpec extends ObjectBehavior
         $request->getAcceptContentType()->willReturn('text/xml');
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
-        $page->getTitle()->willReturn($title);
-        $page->setTitle($title)->shouldBeCalled();
-        $page->getSlug()->willReturn($slug);
-        $page->setSlug($slug)->shouldBeCalled();
-        $page->getShortTitle()->willReturn($shortTitle);
-        $page->setShortTitle($shortTitle)->shouldBeCalled();
         $page->setSortOrder($sortOrder)->shouldBeCalled();
         $page->setStatus($status)->shouldBeCalled();
 

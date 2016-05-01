@@ -68,14 +68,13 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['page_uuid']));
             $block = $page->getBlockByUuid(Uuid::fromString($request['uuid']));
-            foreach (($request['parameters'] ?? []) as $key => $value) {
-                $block[$key] = $value;
+            if (isset($request['parameters'])) {
+                foreach ($request['parameters'] as $key => $value) {
+                    $block[$key] = $value;
+                }
             }
-            $block->setSortOrder($request['sort_order'] ?? $block->getSortOrder());
-            $block->setStatus(isset($request['status'])
-                ? PageStatusValue::get($request['status'])
-                : $block->getStatus()
-            );
+            isset($request['sort_order']) && $block->setSortOrder($request['sort_order']);
+            isset($request['status']) && $block->setStatus(PageStatusValue::get($request['status']));
             $this->pageRepository->updateBlockForPage($block, $page);
             return new Response(self::MESSAGE, ['data' => $block], $request);
         } catch (\Throwable $exception) {
