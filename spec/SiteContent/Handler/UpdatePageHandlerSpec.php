@@ -8,9 +8,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\RequestInterface;
+use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
+use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Handler\UpdatePageHandler;
 use Spot\SiteContent\Repository\PageRepository;
+use Spot\SiteContent\Value\PageStatusValue;
 
 /** @mixin  UpdatePageHandler */
 class UpdatePageHandlerSpec extends ObjectBehavior
@@ -86,5 +89,81 @@ class UpdatePageHandlerSpec extends ObjectBehavior
 
         $this->shouldThrow(ValidationFailedException::class)
             ->duringParseHttpRequest($httpRequest, ['uuid' => $uuid->toString()]);
+    }
+
+    public function it_can_execute_a_request(RequestInterface $request, Page $page)
+    {
+        $pageUuid = Uuid::uuid4();
+        $title = 'New Title';
+        $slug = 'new-title';
+        $shortTitle = 'Title';
+        $sortOrder = 3;
+        $status = PageStatusValue::get(PageStatusValue::CONCEPT);
+        $request->offsetGet('uuid')->willReturn($pageUuid->toString());
+        $request->offsetExists('title')->willReturn(true);
+        $request->offsetGet('title')->willReturn($title);
+        $request->offsetExists('slug')->willReturn(true);
+        $request->offsetGet('slug')->willReturn($slug);
+        $request->offsetExists('short_title')->willReturn(true);
+        $request->offsetGet('short_title')->willReturn($shortTitle);
+        $request->offsetExists('sort_order')->willReturn(false);
+        $request->offsetExists('status')->willReturn(false);
+        $request->getAcceptContentType()->willReturn('text/xml');
+
+        $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
+        $page->setTitle($title)->shouldBeCalled();
+        $page->setSlug($slug)->shouldBeCalled();
+        $page->setShortTitle($shortTitle)->shouldBeCalled();
+        $page->getSortOrder()->willReturn($sortOrder);
+        $page->setSortOrder($sortOrder)->shouldBeCalled();
+        $page->getStatus()->willReturn($status);
+        $page->setStatus($status)->shouldBeCalled();
+
+        $this->pageRepository->update($page)->shouldBeCalled();
+        $response = $this->executeRequest($request);
+        $response['data']->shouldBe($page);
+    }
+
+    public function it_can_execute_a_request_part_deux(RequestInterface $request, Page $page)
+    {
+        $pageUuid = Uuid::uuid4();
+        $title = 'New Title';
+        $slug = 'new-title';
+        $shortTitle = 'Title';
+        $sortOrder = 3;
+        $status = PageStatusValue::get(PageStatusValue::CONCEPT);
+        $request->offsetGet('uuid')->willReturn($pageUuid->toString());
+        $request->offsetExists('title')->willReturn(false);
+        $request->offsetExists('slug')->willReturn(false);
+        $request->offsetExists('short_title')->willReturn(false);
+        $request->offsetExists('sort_order')->willReturn(true);
+        $request->offsetGet('sort_order')->willReturn($sortOrder);
+        $request->offsetExists('status')->willReturn(true);
+        $request->offsetGet('status')->willReturn($status->toString());
+        $request->getAcceptContentType()->willReturn('text/xml');
+
+        $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
+        $page->getTitle()->willReturn($title);
+        $page->setTitle($title)->shouldBeCalled();
+        $page->getSlug()->willReturn($slug);
+        $page->setSlug($slug)->shouldBeCalled();
+        $page->getShortTitle()->willReturn($shortTitle);
+        $page->setShortTitle($shortTitle)->shouldBeCalled();
+        $page->setSortOrder($sortOrder)->shouldBeCalled();
+        $page->setStatus($status)->shouldBeCalled();
+
+        $this->pageRepository->update($page)->shouldBeCalled();
+        $response = $this->executeRequest($request);
+        $response['data']->shouldBe($page);
+    }
+
+    public function it_can_handle_exception_during_request(RequestInterface $request)
+    {
+        $pageUuid = Uuid::uuid4();
+        $request->offsetGet('uuid')->willReturn($pageUuid);
+        $request->getAcceptContentType()->willReturn('text/xml');
+
+        $this->pageRepository->getByUuid($pageUuid)->willThrow(new \RuntimeException());
+        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
     }
 }
