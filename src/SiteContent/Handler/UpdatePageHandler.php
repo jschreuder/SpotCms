@@ -79,7 +79,7 @@ class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
             throw new ResponseException(
-                'An error occurred during UpdatePageHandler.',
+                'An error occurred during UpdatePageHandler: ' . $exception->getMessage(),
                 new ServerErrorResponse([], $request)
             );
         }
