@@ -127,6 +127,34 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
         $response['data']->shouldBe($pageBlock);
     }
 
+    public function it_can_execute_a_request_part_deux(RequestInterface $request, Page $page, PageBlock $pageBlock)
+    {
+        $pageUuid = Uuid::uuid4();
+        $pageBlockUuid = Uuid::uuid4();
+        $sortOrder = 2;
+        $newStatus = PageStatusValue::get(PageStatusValue::DELETED);
+        $request->offsetExists('page_uuid')->willReturn(true);
+        $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
+        $request->offsetExists('uuid')->willReturn(true);
+        $request->offsetGet('uuid')->willReturn($pageBlockUuid->toString());
+        $request->offsetExists('parameters')->willReturn(false);
+        $request->offsetExists('sort_order')->willReturn(false);
+        $request->offsetExists('status')->willReturn(true);
+        $request->offsetGet('status')->willReturn($newStatus->toString());
+        $request->getAcceptContentType()->willReturn('text/xml');
+
+        $pageBlock->getSortOrder()->willReturn($sortOrder);
+        $pageBlock->setSortOrder($sortOrder)->shouldBeCalled();
+        $pageBlock->setStatus($newStatus)->shouldBeCalled();
+
+        $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
+        $page->getBlockByUuid($pageBlockUuid)->willReturn($pageBlock);
+
+        $this->pageRepository->updateBlockForPage($pageBlock, $page)->shouldBeCalled();
+        $response = $this->executeRequest($request);
+        $response['data']->shouldBe($pageBlock);
+    }
+
     public function it_can_handle_exception_during_request(RequestInterface $request)
     {
         $pageUuid = Uuid::uuid4();
