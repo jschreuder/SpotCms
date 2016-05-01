@@ -11,3 +11,10 @@ code_coverage:
         - clover
     output:
         clover: coverage.xml
+    whitelist:
+        - src
+    blacklist_files:
+        - "src/Common/ParticleFixes/*"
+        - "src/FileManager/FileManagerServiceProvider.php"
+        - "src/SiteContent/SiteContentServiceProvider.php"
+        - "src/DefaultServiceProvider.php"
