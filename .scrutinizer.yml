@@ -13,7 +13,6 @@ build:
 filter:
     paths: ["src/*"]
     excluded_paths:
-        - "src/Common/ParticleFixes/*"
         - "src/FileManager/FileManagerServiceProvider.php"
         - "src/SiteContent/SiteContentServiceProvider.php"
         - "src/DefaultServiceProvider.php"
