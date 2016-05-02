@@ -16,6 +16,7 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
+use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Common\ParticleFixes\Validator;
 use Spot\SiteContent\Repository\PageRepository;
@@ -38,12 +39,14 @@ class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $filter = new Filter();
+        $rpHelper = new HttpRequestParserHelper($httpRequest);
+
+        $filter = $rpHelper->getFilter();
         $filter->values(['data.attributes.title', 'data.attributes.slug', 'data.attributes.short_title'])
             ->trim()->stripHtml();
         $filter->value('data.attributes.sort_order')->int();
 
-        $validator = new Validator();
+        $validator = $rpHelper->getValidator();
         $validator->required('data.type')->equals('pages');
         $validator->required('data.id')->uuid();
         $validator->optional('data.attributes.title')->lengthBetween(1, 512);
@@ -55,12 +58,7 @@ class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
 
         $data = $filter->filter((array) $httpRequest->getParsedBody());
         $data['data']['id'] = $attributes['uuid'];
-        $validationResult = $validator->validate($data);
-        if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult, $httpRequest);
-        }
-
-        $request = new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes'], $httpRequest);
+        $request = new Request(self::MESSAGE, $rpHelper->filterAndValidate($data)['data']['attributes'], $httpRequest);
         $request['uuid'] = $data['data']['id'];
         return $request;
     }

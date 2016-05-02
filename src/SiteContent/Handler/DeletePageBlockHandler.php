@@ -16,8 +16,7 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
-use Spot\Application\Request\ValidationFailedException;
-use Spot\Common\ParticleFixes\Validator;
+use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
@@ -38,16 +37,13 @@ class DeletePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $validator = new Validator();
+        $rpHelper = new HttpRequestParserHelper($httpRequest);
+
+        $validator = $rpHelper->getValidator();
         $validator->required('uuid')->uuid();
         $validator->required('page_uuid')->uuid();
 
-        $validationResult = $validator->validate($attributes);
-        if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult, $httpRequest);
-        }
-
-        return new Request(self::MESSAGE, $validationResult->getValues(), $httpRequest);
+        return new Request(self::MESSAGE, $rpHelper->filterAndValidate($attributes), $httpRequest);
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface

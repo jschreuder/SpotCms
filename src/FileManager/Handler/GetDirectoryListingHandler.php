@@ -19,6 +19,7 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
+use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
@@ -48,18 +49,11 @@ class GetDirectoryListingHandler implements HttpRequestParserInterface, Executor
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $filter = new Filter();
-        $this->helper->addPathFilter($filter, 'path');
+        $rpHelper = new HttpRequestParserHelper($httpRequest);
+        $this->helper->addPathFilter($rpHelper->getFilter(), 'path');
+        $this->helper->addPathValidator($rpHelper->getValidator(), 'path');
 
-        $validator = new Validator();
-        $this->helper->addPathValidator($validator, 'path');
-
-        $validationResult = $validator->validate($filter->filter($attributes));
-        if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult, $httpRequest);
-        }
-
-        return new Request(self::MESSAGE, $validationResult->getValues(), $httpRequest);
+        return new Request(self::MESSAGE, $rpHelper->filterAndValidate($attributes), $httpRequest);
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface

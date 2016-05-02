@@ -2,8 +2,6 @@
 
 namespace Spot\FileManager\Handler;
 
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Log\LoggerInterface;
@@ -18,7 +16,7 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
@@ -47,21 +45,19 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $filter = new Filter();
-        $this->helper->addPathFilter($filter, 'path');
+        $rpHelper = new HttpRequestParserHelper($httpRequest);
 
-        $validator = new Validator();
+        $this->helper->addPathFilter($rpHelper->getFilter(), 'path');
+
+        $validator = $rpHelper->getValidator();
         $this->helper->addPathValidator($validator, 'path');
         $validator->required('files')->callback(function ($array) { return is_array($array) && count($array) > 0; });
 
-        $data = $filter->filter($attributes);
-        $data['files'] = $httpRequest->getUploadedFiles();
-        $validationResult = $validator->validate($data);
-        if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult, $httpRequest);
-        }
-
-        return new Request(self::MESSAGE, $validationResult->getValues(), $httpRequest);
+        $data = [
+            'path' => $attributes['path'],
+            'files' => $httpRequest->getUploadedFiles(),
+        ];
+        return new Request(self::MESSAGE, $rpHelper->filterAndValidate($data), $httpRequest);
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface

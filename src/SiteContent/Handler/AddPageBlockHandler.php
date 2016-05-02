@@ -2,7 +2,6 @@
 
 namespace Spot\SiteContent\Handler;
 
-use Particle\Filter\Filter;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -17,8 +16,7 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
-use Spot\Application\Request\ValidationFailedException;
-use Spot\Common\ParticleFixes\Validator;
+use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Repository\PageRepository;
@@ -41,11 +39,13 @@ class AddPageBlockHandler implements HttpRequestParserInterface, ExecutorInterfa
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $filter = new Filter();
+        $rpHelper = new HttpRequestParserHelper($httpRequest);
+
+        $filter = $rpHelper->getFilter();
         $filter->values(['data.attributes.type', 'data.attributes.location'])->string()->trim();
         $filter->value('data.attributes.sort_order')->int();
 
-        $validator = new Validator();
+        $validator = $rpHelper->getValidator();
         $validator->required('data.type')->equals('pageBlocks');
         $validator->required('data.attributes.page_uuid')->uuid();
         $validator->required('data.attributes.type')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
@@ -56,13 +56,11 @@ class AddPageBlockHandler implements HttpRequestParserInterface, ExecutorInterfa
 
         $parameters = (array) $httpRequest->getParsedBody();
         $parameters['data']['attributes']['page_uuid'] = $attributes['page_uuid'];
-        $data = $filter->filter($parameters);
-        $validationResult = $validator->validate($data);
-        if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult, $httpRequest);
-        }
-
-        return new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes'], $httpRequest);
+        return new Request(
+            self::MESSAGE,
+            $rpHelper->filterAndValidate($parameters)['data']['attributes'],
+            $httpRequest
+        );
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface

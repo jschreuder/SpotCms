@@ -16,6 +16,7 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
+use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Common\ParticleFixes\Validator;
 use Spot\SiteContent\Repository\PageRepository;
@@ -38,10 +39,11 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $filter = new Filter();
-        $filter->value('data.attributes.sort_order')->int();
+        $rpHelper = new HttpRequestParserHelper($httpRequest);
 
-        $validator = new Validator();
+        $rpHelper->getFilter()->value('data.attributes.sort_order')->int();
+
+        $validator = $rpHelper->getValidator();
         $validator->required('data.type')->equals('pageBlocks');
         $validator->required('data.id')->uuid();
         $validator->required('data.attributes.page_uuid')->uuid();
@@ -50,15 +52,10 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
         $validator->optional('data.attributes.status')
             ->inArray([PageStatusValue::CONCEPT, PageStatusValue::PUBLISHED], true);
 
-        $data = $filter->filter((array) $httpRequest->getParsedBody());
+        $data = (array) $httpRequest->getParsedBody();
         $data['data']['id'] = $attributes['uuid'];
         $data['data']['attributes']['page_uuid'] = $attributes['page_uuid'];
-        $validationResult = $validator->validate($data);
-        if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult, $httpRequest);
-        }
-
-        $request = new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes'], $httpRequest);
+        $request = new Request(self::MESSAGE, $rpHelper->filterAndValidate($data)['data']['attributes'], $httpRequest);
         $request['uuid'] = $data['data']['id'];
         return $request;
     }

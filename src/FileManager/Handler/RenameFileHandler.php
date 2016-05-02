@@ -16,6 +16,7 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
+use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Common\ParticleFixes\Validator;
 use Spot\DataModel\Repository\NoUniqueResultException;
@@ -44,23 +45,21 @@ class RenameFileHandler implements HttpRequestParserInterface, ExecutorInterface
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $filter = new Filter();
+        $rpHelper = new HttpRequestParserHelper($httpRequest);
+
+        $filter = $rpHelper->getFilter();
         $this->helper->addPathFilter($filter, 'path');
         $this->helper->addFileNameFilter($filter, 'filename');
 
-        $validator = new Validator();
+        $validator = $rpHelper->getValidator();
         $this->helper->addFullPathValidator($validator, 'path');
         $this->helper->addFileNameValidator($validator, 'filename');
 
-        $validationResult = $validator->validate($filter->filter([
+        $data = [
             'path' => $attributes['path'],
             'filename' => $httpRequest->getParsedBody()['filename'],
-        ]));
-        if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult, $httpRequest);
-        }
-
-        return new Request(self::MESSAGE, $validationResult->getValues(), $httpRequest);
+        ];
+        return new Request(self::MESSAGE, $rpHelper->filterAndValidate($data), $httpRequest);
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface

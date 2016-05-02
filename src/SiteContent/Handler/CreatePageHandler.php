@@ -2,7 +2,6 @@
 
 namespace Spot\SiteContent\Handler;
 
-use Particle\Filter\Filter;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -16,8 +15,7 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
-use Spot\Application\Request\ValidationFailedException;
-use Spot\Common\ParticleFixes\Validator;
+use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
@@ -40,12 +38,14 @@ class CreatePageHandler implements HttpRequestParserInterface, ExecutorInterface
     /** {@inheritdoc} */
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $filter = new Filter();
+        $rpHelper = new HttpRequestParserHelper($httpRequest);
+
+        $filter = $rpHelper->getFilter();
         $filter->values(['data.attributes.title', 'data.attributes.slug', 'data.attributes.short_title'])
             ->trim()->stripHtml();
         $filter->value('data.attributes.sort_order')->int();
 
-        $validator = new Validator();
+        $validator = $rpHelper->getValidator();
         $validator->required('data.type')->equals('pages');
         $validator->required('data.attributes.title')->lengthBetween(1, 512);
         $validator->required('data.attributes.slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
@@ -54,13 +54,8 @@ class CreatePageHandler implements HttpRequestParserInterface, ExecutorInterface
         $validator->required('data.attributes.sort_order')->integer();
         $validator->required('data.attributes.status')->inArray(PageStatusValue::getValidStatuses(), true);
 
-        $data = $filter->filter((array) $httpRequest->getParsedBody());
-        $validationResult = $validator->validate($data);
-        if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult, $httpRequest);
-        }
-
-        return new Request(self::MESSAGE, $validationResult->getValues()['data']['attributes'], $httpRequest);
+        $data = (array) $httpRequest->getParsedBody();
+        return new Request(self::MESSAGE, $rpHelper->filterAndValidate($data)['data']['attributes'], $httpRequest);
     }
 
     /** {@inheritdoc} */

@@ -2,7 +2,6 @@
 
 namespace Spot\FileManager\Handler;
 
-use Particle\Filter\Filter;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -16,8 +15,7 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
-use Spot\Application\Request\ValidationFailedException;
-use Spot\Common\ParticleFixes\Validator;
+use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
@@ -43,18 +41,11 @@ class DeleteFileHandler implements HttpRequestParserInterface, ExecutorInterface
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $filter = new Filter();
-        $this->helper->addPathFilter($filter, 'path');
+        $rpHelper = new HttpRequestParserHelper($httpRequest);
+        $this->helper->addPathFilter($rpHelper->getFilter(), 'path');
+        $this->helper->addFullPathValidator($rpHelper->getValidator(), 'path');
 
-        $validator = new Validator();
-        $this->helper->addFullPathValidator($validator, 'path');
-
-        $validationResult = $validator->validate($filter->filter($attributes));
-        if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult, $httpRequest);
-        }
-
-        return new Request(self::MESSAGE, $validationResult->getValues(), $httpRequest);
+        return new Request(self::MESSAGE, $rpHelper->filterAndValidate($attributes), $httpRequest);
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface

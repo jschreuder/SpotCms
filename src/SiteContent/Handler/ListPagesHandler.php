@@ -15,8 +15,7 @@ use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
-use Spot\Application\Request\ValidationFailedException;
-use Spot\Common\ParticleFixes\Validator;
+use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\SiteContent\Repository\PageRepository;
 
 class ListPagesHandler implements HttpRequestParserInterface, ExecutorInterface
@@ -36,15 +35,10 @@ class ListPagesHandler implements HttpRequestParserInterface, ExecutorInterface
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
-        $validator = new Validator();
-        $validator->optional('parent_uuid')->uuid();
+        $rpHelper = new HttpRequestParserHelper($httpRequest);
+        $rpHelper->getValidator()->optional('parent_uuid')->uuid();
 
-        $validationResult = $validator->validate($httpRequest->getQueryParams());
-        if ($validationResult->isNotValid()) {
-            throw new ValidationFailedException($validationResult, $httpRequest);
-        }
-
-        return new Request(self::MESSAGE, $validationResult->getValues(), $httpRequest);
+        return new Request(self::MESSAGE, $rpHelper->filterAndValidate($httpRequest->getQueryParams()), $httpRequest);
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
