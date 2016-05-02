@@ -12,7 +12,7 @@ use Spot\Api\ServiceProvider\RepositoryProviderInterface;
 use Spot\Api\ServiceProvider\RoutingProviderInterface;
 use Spot\FileManager\Handler\DeleteFileHandler;
 use Spot\FileManager\Handler\GetDirectoryListingHandler;
-use Spot\FileManager\Handler\GetFileHandler;
+use Spot\FileManager\Handler\DownloadFileHandler;
 use Spot\FileManager\Handler\MoveFileHandler;
 use Spot\FileManager\Handler\RenameFileHandler;
 use Spot\FileManager\Handler\UploadFileHandler;
@@ -60,7 +60,7 @@ class FileManagerServiceProvider implements
             );
         };
         $container['handler.files.get'] = function (Container $container) {
-            return new GetFileHandler(
+            return new DownloadFileHandler(
                 $container['repository.files'], $container['fileManager.helper'], $container['logger']
             );
         };
@@ -102,9 +102,9 @@ class FileManagerServiceProvider implements
             ->addExecutor(UploadFileHandler::MESSAGE, 'handler.files.upload')
             ->addGenerator(UploadFileHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.files.multi');
         $builder
-            ->addParser('GET', $this->uriSegment . '/f/{path:.+}', 'handler.files.get')
-            ->addExecutor(GetFileHandler::MESSAGE, 'handler.files.get')
-            ->addGenerator(GetFileHandler::MESSAGE, '*/*', 'handler.files.get');
+            ->addParser('GET', $this->uriSegment . '/f/{path:.+}', 'handler.files.download')
+            ->addExecutor(DownloadFileHandler::MESSAGE, 'handler.files.download')
+            ->addGenerator(DownloadFileHandler::MESSAGE, '*/*', 'handler.files.download');
         $builder
             ->addParser('GET', $this->uriSegment . '/d/{path:.*}', 'handler.files.getDirectory')
             ->addExecutor(GetDirectoryListingHandler::MESSAGE, 'handler.files.getDirectory')

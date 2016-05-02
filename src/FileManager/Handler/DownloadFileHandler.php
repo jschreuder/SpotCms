@@ -23,11 +23,11 @@ use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
 
-class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface, GeneratorInterface
+class DownloadFileHandler implements HttpRequestParserInterface, ExecutorInterface, GeneratorInterface
 {
     use LoggableTrait;
 
-    const MESSAGE = 'files.get';
+    const MESSAGE = 'files.download';
 
     /** @var  FileRepository */
     private $fileRepository;
@@ -61,7 +61,7 @@ class GetFileHandler implements HttpRequestParserInterface, ExecutorInterface, G
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
             throw new ResponseException(
-                'An error occurred during GetFileHandler.',
+                'An error occurred during DownloadFileHandler.',
                 new ServerErrorResponse([], $request)
             );
         }
