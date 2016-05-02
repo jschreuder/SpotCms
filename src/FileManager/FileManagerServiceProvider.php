@@ -8,7 +8,6 @@ use Pimple\ServiceProviderInterface;
 use Spot\Api\ApplicationServiceProvider;
 use Spot\Api\Response\Generator\MultiEntityGenerator;
 use Spot\Api\Response\Generator\SingleEntityGenerator;
-use Spot\Api\Response\ResponseInterface;
 use Spot\Api\ServiceProvider\RepositoryProviderInterface;
 use Spot\Api\ServiceProvider\RoutingProviderInterface;
 use Spot\FileManager\Handler\DeleteFileHandler;
@@ -40,7 +39,7 @@ class FileManagerServiceProvider implements
             return new Filesystem($container['fileManager.adapter']);
         };
 
-        $container['fileManager.helper'] = function (Container $container) {
+        $container['fileManager.helper'] = function () {
             return new FileManagerHelper();
         };
     }
@@ -56,16 +55,24 @@ class FileManagerServiceProvider implements
     {
         // Files API Calls
         $container['handler.files.upload'] = function (Container $container) {
-            return new UploadFileHandler($container['repository.files'], $container['logger']);
+            return new UploadFileHandler(
+                $container['repository.files'], $container['fileManager.helper'], $container['logger']
+            );
         };
         $container['handler.files.get'] = function (Container $container) {
-            return new GetFileHandler($container['repository.files'], $container['logger']);
+            return new GetFileHandler(
+                $container['repository.files'], $container['fileManager.helper'], $container['logger']
+            );
         };
         $container['handler.files.getDirectory'] = function (Container $container) {
-            return new GetDirectoryListingHandler($container['repository.files'], $container['logger']);
+            return new GetDirectoryListingHandler(
+                $container['repository.files'], $container['fileManager.helper'], $container['logger']
+            );
         };
         $container['handler.files.delete'] = function (Container $container) {
-            return new DeleteFileHandler($container['repository.files'], $container['logger']);
+            return new DeleteFileHandler(
+                $container['repository.files'], $container['fileManager.helper'], $container['logger']
+            );
         };
         $container['handler.files.rename'] = function (Container $container) {
             return new RenameFileHandler(
