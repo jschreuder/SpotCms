@@ -2,10 +2,7 @@
 
 namespace Spot\FileManager\Handler;
 
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
-use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Api\LoggableTrait;
@@ -13,20 +10,13 @@ use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\Generator\GeneratorInterface;
-use Spot\Api\Response\Http\JsonApiResponse;
 use Spot\Api\Response\Message\Response;
 use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\HttpRequestParserHelper;
-use Spot\Application\Request\ValidationFailedException;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
-use Spot\FileManager\Serializer\DirectoryListingSerializer;
-use Tobscure\JsonApi\Document;
-use Tobscure\JsonApi\Resource;
-use Tobscure\JsonApi\SerializerInterface;
 
 class GetDirectoryListingHandler implements HttpRequestParserInterface, ExecutorInterface
 {
