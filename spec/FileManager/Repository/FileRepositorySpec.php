@@ -96,6 +96,46 @@ class FileRepositorySpec extends ObjectBehavior
         fclose($stream2);
     }
 
+    public function it_will_error_without_valid_stream(File $file, \PDOStatement $uniqueStatement)
+    {
+        $uuid = Uuid::uuid4();
+        $name = FileNameValue::get('file.name');
+        $path = FilePathValue::get('/uploads');
+        $stream = tmpfile();
+
+        $file->getUuid()->willReturn($uuid);
+        $file->getName()->willReturn($name);
+        $file->setName($name)->willReturn($file);
+        $file->getPath()->willReturn($path);
+        $file->getStream()->willReturn($stream);
+
+        $this->fileSystem->writeStream($uuid->toString(), $stream)
+            ->willReturn(true);
+
+        $this->pdo->beginTransaction()
+            ->shouldBeCalled();
+        $this->objectRepository->create(File::TYPE, $uuid)
+            ->shouldBeCalled();
+
+        $this->pdo->prepare(new Argument\Token\StringContainsToken('name REGEXP :name'))
+            ->willReturn($uniqueStatement);
+        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_[0-9]+)?\.name'])
+            ->shouldBeCalled();
+        $uniqueStatement->rowCount()
+            ->willReturn(0);
+
+        $this->fileSystem->readStream($uuid->toString())
+            ->willReturn(false);
+
+        $this->pdo->rollBack()
+            ->shouldBeCalled();
+
+        $this->shouldThrow(\RuntimeException::class)->duringCreateFromUpload($file);
+
+        // cleanup
+        fclose($stream);
+    }
+
     public function it_can_create_a_new_file_with_a_unique_name(
         \PDOStatement $uniqueStatement,
         \PDOStatement $insertStatement
