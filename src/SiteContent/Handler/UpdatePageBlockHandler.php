@@ -16,6 +16,7 @@ use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\HttpRequestParserHelper;
+use Spot\SiteContent\BlockType\BlockTypeContainerInterface;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
@@ -28,9 +29,17 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
     /** @var  PageRepository */
     private $pageRepository;
 
-    public function __construct(PageRepository $pageRepository, LoggerInterface $logger)
+    /** @var  BlockTypeContainerInterface */
+    private $blockTypeContainer;
+
+    public function __construct(
+        PageRepository $pageRepository,
+        BlockTypeContainerInterface $blockTypeContainer,
+        LoggerInterface $logger
+    )
     {
         $this->pageRepository = $pageRepository;
+        $this->blockTypeContainer = $blockTypeContainer;
         $this->logger = $logger;
     }
 
@@ -69,6 +78,10 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
             }
             isset($request['sort_order']) && $block->setSortOrder($request['sort_order']);
             isset($request['status']) && $block->setStatus(PageStatusValue::get($request['status']));
+
+            $blockType = $this->blockTypeContainer->getType($block->getType());
+            $blockType->validate($block, $request);
+
             $this->pageRepository->updateBlockForPage($block, $page);
             return new Response(self::MESSAGE, ['data' => $block], $request);
         } catch (\Throwable $exception) {

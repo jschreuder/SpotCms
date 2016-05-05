@@ -18,7 +18,7 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\DataModel\Repository\NoResultException;
-use Spot\SiteContent\Entity\PageBlock;
+use Spot\SiteContent\BlockType\BlockTypeContainerInterface;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
@@ -31,9 +31,17 @@ class AddPageBlockHandler implements HttpRequestParserInterface, ExecutorInterfa
     /** @var  PageRepository */
     private $pageRepository;
 
-    public function __construct(PageRepository $pageRepository, LoggerInterface $logger)
+    /** @var  BlockTypeContainerInterface */
+    private $blockTypeContainer;
+
+    public function __construct(
+        PageRepository $pageRepository,
+        BlockTypeContainerInterface $blockTypeContainer,
+        LoggerInterface $logger
+    )
     {
         $this->pageRepository = $pageRepository;
+        $this->blockTypeContainer = $blockTypeContainer;
         $this->logger = $logger;
     }
 
@@ -67,15 +75,17 @@ class AddPageBlockHandler implements HttpRequestParserInterface, ExecutorInterfa
     {
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['page_uuid']));
-            $pageBlock = new PageBlock(
-                Uuid::uuid4(),
+            $blockType = $this->blockTypeContainer->getType($request['type']);
+            $pageBlock = $blockType->newBlock(
                 $page,
-                $request['type'],
-                $request['parameters'],
                 $request['location'],
                 $request['sort_order'],
                 PageStatusValue::get($request['status'])
             );
+            foreach ($request['parameters'] as $parameter => $value) {
+                $pageBlock[$parameter] = $value;
+            }
+            $blockType->validate($pageBlock, $request);
             $this->pageRepository->addBlockToPage($pageBlock, $page);
             return new Response(self::MESSAGE, ['data' => $pageBlock, 'includes' => ['pages']], $request);
         } catch (NoResultException $exception) {

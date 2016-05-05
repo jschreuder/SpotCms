@@ -13,6 +13,8 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
+use Spot\SiteContent\BlockType\BlockTypeContainer;
+use Spot\SiteContent\BlockType\HtmlContentBlockType;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Handler\AddPageBlockHandler;
@@ -24,14 +26,18 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
     /** @var  \Spot\SiteContent\Repository\PageRepository */
     private $pageRepository;
 
+    /** @var  BlockTypeContainer */
+    private $blockTypeContainer;
+
     /** @var  \Psr\Log\LoggerInterface */
     private $logger;
 
-    public function let(PageRepository $pageRepository, LoggerInterface $logger)
+    public function let(PageRepository $pageRepository, BlockTypeContainer $container, LoggerInterface $logger)
     {
         $this->pageRepository = $pageRepository;
+        $this->blockTypeContainer = $container;
         $this->logger = $logger;
-        $this->beConstructedWith($pageRepository, $logger);
+        $this->beConstructedWith($pageRepository, $container, $logger);
     }
 
     public function it_is_initializable()
@@ -46,7 +52,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
                 'type' => 'pageBlocks',
                 'attributes' => [
                     'type' => 'type',
-                    'parameters' => ['thx' => 1138],
+                    'parameters' => ['content' => '1138'],
                     'location' => 'main',
                     'sort_order' => 42,
                     'status' => 'published',
@@ -89,7 +95,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
         $uuid = Uuid::uuid4();
         $request->offsetGet('page_uuid')->willReturn($uuid->toString());
         $request->offsetGet('type')->willReturn('type');
-        $request->offsetGet('parameters')->willReturn(['thx' => 1138]);
+        $request->offsetGet('parameters')->willReturn(['content' => 1138]);
         $request->offsetGet('location')->willReturn('main');
         $request->offsetGet('sort_order')->willReturn(42);
         $request->offsetGet('status')->willReturn('concept');
@@ -97,6 +103,9 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
 
         $this->pageRepository->getByUuid($uuid)
             ->willReturn($page);
+
+        $this->blockTypeContainer->getType('type')
+            ->willReturn(new HtmlContentBlockType());
 
         $this->pageRepository->addBlockToPage(new Argument\Token\TypeToken(PageBlock::class), $page)
             ->shouldBeCalled();

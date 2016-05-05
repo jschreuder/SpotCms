@@ -10,6 +10,8 @@ use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
+use Spot\SiteContent\BlockType\BlockTypeContainer;
+use Spot\SiteContent\BlockType\HtmlContentBlockType;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Handler\UpdatePageBlockHandler;
@@ -22,14 +24,18 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
     /** @var  \Spot\SiteContent\Repository\PageRepository */
     private $pageRepository;
 
+    /** @var  BlockTypeContainer */
+    private $blockTypeContainer;
+
     /** @var  \Psr\Log\LoggerInterface */
     private $logger;
 
-    public function let(PageRepository $pageRepository, LoggerInterface $logger)
+    public function let(PageRepository $pageRepository, BlockTypeContainer $container, LoggerInterface $logger)
     {
         $this->pageRepository = $pageRepository;
+        $this->blockTypeContainer = $container;
         $this->logger = $logger;
-        $this->beConstructedWith($pageRepository, $logger);
+        $this->beConstructedWith($pageRepository, $container, $logger);
     }
 
     public function it_is_initializable()
@@ -99,9 +105,8 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
     {
         $pageUuid = Uuid::uuid4();
         $pageBlockUuid = Uuid::uuid4();
-        $parameters = ['answer' => 42, 'new_gods' => 7];
+        $parameters = ['content' => 42, 'new_gods' => 7];
         $sortOrder = 2;
-        $oldStatus = PageStatusValue::get(PageStatusValue::PUBLISHED);
         $request->offsetExists('page_uuid')->willReturn(true);
         $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
         $request->offsetExists('uuid')->willReturn(true);
@@ -113,12 +118,17 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
         $request->offsetExists('status')->willReturn(false);
         $request->getAcceptContentType()->willReturn('text/xml');
 
-        $pageBlock->offsetSet('answer', $parameters['answer'])->shouldBeCalled();
+        $pageBlock->offsetSet('content', $parameters['content'])->shouldBeCalled();
         $pageBlock->offsetSet('new_gods', $parameters['new_gods'])->shouldBeCalled();
+        $pageBlock->getType()->willReturn('type');
+        $pageBlock->getParameters()->willReturn($parameters);
         $pageBlock->setSortOrder($sortOrder)->shouldBeCalled();
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
         $page->getBlockByUuid($pageBlockUuid)->willReturn($pageBlock);
+
+        $this->blockTypeContainer->getType('type')
+            ->willReturn(new HtmlContentBlockType());
 
         $this->pageRepository->updateBlockForPage($pageBlock, $page)->shouldBeCalled();
         $response = $this->executeRequest($request);
@@ -129,7 +139,6 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
     {
         $pageUuid = Uuid::uuid4();
         $pageBlockUuid = Uuid::uuid4();
-        $sortOrder = 2;
         $newStatus = PageStatusValue::get(PageStatusValue::DELETED);
         $request->offsetExists('page_uuid')->willReturn(true);
         $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
@@ -141,10 +150,15 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
         $request->offsetGet('status')->willReturn($newStatus->toString());
         $request->getAcceptContentType()->willReturn('text/xml');
 
+        $pageBlock->getType()->willReturn('type');
         $pageBlock->setStatus($newStatus)->shouldBeCalled();
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
         $page->getBlockByUuid($pageBlockUuid)->willReturn($pageBlock);
+        $pageBlock->getParameters()->willReturn(['content' => 'test']);
+
+        $this->blockTypeContainer->getType('type')
+            ->willReturn(new HtmlContentBlockType());
 
         $this->pageRepository->updateBlockForPage($pageBlock, $page)->shouldBeCalled();
         $response = $this->executeRequest($request);

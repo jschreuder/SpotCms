@@ -3,6 +3,7 @@
 namespace Spot\SiteContent;
 
 use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Ramsey\Uuid\UuidInterface;
 use Spot\Api\Response\Generator\MultiEntityGenerator;
 use Spot\Api\Response\Generator\SingleEntityGenerator;
@@ -10,6 +11,11 @@ use Spot\Api\Response\ResponseInterface;
 use Spot\Api\ApplicationServiceProvider;
 use Spot\Api\ServiceProvider\RepositoryProviderInterface;
 use Spot\Api\ServiceProvider\RoutingProviderInterface;
+use Spot\SiteContent\BlockType\BlockTypeContainer;
+use Spot\SiteContent\BlockType\HtmlContentBlockType;
+use Spot\SiteContent\BlockType\RssFeedBlockType;
+use Spot\SiteContent\BlockType\VimeoBlockType;
+use Spot\SiteContent\BlockType\YoutubeBlockType;
 use Spot\SiteContent\Handler\AddPageBlockHandler;
 use Spot\SiteContent\Handler\CreatePageHandler;
 use Spot\SiteContent\Handler\DeletePageHandler;
@@ -23,7 +29,10 @@ use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Serializer\PageBlockSerializer;
 use Spot\SiteContent\Serializer\PageSerializer;
 
-class SiteContentServiceProvider implements RepositoryProviderInterface, RoutingProviderInterface
+class SiteContentServiceProvider implements
+    ServiceProviderInterface,
+    RepositoryProviderInterface,
+    RoutingProviderInterface
 {
     /** @var  string */
     private $uriSegment;
@@ -31,6 +40,18 @@ class SiteContentServiceProvider implements RepositoryProviderInterface, Routing
     public function __construct(string $uriSegment)
     {
         $this->uriSegment = $uriSegment;
+    }
+
+    public function register(Container $container)
+    {
+        $container['siteContent.blockTypes'] = function () {
+            return new BlockTypeContainer([
+                new HtmlContentBlockType(),
+                new RssFeedBlockType(),
+                new VimeoBlockType(),
+                new YoutubeBlockType(),
+            ]);
+        };
     }
 
     public function registerRepositories(Container $container)
@@ -61,13 +82,21 @@ class SiteContentServiceProvider implements RepositoryProviderInterface, Routing
 
         // PageBlocks API Calls
         $container['handler.pageBlocks.create'] = function (Container $container) {
-            return new AddPageBlockHandler($container['repository.pages'], $container['logger']);
+            return new AddPageBlockHandler(
+                $container['repository.pages'],
+                $container['siteContent.blockTypes'],
+                $container['logger']
+            );
         };
         $container['handler.pageBlocks.get'] = function (Container $container) {
             return new GetPageBlockHandler($container['repository.pages'], $container['logger']);
         };
         $container['handler.pageBlocks.update'] = function (Container $container) {
-            return new UpdatePageBlockHandler($container['repository.pages'], $container['logger']);
+            return new UpdatePageBlockHandler(
+                $container['repository.pages'],
+                $container['siteContent.blockTypes'],
+                $container['logger']
+            );
         };
         $container['handler.pageBlocks.delete'] = function (Container $container) {
             return new DeletePageBlockHandler($container['repository.pages'], $container['logger']);
