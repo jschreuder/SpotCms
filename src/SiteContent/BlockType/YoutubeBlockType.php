@@ -25,7 +25,7 @@ class YoutubeBlockType implements BlockTypeInterface
             Uuid::uuid4(),
             $page,
             $this->getTypeName(),
-            ['youtubeUrl' => ''],
+            ['youtubeUrl' => null],
             $location,
             $sortOrder,
             $status

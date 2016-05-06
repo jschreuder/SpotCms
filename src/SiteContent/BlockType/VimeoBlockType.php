@@ -25,7 +25,7 @@ class VimeoBlockType implements BlockTypeInterface
             Uuid::uuid4(),
             $page,
             $this->getTypeName(),
-            ['vimeoUrl' => ''],
+            ['vimeoUrl' => null],
             $location,
             $sortOrder,
             $status

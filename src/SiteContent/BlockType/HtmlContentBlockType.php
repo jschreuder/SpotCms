@@ -25,7 +25,7 @@ class HtmlContentBlockType implements BlockTypeInterface
             Uuid::uuid4(),
             $page,
             $this->getTypeName(),
-            ['content' => ''],
+            ['content' => null],
             $location,
             $sortOrder,
             $status

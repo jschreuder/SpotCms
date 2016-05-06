@@ -25,7 +25,7 @@ class RssFeedBlockType implements BlockTypeInterface
             Uuid::uuid4(),
             $page,
             $this->getTypeName(),
-            ['feedUrl' => ''],
+            ['feedUrl' => null],
             $location,
             $sortOrder,
             $status
