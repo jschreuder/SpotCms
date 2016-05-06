@@ -36,7 +36,7 @@ class YoutubeBlockType implements BlockTypeInterface
     {
         $validator = new Validator();
         $validator->required('youtubeUrl')
-            ->regex('#^https://(www\.youtube\.com|www\.youtube\-nocookie\.com|youtu\.be)/[a-z0-9_]+$#uiD');
+            ->regex('#^https:\/\/(www\.youtube\.com\/watch\?v=|youtu\.be\/)[a-z0-9_]+#uiD');
         $result = $validator->validate($block->getParameters());
         if (!$result->isValid()) {
             throw new ValidationFailedException($result, $request);

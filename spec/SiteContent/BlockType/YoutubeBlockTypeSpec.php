@@ -37,7 +37,7 @@ class YoutubeBlockTypeSpec extends ObjectBehavior
 
     public function it_can_validate_a_block(PageBlock $block, RequestInterface $request)
     {
-        $block->getParameters()->willReturn(['youtubeUrl' => 'https://www.youtube.com/s0m3Ur1']);
+        $block->getParameters()->willReturn(['youtubeUrl' => 'https://www.youtube.com/watch?v=s0m3Ur1']);
         $this->validate($block, $request)->shouldReturn(null);
     }
 
