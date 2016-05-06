@@ -41,4 +41,9 @@ class BlockTypeContainerSpec extends ObjectBehavior
         $this->addType($blockType)->shouldReturn($this);
         $this->getType($typeName)->shouldReturn($blockType);
     }
+
+    public function it_cant_retrieve_an_unknown_type()
+    {
+        $this->shouldThrow(\OutOfBoundsException::class)->duringGetType('the-great-unknown');
+    }
 }
