@@ -155,7 +155,7 @@ class ConfigRepository
      * @param   ConfigCollection[] $collections
      * @return  void
      */
-    public function getItemsForCollections(array $collections)
+    private function getItemsForCollections(array $collections)
     {
         $uuids = [];
         /** @var  ConfigCollection[] $collectionsByUuid */

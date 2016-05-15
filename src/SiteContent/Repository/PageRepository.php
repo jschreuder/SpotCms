@@ -260,7 +260,7 @@ class PageRepository
      * @param   Page[] $pages
      * @return  void
      */
-    public function getBlocksForPages(array $pages)
+    private function getBlocksForPages(array $pages)
     {
         $uuids = [];
         /** @var  Page[] $pagesByUuid */
