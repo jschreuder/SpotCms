@@ -16,7 +16,7 @@ class ImageEditor
     /** @var  AbstractImagine */
     private $imagine;
 
-    /** @var  \Closure  indexed by operation name */
+    /** @var  \Closure[]  indexed by operation name */
     private $operations;
 
     public function __construct(AbstractImagine $imagine)
@@ -25,7 +25,7 @@ class ImageEditor
         $this->operations = $this->availableOperations();
     }
 
-    /** @return  \Closure  indexed by operation name */
+    /** @return  \Closure[]  indexed by operation name */
     protected function availableOperations() : array
     {
         return [
