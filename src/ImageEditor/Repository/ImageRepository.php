@@ -2,6 +2,7 @@
 
 namespace Spot\ImageEditor\Repository;
 
+use Ramsey\Uuid\Uuid;
 use Spot\DataModel\Repository\SqlRepositoryTrait;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\Repository\FileRepository;
@@ -25,11 +26,14 @@ class ImageRepository
 
     public function getByFullPath(string $path) : File
     {
-        $file = $this->fileRepository->getByFullPath($path);
-        if (!$file->isImage()) {
-            throw new \RuntimeException('File found, but is not of a supported image type: ' . $path);
-        }
-        return $file;
+        return $this->fileRepository->getByFullPath($path);
+    }
+
+    public function createImage(File $file, $imageContents) : File
+    {
+        $newFile = new File(Uuid::uuid4(), $file->getName(), $file->getPath(), $file->getMimeType(), $imageContents);
+        $this->fileRepository->createFromUpload($newFile);
+        return $newFile;
     }
 
     /** @return  string[] */
