@@ -49,6 +49,9 @@ class ConfigCollection implements \ArrayAccess
 
     public function setItem(string $name, $value) : self
     {
+        if (!$this->hasItem($name)) {
+            throw new \OutOfBoundsException('ConfigCollection does not have an item named: ' . $name);
+        }
         $this->items[$name] = $value;
         return $this;
     }
