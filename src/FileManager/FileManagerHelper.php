@@ -15,6 +15,7 @@ class FileManagerHelper
     {
         $filter->value($name)
             ->string()
+            ->stripHtml()
             ->trim(" \t\n\r\0\x0B/")
             ->prepend('/');
     }
@@ -23,6 +24,7 @@ class FileManagerHelper
     {
         $filter->value($name)
             ->string()
+            ->stripHtml()
             ->trim(" \t\n\r\0\x0B/");
     }
 
