@@ -100,9 +100,4 @@ class File
         $this->stream = $stream;
         return $this;
     }
-
-    public function isImage() : bool
-    {
-        return preg_match('#^image/(jpeg|jpg|jpe|gif|png)$#ui', $this->getMimeType()->toString()) !== 0;
-    }
 }

@@ -119,28 +119,4 @@ class FileSpec extends ObjectBehavior
         $this->metaDataGetCreatedTimestamp()->shouldReturn($inserted);
         $this->metaDataGetUpdatedTimestamp()->shouldReturn($updated);
     }
-
-    public function it_can_recognize_a_non_image()
-    {
-        $this->beConstructedWith(
-            $this->uuid,
-            $this->name,
-            $this->path,
-            MimeTypeValue::get('application/json'),
-            $this->stream
-        );
-        $this->isImage()->shouldReturn(false);
-    }
-
-    public function it_can_recognize_an_image()
-    {
-        $this->beConstructedWith(
-            $this->uuid,
-            $this->name,
-            $this->path,
-            MimeTypeValue::get('image/jpg'),
-            $this->stream
-        );
-        $this->isImage()->shouldReturn(true);
-    }
 }
