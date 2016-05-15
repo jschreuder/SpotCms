@@ -9,8 +9,8 @@ class AddFilesTable extends AbstractMigration
         $this->execute("
             CREATE TABLE files (
                 file_uuid BINARY(16) NOT NULL,
-                name VARCHAR(96) NOT NULL,
-                path VARCHAR(192) NOT NULL,
+                name VARCHAR(64) NOT NULL,
+                path VARCHAR(128) NOT NULL,
                 mime_type VARCHAR(128) NOT NULL,
                 PRIMARY KEY (file_uuid),
                 UNIQUE path_file_UNQ (path ASC, name ASC)

@@ -7,8 +7,8 @@ use Particle\Validator\Validator;
 
 class FileManagerHelper
 {
-    const FILENAME_LENGTH = 96;
-    const PATH_LENGTH = 192;
+    const FILENAME_LENGTH = 64;
+    const PATH_LENGTH = 128;
     const FULL_PATH_LENGTH = self::PATH_LENGTH + self::FILENAME_LENGTH;
 
     public function addPathFilter(Filter $filter, string $name)
