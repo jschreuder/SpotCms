@@ -18,7 +18,7 @@ class AddPageTable extends AbstractMigration
                 PRIMARY KEY (page_uuid),
                 UNIQUE slug_UNQ (slug ASC),
                 INDEX parent_uuid_IDX (parent_uuid ASC)
-            ) ENGINE = InnoDB
+            ) ENGINE=InnoDB CHARSET=utf8mb4
         ");
         $this->execute("
             ALTER TABLE pages

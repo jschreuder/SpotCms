@@ -18,7 +18,7 @@ class AddPageBlocksToPages extends AbstractMigration
                 PRIMARY KEY (page_block_uuid),
                 INDEX page_uuid_IDX (page_uuid ASC),
                 INDEX location_IDX (location ASC)
-            ) ENGINE = InnoDB
+            ) ENGINE=InnoDB CHARSET=utf8mb4
         ");
         $this->execute("
             ALTER TABLE page_blocks

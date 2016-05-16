@@ -14,7 +14,7 @@ class AddGeneralObjectTable extends AbstractMigration
                 updated DATETIME NOT NULL,
                 PRIMARY KEY (uuid),
                 INDEX type_IDX (type ASC)
-            ) ENGINE = InnoDB
+            ) ENGINE=InnoDB CHARSET=utf8mb4
         ");
     }
 

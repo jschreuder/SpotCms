@@ -13,7 +13,7 @@ class AddConfigCollections extends AbstractMigration
                 name VARCHAR(48) NOT NULL,
                 PRIMARY KEY (config_collection_uuid),
                 UNIQUE type_name_UNQ (type ASC, name ASC)
-            ) ENGINE = InnoDB
+            ) ENGINE=InnoDB CHARSET=utf8mb4
         ");
         $this->execute("
             ALTER TABLE config_collections
@@ -29,7 +29,7 @@ class AddConfigCollections extends AbstractMigration
                 name VARCHAR(96) NOT NULL,
                 value TEXT NULL,
                 PRIMARY KEY (config_collection_uuid, name)
-            ) ENGINE = InnoDB
+            ) ENGINE=InnoDB CHARSET=utf8mb4
         ");
         $this->execute("
             ALTER TABLE config_items
