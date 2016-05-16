@@ -57,18 +57,13 @@ class ImageEditor
         preg_match(self::MIME_PATTERN, $file->getMimeType()->toString(), $matches);
         $imageMimeType = $matches[1] ?? 'none';
 
-        switch ($imageMimeType) {
-            case 'jpg':
-            case 'jpeg':
-            case 'jpe':
-                return 'jpeg';
-            case 'png':
-                return 'png';
-            case 'gif':
-                return 'gif';
-            default:
-                throw new RuntimeException('Invalid image type, cannot edit: ' . $file->getMimeType()->toString());
+        if (in_array($imageMimeType, ['jpg', 'jpe', 'jpeg'], true)) {
+            return 'jpeg';
+        } elseif (in_array($imageMimeType, ['png', 'gif'], true)) {
+            return $imageMimeType;
         }
+
+        throw new RuntimeException('Invalid image type, cannot edit: ' . $file->getMimeType()->toString());
     }
 
     /** @return  resource */
