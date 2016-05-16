@@ -25,7 +25,7 @@ class HtmlContentBlockType implements BlockTypeInterface
             Uuid::uuid4(),
             $page,
             $this->getTypeName(),
-            ['content' => null],
+            ['content' => null, 'wysiwyg' => true],
             $location,
             $sortOrder,
             $status
@@ -36,6 +36,7 @@ class HtmlContentBlockType implements BlockTypeInterface
     {
         $validator = new Validator();
         $validator->required('content');
+        $validator->optional('wysiwyg')->bool();
         $result = $validator->validate($block->getParameters());
         if (!$result->isValid()) {
             throw new ValidationFailedException($result, $request);
