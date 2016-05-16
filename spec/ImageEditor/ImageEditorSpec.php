@@ -42,9 +42,21 @@ class ImageEditorSpec extends ObjectBehavior
         $this->isImage($file)->shouldReturn(true);
     }
 
-    public function it_can_determine_the_jpeg_format_from_mime_type(File $file)
+    public function it_can_determine_the_jpg_format_from_mime_type(File $file)
     {
         $file->getMimeType()->willReturn(MimeTypeValue::get('image/jpg'));
+        $this->determineImageFormat($file)->shouldReturn('jpeg');
+    }
+
+    public function it_can_determine_the_jpe_format_from_mime_type(File $file)
+    {
+        $file->getMimeType()->willReturn(MimeTypeValue::get('image/jpe'));
+        $this->determineImageFormat($file)->shouldReturn('jpeg');
+    }
+
+    public function it_can_determine_the_jpeg_format_from_mime_type(File $file)
+    {
+        $file->getMimeType()->willReturn(MimeTypeValue::get('image/jpeg'));
         $this->determineImageFormat($file)->shouldReturn('jpeg');
     }
 
@@ -95,6 +107,16 @@ class ImageEditorSpec extends ObjectBehavior
         $effects->blur($operations['blur']['amount'])->shouldBeCalled();
 
         $this->process($file, $operations);
+    }
+
+    public function it_will_error_on_invalid_operation(File $file, ImageInterface $image)
+    {
+        $stream = tmpfile();
+        $file->getStream()->willReturn($stream);
+        $this->imagine->read($stream)->willReturn($image);
+
+        $this->shouldThrow(\RuntimeException::class)->duringProcess($file, ['nope' => []]);
+        $this->shouldThrow(\RuntimeException::class)->duringProcess($file, ['resize' => []]);
     }
 
     public function it_can_output_the_result(File $file, ImageInterface $image)

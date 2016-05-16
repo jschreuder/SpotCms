@@ -95,8 +95,6 @@ class ImageEditor
                 $callArgs[] = $image;
             } elseif (array_key_exists($parameter->getName(), $args)) {
                 $callArgs[] = $args[$parameter->getName()];
-            } elseif ($parameter->isDefaultValueAvailable()) {
-                $callArgs[] = $parameter->getDefaultValue();
             } else {
                 throw new \RuntimeException(
                     'Parameter ' . $parameter->getName() . ' missing for image operation ' . $operationName
