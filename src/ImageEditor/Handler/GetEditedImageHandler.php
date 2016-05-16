@@ -54,7 +54,7 @@ class GetEditedImageHandler implements HttpRequestParserInterface, ExecutorInter
         try {
             $file = $this->imageRepository->getByFullPath($request['path']);
             $image = $this->imageEditor->process($file, $request['operations']);
-            return new Response(self::MESSAGE, ['data' => $image, 'file' => $file], $request);
+            return new Response(self::MESSAGE, ['image' => $image, 'file' => $file], $request);
         } catch (NoUniqueResultException $e) {
             return new NotFoundResponse([], $request);
         } catch (\Throwable $exception) {
@@ -71,8 +71,13 @@ class GetEditedImageHandler implements HttpRequestParserInterface, ExecutorInter
         /** @var  File $file */
         $file = $response['file'];
         $image = $response['image'];
+
+        $imageStream = tmpfile();
+        fputs($imageStream, $this->imageEditor->output($file, $image));
+        rewind($imageStream);
+
         return new \Zend\Diactoros\Response(
-            $this->imageEditor->output($file, $image),
+            $imageStream,
             200,
             [
                 'Content-Type' => $file->getMimeType()->toString(),
