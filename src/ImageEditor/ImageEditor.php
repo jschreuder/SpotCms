@@ -39,7 +39,7 @@ class ImageEditor
         ];
     }
 
-    public function getOperation(string $operation) : \Closure
+    protected function getOperation(string $operation) : \Closure
     {
         if (!isset($this->operations[$operation])) {
             throw new \RuntimeException('Unsupported image operation: ' . $operation);
