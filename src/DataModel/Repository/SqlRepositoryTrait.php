@@ -7,7 +7,7 @@ trait SqlRepositoryTrait
     /** @var  \PDO */
     private $pdo;
 
-    protected function executeSql(string $sql, array $parameters) : \PDOStatement
+    protected function executeSql(string $sql, array $parameters = []) : \PDOStatement
     {
         $query = $this->pdo->prepare($sql);
         $query->execute($parameters);
