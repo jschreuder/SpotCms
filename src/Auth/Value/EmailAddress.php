@@ -6,7 +6,7 @@ use Spot\DataModel\Value\ValueInterface;
 
 class EmailAddress implements ValueInterface
 {
-    public static function get(string $value)
+    public static function get(string $value) : EmailAddress
     {
         return new self($value);
     }
