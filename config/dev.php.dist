@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'logger' => function () {
+        $logger = new \Monolog\Logger('spot-api');
+        $logger->pushHandler((new \Monolog\Handler\StreamHandler(
+            __DIR__ . '/../logs/'.date('Ymd').'.log',
+            \Monolog\Logger::NOTICE
+        ))->setFormatter(new \Monolog\Formatter\LineFormatter()));
+        return $logger;
+    },
+
+    'fileManager.adapter' => function () {
+        return new \League\Flysystem\Adapter\Local(__DIR__.'/../data/local');
+    },
+
+    'db.dsn' => 'mysql:host=localhost;charset=utf8',
+    'db.dbname' => 'spot_cms_dev',
+    'db.user' => 'root',
+    'db.pass' => 'root',
+
+    'modules' => [
+        new \Spot\SiteContent\SiteContentServiceProvider('/pages'),
+        new \Spot\FileManager\FileManagerServiceProvider('/files'),
+        new \Spot\ImageEditor\ImageEditorServiceProvider('/images'),
+        new \Spot\Auth\AuthServiceProvider('/auth'),
+    ],
+];
