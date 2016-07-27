@@ -4,7 +4,7 @@ return [
     'logger' => function () {
         $logger = new \Monolog\Logger('spot-api');
         $logger->pushHandler((new \Monolog\Handler\StreamHandler(
-            __DIR__ . '/../logs/'.date('Ymd').'.log',
+            __DIR__ . '/../logs/' . (php_sapi_name() === 'cli' ? 'cli' : 'web') . '-' . date('Ymd') . '.log',
             \Monolog\Logger::NOTICE
         ))->setFormatter(new \Monolog\Formatter\LineFormatter()));
         return $logger;
