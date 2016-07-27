@@ -73,12 +73,11 @@ class DefaultServiceProvider implements
         };
 
         // Add error handlers
-        $jsonApiCT = 'application/vnd.api+json';
         $builder->addExecutor('error.badRequest', 'errorHandler.badRequest');
-        $builder->addGenerator('error.badRequest', $jsonApiCT, 'errorHandler.badRequest');
+        $builder->addGenerator('error.badRequest', self::JSON_API_CT, 'errorHandler.badRequest');
         $builder->addExecutor('error.notFound', 'errorHandler.notFound');
-        $builder->addGenerator('error.notFound', $jsonApiCT, 'errorHandler.notFound');
+        $builder->addGenerator('error.notFound', self::JSON_API_CT, 'errorHandler.notFound');
         $builder->addExecutor('error.serverError', 'errorHandler.serverError');
-        $builder->addGenerator('error.serverError', $jsonApiCT, 'errorHandler.serverError');
+        $builder->addGenerator('error.serverError', self::JSON_API_CT, 'errorHandler.serverError');
     }
 }
