@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9b010d88e4a2988609be00475e817302",
-    "content-hash": "f119572a59ebb00a7dba0bc9c872d9af",
+    "hash": "c84c61f492a6378732f53314904ba81b",
+    "content-hash": "b4017b1fda0450a9325eb5bab76ef70d",
     "packages": [
         {
             "name": "imagine/imagine",
@@ -807,16 +807,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v3.0.6",
+            "version": "v3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "34a214710e0714b6efcf40ba3cd1e31373a97820"
+                "reference": "747154aa69b0f83cd02fc9aa554836dee417631a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/34a214710e0714b6efcf40ba3cd1e31373a97820",
-                "reference": "34a214710e0714b6efcf40ba3cd1e31373a97820",
+                "url": "https://api.github.com/repos/symfony/console/zipball/747154aa69b0f83cd02fc9aa554836dee417631a",
+                "reference": "747154aa69b0f83cd02fc9aa554836dee417631a",
                 "shasum": ""
             },
             "require": {
@@ -836,7 +836,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.0-dev"
+                    "dev-master": "3.1-dev"
                 }
             },
             "autoload": {
@@ -863,7 +863,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2016-04-28 09:48:42"
+            "time": "2016-06-29 07:02:31"
         },
         {
             "name": "symfony/filesystem",

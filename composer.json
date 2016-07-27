@@ -31,7 +31,8 @@
         "ramsey/uuid": "^3.0",
         "tobscure/json-api": "~0.2.1",
         "league/flysystem": "^1.0",
-        "imagine/imagine": "^0.6"
+        "imagine/imagine": "^0.6",
+        "symfony/console": "^3.1"
     },
     "require-dev": {
         "phpspec/phpspec": "^2.5",
