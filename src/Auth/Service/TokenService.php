@@ -36,6 +36,9 @@ class TokenService
         if (!hash_equals($token->getPassCode(), $passCode)) {
             throw new \RuntimeException('Invalid token');
         }
+        if ($token->getExpires() < new \DateTimeImmutable()) {
+            throw new \RuntimeException('Expired token');
+        }
         return $token;
     }
 

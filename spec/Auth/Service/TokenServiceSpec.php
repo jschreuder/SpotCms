@@ -45,8 +45,21 @@ class TokenServiceSpec extends ObjectBehavior
 
         $this->tokenRepository->getByUuid($uuid)->willReturn($token);
         $token->getPassCode()->willReturn($passCode);
+        $token->getExpires()->willReturn(new \DateTimeImmutable('+42 seconds'));
 
         $this->getToken($uuid, $passCode)->shouldReturn($token);
+    }
+
+    public function it_cant_get_an_expired_token(Token $token)
+    {
+        $uuid = Uuid::uuid4();
+        $passCode = bin2hex(random_bytes(20));
+
+        $this->tokenRepository->getByUuid($uuid)->willReturn($token);
+        $token->getPassCode()->willReturn($passCode);
+        $token->getExpires()->willReturn(new \DateTimeImmutable('-42 seconds'));
+
+        $this->shouldThrow(\RuntimeException::class)->duringGetToken($uuid, $passCode);
     }
 
     public function it_errors_on_invalid_passCode(Token $token)
