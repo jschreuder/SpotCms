@@ -22,8 +22,8 @@ class TokenRepository
     public function create(Token $token)
     {
         $this->executeSql('
-            INSERT INTO tokens (token_uuid, pass_code, user_uuid, created)
-                 VALUES (:token_uuid, :pass_code, :user_uuid, :created)
+            INSERT INTO tokens (token_uuid, pass_code, user_uuid, expires)
+                 VALUES (:token_uuid, :pass_code, :user_uuid, :expires)
         ', [
             'token_uuid' => $token->getUuid()->getBytes(),
             'pass_code' => $token->getPassCode(),
