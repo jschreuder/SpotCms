@@ -5,6 +5,7 @@ namespace spec\Spot\Auth\Service;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Entity\User;
 use Spot\Auth\Exception\LoginFailedException;
@@ -33,6 +34,25 @@ class AuthenticationServiceSpec extends ObjectBehavior
     public function it_is_initializable()
     {
         $this->shouldHaveType(AuthenticationService::class);
+    }
+
+    public function it_can_create_a_user()
+    {
+        $email = 'r2@d2.bot';
+        $password = 'please.stop.talking.c3po';
+        $displayName = 'R2D2';
+
+        $this->userRepository->create(new Argument\Token\TypeToken(User::class))->shouldBeCalled();
+
+        $user = $this->createUser(EmailAddress::get($email), $password, $displayName);
+        $user->getUuid()->shouldHaveType(UuidInterface::class);
+        $user->getEmailAddress()->toString()->shouldReturn($email);
+        $user->getDisplayName()->shouldReturn($displayName);
+
+        $passwordHash = $user->getPassword()->getWrappedObject();
+        if (!password_verify($password, $passwordHash)) {
+            throw new \RuntimeException('Password did not verify.');
+        }
     }
 
     public function it_can_login_a_user(User $user, Token $token)

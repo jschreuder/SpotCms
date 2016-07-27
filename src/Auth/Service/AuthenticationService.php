@@ -2,6 +2,7 @@
 
 namespace Spot\Auth\Service;
 
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Entity\User;
@@ -31,6 +32,18 @@ class AuthenticationService
     {
         $this->userRepository = $userRepository;
         $this->tokenService = $tokenService;
+    }
+
+    public function createUser(EmailAddress $emailAddress, string $password, string $displayName) : User
+    {
+        $user = new User(
+            Uuid::uuid4(),
+            $emailAddress,
+            password_hash($password, $this->algorithm, $this->passwordOptions),
+            $displayName
+        );
+        $this->userRepository->create($user);
+        return $user;
     }
 
     public function login(string $email, string $password) : Token
