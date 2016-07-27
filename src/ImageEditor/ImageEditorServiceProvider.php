@@ -9,6 +9,7 @@ use Spot\Api\ApplicationServiceProvider;
 use Spot\Api\ServiceProvider\RepositoryProviderInterface;
 use Spot\Api\ServiceProvider\RoutingProviderInterface;
 use Spot\ImageEditor\Handler\GetEditedImageHandler;
+use Spot\ImageEditor\Handler\StoreEditedImageHandler;
 use Spot\ImageEditor\Repository\ImageRepository;
 
 class ImageEditorServiceProvider implements
