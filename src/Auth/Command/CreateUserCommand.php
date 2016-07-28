@@ -2,9 +2,6 @@
 
 namespace Spot\Auth\Command;
 
-use Ramsey\Uuid\Uuid;
-use Spot\Auth\Entity\User;
-use Spot\Auth\Repository\UserRepository;
 use Spot\Auth\Service\AuthenticationService;
 use Spot\Auth\Value\EmailAddress;
 use Symfony\Component\Console\Command\Command;
@@ -30,10 +27,10 @@ class CreateUserCommand extends Command
             ->setDescription('Creates a new user')
             ->addArgument('email-address', InputArgument::REQUIRED, 'User e-mail address is their username')
             ->addArgument('password', InputArgument::REQUIRED, 'Password')
-            ->addArgument('display-name', InputArgument::OPTIONAL, 'The name with which the user is displayed');
+            ->addArgument('display-name', InputArgument::OPTIONAL, 'The name with which the user is displayed', '');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
         $this->authenticationService->createUser(
             EmailAddress::get($input->getArgument('email-address')),
