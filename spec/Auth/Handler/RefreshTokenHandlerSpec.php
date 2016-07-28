@@ -36,15 +36,8 @@ class RefreshTokenHandlerSpec extends ObjectBehavior
         $passCode = bin2hex(random_bytes(20));
 
         $httpRequest->getHeaderLine('Accept')->shouldBeCalled();
-        $httpRequest->getParsedBody()->willReturn([
-            'data' => [
-                'type' => 'tokens',
-                'id' => $token,
-                'attributes' => [
-                    'pass_code' => $passCode,
-                ],
-            ],
-        ]);
+        $httpRequest->getHeaderLine('Authentication-Token')->willReturn($token);
+        $httpRequest->getHeaderLine('Authentication-Pass-Code')->willReturn($passCode);
 
         $request = $this->parseHttpRequest($httpRequest, []);
         $request->shouldHaveType(RequestInterface::class);

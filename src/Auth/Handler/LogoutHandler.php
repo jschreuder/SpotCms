@@ -34,19 +34,13 @@ class LogoutHandler implements HttpRequestParserInterface, ExecutorInterface, Ge
         $rpHelper = new HttpRequestParserHelper($httpRequest);
 
         $validator = $rpHelper->getValidator();
-        $validator->required('data.type')->equals('tokens');
-        $validator->required('data.id')->uuid();
-        $validator->required('data.attributes.pass_code')->length(40);
+        $validator->required('token')->uuid();
+        $validator->required('pass_code')->length(40);
 
-        $data = $rpHelper->filterAndValidate((array) $httpRequest->getParsedBody())['data'];
-        return new Request(
-            self::MESSAGE,
-            [
-                'token' => $data['id'],
-                'pass_code' => $data['attributes']['pass_code'],
-            ],
-            $httpRequest
-        );
+        return new Request(self::MESSAGE, $rpHelper->filterAndValidate([
+            'token' => $httpRequest->getHeaderLine('Authentication-Token'),
+            'pass_code' => $httpRequest->getHeaderLine('Authentication-Pass-Code'),
+        ]), $httpRequest);
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
