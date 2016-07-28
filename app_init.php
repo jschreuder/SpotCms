@@ -19,7 +19,7 @@ $container['environment'] = $environment;
 Monolog\ErrorHandler::register($container['logger']);
 
 // Register services to DiC
-$serviceProvider = new Spot\DefaultServiceProvider();
-$serviceProvider->init($container);
+(new Spot\DefaultServiceProvider())->init($container);
+(new Spot\Auth\AuthServiceProvider('/auth'))->init($container);
 
 return $container['app'];

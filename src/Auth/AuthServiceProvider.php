@@ -3,23 +3,21 @@
 namespace Spot\Auth;
 
 use Pimple\Container;
-use Pimple\ServiceProviderInterface;
 use Spot\Api\ApplicationServiceProvider;
 use Spot\Api\Handler\ErrorHandler;
-use Spot\Api\ServiceProvider\RepositoryProviderInterface;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\ServiceProvider\RoutingProviderInterface;
 use Spot\Auth\Exception\LoginFailedException;
 use Spot\Auth\Handler\LoginHandler;
 use Spot\Auth\Handler\LogoutHandler;
 use Spot\Auth\Handler\RefreshTokenHandler;
+use Spot\Auth\Middleware\HttpRequestParserAuthMiddleware;
 use Spot\Auth\Repository\TokenRepository;
 use Spot\Auth\Repository\UserRepository;
 use Spot\Auth\Service\AuthenticationService;
 use Spot\Auth\Service\TokenService;
 
 class AuthServiceProvider implements
-    ServiceProviderInterface,
-    RepositoryProviderInterface,
     RoutingProviderInterface
 {
     /** @var  string */
@@ -30,18 +28,7 @@ class AuthServiceProvider implements
         $this->uriSegment = $uriSegment;
     }
 
-    public function register(Container $container)
-    {
-        $container['service.tokens'] = function (Container $container) {
-            return new TokenService($container['repository.tokens'], 3600 * 24 * 1);
-        };
-
-        $container['service.authentication'] = function (Container $container) {
-            return new AuthenticationService($container['repository.users'], $container['service.tokens']);
-        };
-    }
-
-    public function registerRepositories(Container $container)
+    public function init(Container $container)
     {
         $container['repository.tokens'] = function (Container $container) {
             return new TokenRepository($container['db']);
@@ -50,6 +37,25 @@ class AuthServiceProvider implements
         $container['repository.users'] = function (Container $container) {
             return new UserRepository($container['db']);
         };
+
+        $container['service.tokens'] = function (Container $container) {
+            return new TokenService($container['repository.tokens'], 3600 * 24 * 1);
+        };
+
+        $container['service.authentication'] = function (Container $container) {
+            return new AuthenticationService($container['repository.users'], $container['service.tokens']);
+        };
+
+        $container->extend('app.httpRequestParser',
+            function (HttpRequestParserInterface $httpRequestParser, Container $container) {
+                return new HttpRequestParserAuthMiddleware(
+                    $httpRequestParser,
+                    $container['service.tokens'],
+                    $container['service.authentication'],
+                    []
+                );
+            }
+        );
     }
 
     public function registerRouting(Container $container, ApplicationServiceProvider $builder)

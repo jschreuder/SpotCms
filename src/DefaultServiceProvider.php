@@ -65,6 +65,9 @@ class DefaultServiceProvider implements
         $container['errorHandler.badRequest'] = function () {
             return new ErrorHandler('error.badRequest', 400, 'Bad Request');
         };
+        $container['errorHandler.unauthorized'] = function () {
+            return new ErrorHandler('error.unauthorized', 401, 'Unauthorized');
+        };
         $container['errorHandler.notFound'] = function () {
             return new ErrorHandler('error.notFound', 404, 'Not Found');
         };
@@ -73,6 +76,8 @@ class DefaultServiceProvider implements
         };
 
         // Add error handlers
+        $builder->addExecutor('error.unauthorized', 'errorHandler.unauthorized');
+        $builder->addGenerator('error.unauthorized', self::JSON_API_CT, 'errorHandler.unauthorized');
         $builder->addExecutor('error.badRequest', 'errorHandler.badRequest');
         $builder->addGenerator('error.badRequest', self::JSON_API_CT, 'errorHandler.badRequest');
         $builder->addExecutor('error.notFound', 'errorHandler.notFound');
