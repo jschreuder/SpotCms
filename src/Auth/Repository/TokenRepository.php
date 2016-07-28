@@ -59,7 +59,7 @@ class TokenRepository
     public function getByUuid(UuidInterface $uuid) : Token
     {
         return $this->getTokenFromRow($this->getRow('
-            SELECT token_uuid, pass_code, user_uuid, created
+            SELECT token_uuid, pass_code, user_uuid, expires
               FROM tokens
              WHERE token_uuid = :token_uuid
         ', [

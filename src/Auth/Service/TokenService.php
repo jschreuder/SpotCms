@@ -6,7 +6,9 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Entity\User;
+use Spot\Auth\Exception\LoginFailedException;
 use Spot\Auth\Repository\TokenRepository;
+use Spot\DataModel\Repository\NoUniqueResultException;
 
 class TokenService
 {
@@ -41,12 +43,17 @@ class TokenService
 
     public function getToken(UuidInterface $uuid, string $passCode) : Token
     {
-        $token = $this->tokenRepository->getByUuid($uuid);
+        try {
+            $token = $this->tokenRepository->getByUuid($uuid);
+        } catch (NoUniqueResultException $exception) {
+            throw LoginFailedException::invalidToken($exception);
+        }
+
         if (!hash_equals($token->getPassCode(), $passCode)) {
-            throw new \RuntimeException('Invalid token');
+            throw LoginFailedException::invalidCredentials();
         }
         if ($token->getExpires() < new \DateTimeImmutable()) {
-            throw new \RuntimeException('Expired token');
+            throw LoginFailedException::invalidToken();
         }
         return $token;
     }

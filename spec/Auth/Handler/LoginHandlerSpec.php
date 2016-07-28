@@ -98,8 +98,7 @@ class LoginHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(LoginHandler::MESSAGE . '.error');
-        $response['error']->shouldBe($error);
+        $response->getResponseName()->shouldReturn($error);
     }
 
     public function it_can_generate_a_response(ResponseInterface $response)
@@ -114,16 +113,5 @@ class LoginHandlerSpec extends ObjectBehavior
 
         $httpResponse = $this->generateResponse($response);
         $httpResponse->shouldHaveType(\Psr\Http\Message\ResponseInterface::class);
-    }
-
-    public function it_can_generate_an_error_response(ResponseInterface $response)
-    {
-        $response->getResponseName()->willReturn(LoginHandler::MESSAGE . '.error');
-        $response->offsetGet('error')->willReturn($error = 'Can\'t find Poe');
-        $response->offsetGet('status')->willReturn($status = 538);
-
-        $httpResponse = $this->generateResponse($response);
-        $httpResponse->shouldHaveType(\Psr\Http\Message\ResponseInterface::class);
-        $httpResponse->getStatusCode()->shouldBe($status);
     }
 }

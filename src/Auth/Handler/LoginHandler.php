@@ -53,10 +53,7 @@ class LoginHandler implements HttpRequestParserInterface, ExecutorInterface, Gen
         try {
             $token = $this->authenticationService->login($request['email_address'], $request['password']);
         } catch (AuthException $exception) {
-            return new Response(self::MESSAGE . '.error', [
-                'status' => $exception->getCode(),
-                'error' => $exception->getMessage(),
-            ], $request);
+            return new Response($exception->getMessage(), [], $request);
         }
 
         return new Response(self::MESSAGE, [
@@ -68,14 +65,6 @@ class LoginHandler implements HttpRequestParserInterface, ExecutorInterface, Gen
 
     public function generateResponse(ResponseInterface $response) : HttpResponse
     {
-        if ($response->getResponseName() === self::MESSAGE . '.error') {
-            return new JsonResponse([
-                'errors' => [
-                    ['id' => $response['error']]
-                ],
-            ], intval($response['status']));
-        }
-
         return new JsonResponse([
             'data' => [
                 'type' => 'tokens',

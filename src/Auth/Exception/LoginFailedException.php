@@ -4,10 +4,10 @@ namespace Spot\Auth\Exception;
 
 class LoginFailedException extends AuthException
 {
-    const ERROR_INVALID_EMAIL_ADDRESS = 'invalid.email_address';
-    const ERROR_INVALID_CREDENTIALS = 'invalid.credentials';
-    const ERROR_INVALID_TOKEN = 'invalid.token';
-    const ERROR_SYSTEM_ERROR = 'invalid.system_error';
+    const ERROR_INVALID_EMAIL_ADDRESS = 'invalid_login.email_address';
+    const ERROR_INVALID_CREDENTIALS = 'invalid_login.credentials';
+    const ERROR_INVALID_TOKEN = 'invalid_login.token';
+    const ERROR_SYSTEM_ERROR = 'invalid_login.system_error';
 
     public static function invalidEmailAddress(\Throwable $previous = null) : LoginFailedException
     {
