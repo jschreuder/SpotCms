@@ -3,12 +3,10 @@
 namespace spec\Spot\Auth\Handler;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\ResponseInterface;
-use Spot\Api\ServiceProvider\RoutingProviderInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Exception\AuthException;
