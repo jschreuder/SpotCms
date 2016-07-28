@@ -73,6 +73,16 @@ class TokenServiceSpec extends ObjectBehavior
         $this->shouldThrow(\RuntimeException::class)->duringGetToken($uuid, $passCode);
     }
 
+    public function it_can_refresh_a_token(Token $token)
+    {
+        $token->getUserUuid()->willReturn($userUuid = Uuid::uuid4());
+        $this->tokenRepository->create(new Argument\Token\TypeToken(Token::class));
+        $this->tokenRepository->delete($token);
+        $newToken = $this->refresh($token);
+        $newToken->shouldHaveType(Token::class);
+        $newToken->getUserUuid()->shouldReturn($userUuid);
+    }
+
     public function it_can_remove_a_token(Token $token)
     {
         $this->tokenRepository->delete($token)->shouldBeCalled();

@@ -24,10 +24,19 @@ class TokenService
 
     public function createTokenForUser(User $user)
     {
-        $expires = new \DateTimeImmutable('+' . $this->tokenMaxAge . ' seconds');
-        $token = new Token(Uuid::uuid4(), bin2hex(random_bytes(20)), $user->getUuid(), $expires);
+        $token = new Token(Uuid::uuid4(), $this->generatePassCode(), $user->getUuid(), $this->generateExpires());
         $this->tokenRepository->create($token);
         return $token;
+    }
+
+    private function generateExpires() : \DateTimeInterface
+    {
+        return new \DateTimeImmutable('+' . $this->tokenMaxAge . ' seconds');
+    }
+
+    private function generatePassCode() : string
+    {
+        return bin2hex(random_bytes(20));
     }
 
     public function getToken(UuidInterface $uuid, string $passCode) : Token
@@ -40,6 +49,20 @@ class TokenService
             throw new \RuntimeException('Expired token');
         }
         return $token;
+    }
+
+    public function refresh(Token $token) : Token
+    {
+        $newToken = new Token(
+            Uuid::uuid4(),
+            $this->generatePassCode(),
+            $token->getUserUuid(),
+            $this->generateExpires()
+        );
+        $this->tokenRepository->create($newToken);
+        $this->tokenRepository->delete($token);
+
+        return $newToken;
     }
 
     public function remove(Token $token)
