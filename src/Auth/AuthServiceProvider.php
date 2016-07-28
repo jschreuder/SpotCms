@@ -10,6 +10,7 @@ use Spot\Api\ServiceProvider\RepositoryProviderInterface;
 use Spot\Api\ServiceProvider\RoutingProviderInterface;
 use Spot\Auth\Exception\LoginFailedException;
 use Spot\Auth\Handler\LoginHandler;
+use Spot\Auth\Handler\LogoutHandler;
 use Spot\Auth\Handler\RefreshTokenHandler;
 use Spot\Auth\Repository\TokenRepository;
 use Spot\Auth\Repository\UserRepository;
@@ -59,6 +60,9 @@ class AuthServiceProvider implements
         $container['handler.refreshToken'] = function (Container $container) {
             return new RefreshTokenHandler($container['service.tokens']);
         };
+        $container['handler.logout'] = function (Container $container) {
+            return new LogoutHandler($container['service.tokens']);
+        };
 
         // ErrorHandlers
         $container['error.invalidCredentials'] = function () {
@@ -103,5 +107,9 @@ class AuthServiceProvider implements
             ->addParser('POST', $this->uriSegment . '/token/refresh', 'handler.refreshToken')
             ->addExecutor(RefreshTokenHandler::MESSAGE, 'handler.refreshToken')
             ->addGenerator(RefreshTokenHandler::MESSAGE, self::JSON_API_CT, 'handler.refreshToken');
+        $builder
+            ->addParser('DELETE', $this->uriSegment . '/logout', 'handler.logout')
+            ->addExecutor(LogoutHandler::MESSAGE, 'handler.logout')
+            ->addGenerator(LogoutHandler::MESSAGE, self::JSON_API_CT, 'handler.logout');
     }
 }
