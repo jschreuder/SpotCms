@@ -5,9 +5,12 @@ namespace Spot\Auth;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Spot\Api\ApplicationServiceProvider;
+use Spot\Api\Handler\ErrorHandler;
 use Spot\Api\ServiceProvider\RepositoryProviderInterface;
 use Spot\Api\ServiceProvider\RoutingProviderInterface;
+use Spot\Auth\Exception\LoginFailedException;
 use Spot\Auth\Handler\LoginHandler;
+use Spot\Auth\Handler\RefreshTokenHandler;
 use Spot\Auth\Repository\TokenRepository;
 use Spot\Auth\Repository\UserRepository;
 use Spot\Auth\Service\AuthenticationService;
@@ -53,12 +56,52 @@ class AuthServiceProvider implements
         $container['handler.login'] = function (Container $container) {
             return new LoginHandler($container['service.authentication']);
         };
+        $container['handler.refreshToken'] = function (Container $container) {
+            return new RefreshTokenHandler($container['service.tokens']);
+        };
 
-        // Configure ApiBuilder to use Handlers & Response Generators4
+        // ErrorHandlers
+        $container['error.invalidCredentials'] = function () {
+            return new ErrorHandler(LoginFailedException::ERROR_INVALID_CREDENTIALS, 400);
+        };
+        $container['error.invalidEmailAddress'] = function () {
+            return new ErrorHandler(LoginFailedException::ERROR_INVALID_EMAIL_ADDRESS, 400);
+        };
+        $container['error.invalidToken'] = function () {
+            return new ErrorHandler(LoginFailedException::ERROR_INVALID_TOKEN, 401);
+        };
+        $container['error.systemError'] = function () {
+            return new ErrorHandler(LoginFailedException::ERROR_SYSTEM_ERROR, 500);
+        };
+        $builder->addGenerator(
+            LoginFailedException::ERROR_INVALID_CREDENTIALS,
+            self::JSON_API_CT,
+            'error.invalidCredentials'
+        );
+        $builder->addGenerator(
+            LoginFailedException::ERROR_INVALID_EMAIL_ADDRESS,
+            self::JSON_API_CT,
+            'error.invalidEmailAddress'
+        );
+        $builder->addGenerator(
+            LoginFailedException::ERROR_INVALID_TOKEN,
+            self::JSON_API_CT,
+            'error.invalidToken'
+        );
+        $builder->addGenerator(
+            LoginFailedException::ERROR_SYSTEM_ERROR,
+            self::JSON_API_CT,
+            'error.systemError'
+        );
+
+        // Configure ApiBuilder to use Handlers & Response Generators
         $builder
             ->addParser('POST', $this->uriSegment . '/login', 'handler.login')
             ->addExecutor(LoginHandler::MESSAGE, 'handler.login')
-            ->addGenerator(LoginHandler::MESSAGE, self::JSON_API_CT, 'handler.login')
-            ->addGenerator(LoginHandler::MESSAGE . '.error', self::JSON_API_CT, 'handler.login');
+            ->addGenerator(LoginHandler::MESSAGE, self::JSON_API_CT, 'handler.login');
+        $builder
+            ->addParser('POST', $this->uriSegment . '/token/refresh', 'handler.refreshToken')
+            ->addExecutor(RefreshTokenHandler::MESSAGE, 'handler.refreshToken')
+            ->addGenerator(RefreshTokenHandler::MESSAGE, self::JSON_API_CT, 'handler.refreshToken');
     }
 }
