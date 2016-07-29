@@ -75,6 +75,7 @@ class PageRepository
             // When at least one of the fields changes, the rowCount will be 1 and an update occurred
             if ($query->rowCount() === 1) {
                 $this->objectRepository->update(Page::TYPE, $page->getUuid());
+                $page->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
             }
 
             $this->pdo->commit();
@@ -184,6 +185,7 @@ class PageRepository
                 'status' => $block->getStatus()->toString(),
             ]);
             $this->objectRepository->update(Page::TYPE, $page->getUuid());
+            $page->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
             $this->pdo->commit();
             $block->metaDataSetInsertTimestamp(new \DateTimeImmutable());
         } catch (\Throwable $exception) {
@@ -216,11 +218,11 @@ class PageRepository
             // When at least one of the fields changes, the rowCount will be 1 and an update occurred
             if ($query->rowCount() === 1) {
                 $this->objectRepository->update(Page::TYPE, $page->getUuid());
+                $page->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
                 $this->objectRepository->update(PageBlock::TYPE, $block->getUuid());
+                $block->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
             }
 
-            $page->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
-            $block->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
             $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
@@ -238,6 +240,7 @@ class PageRepository
         $this->objectRepository->delete(PageBlock::TYPE, $block->getUuid());
         $page->removeBlock($block);
         $this->objectRepository->update(Page::TYPE, $page->getUuid());
+        $page->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
         $block->setStatus(PageStatusValue::get(PageStatusValue::DELETED));
     }
 

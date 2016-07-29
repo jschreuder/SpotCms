@@ -75,6 +75,7 @@ class ConfigRepository
         try {
             $this->updateItems($collection);
             $this->objectRepository->update(ConfigCollection::TYPE, $collection->getUuid());
+            $collection->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
             $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();

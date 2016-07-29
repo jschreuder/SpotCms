@@ -257,6 +257,7 @@ class FileRepositorySpec extends ObjectBehavior
         $stream = tmpfile();
         $file->getUuid()->willReturn($uuid);
         $file->getStream()->willReturn($stream);
+        $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeInterface::class))->shouldBeCalled();
 
         $this->fileSystem->putStream($uuid->toString(), $stream)
             ->willReturn(true);
@@ -299,6 +300,7 @@ class FileRepositorySpec extends ObjectBehavior
         $file->setName($name)->willReturn($file);
         $file->getPath()->willReturn($path);
         $file->getMimeType()->willReturn($mime);
+        $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeInterface::class))->shouldBeCalled();
 
         $this->pdo->beginTransaction()
             ->shouldBeCalled();
@@ -339,6 +341,7 @@ class FileRepositorySpec extends ObjectBehavior
         $file->setName($name)->willReturn($file);
         $file->getPath()->willReturn($path);
         $file->getMimeType()->willReturn($mime);
+        $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeInterface::class))->shouldBeCalled();
 
         $this->pdo->beginTransaction()
             ->shouldBeCalled();

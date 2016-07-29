@@ -105,8 +105,7 @@ class PageRepositorySpec extends ObjectBehavior
         $page->getShortTitle()->willReturn($shortTitle);
         $page->getSortOrder()->willReturn($sortOrder);
         $page->getStatus()->willReturn($status);
-        $page->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
-            ->willReturn($page);
+        $page->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))->shouldBeCalled();
 
         $this->pdo->beginTransaction()
             ->shouldBeCalled();
@@ -430,6 +429,8 @@ class PageRepositorySpec extends ObjectBehavior
     {
         $uuid = Uuid::uuid4();
         $page->getUuid()->willReturn($uuid);
+        $page->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeInterface::class))
+            ->shouldBeCalled();
 
         $blockUuid = Uuid::uuid4();
         $blockType = 'type';
@@ -443,7 +444,7 @@ class PageRepositorySpec extends ObjectBehavior
         $block->getLocation()->willReturn($blockLocation);
         $block->getSortOrder()->willReturn($blockSortOrder);
         $block->getStatus()->willReturn($blockStatus);
-        $block->metaDataSetInsertTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
+        $block->metaDataSetInsertTimestamp(new Argument\Token\TypeToken(\DateTimeInterface::class))
             ->shouldBeCalled();
 
         $this->pdo->beginTransaction()
@@ -591,6 +592,8 @@ class PageRepositorySpec extends ObjectBehavior
         $uuid = Uuid::uuid4();
         $page->getUuid()->willReturn($uuid);
         $page->removeBlock($block)->shouldBeCalled();
+        $page->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
+            ->shouldBeCalled();
 
         $blockUuid = Uuid::uuid4();
         $block->getUuid()->willReturn($blockUuid);

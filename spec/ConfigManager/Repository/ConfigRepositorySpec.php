@@ -53,8 +53,8 @@ class ConfigRepositorySpec extends ObjectBehavior
         $collection->getType()->willReturn($type);
         $collection->getName()->willReturn($name);
         $collection->getItems()->willReturn($items);
-        $collection->metaDataSetInsertTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
-            ->willReturn($collection);
+        $collection->metaDataSetInsertTimestamp(new Argument\Token\TypeToken(\DateTimeInterface::class))
+            ->shouldBeCalled();
         $type->getTypeName()->willReturn($typeName);
 
         $this->pdo->beginTransaction()

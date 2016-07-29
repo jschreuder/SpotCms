@@ -70,6 +70,7 @@ class FileRepository
             throw new \RuntimeException('Failed to update file content.');
         }
         $this->objectRepository->update(File::TYPE, $file->getUuid());
+        $file->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
     }
 
     public function updateMetaData(File $file)
@@ -92,6 +93,7 @@ class FileRepository
             // When at least one of the fields changes, the rowCount will be 1 and an update occurred
             if ($query->rowCount() === 1) {
                 $this->objectRepository->update(File::TYPE, $file->getUuid());
+                $file->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
             }
 
             $file->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
