@@ -10,6 +10,8 @@ class User
 {
     use TimestampedMetaDataTrait;
 
+    const TYPE = 'users';
+
     /** @var  UuidInterface */
     private $userUuid;
 
