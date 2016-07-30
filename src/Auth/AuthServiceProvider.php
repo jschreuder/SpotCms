@@ -35,7 +35,7 @@ class AuthServiceProvider implements
         };
 
         $container['repository.users'] = function (Container $container) {
-            return new UserRepository($container['db']);
+            return new UserRepository($container['db'], $container['repository.objects']);
         };
 
         $container['service.tokens'] = function (Container $container) {

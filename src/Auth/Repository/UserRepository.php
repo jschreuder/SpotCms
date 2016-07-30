@@ -83,7 +83,7 @@ class UserRepository
         }
     }
 
-    private function getUserFromRow(array $row)
+    private function getUserFromRow(array $row) : User
     {
         return (new User(
             Uuid::fromBytes($row['user_uuid']),
@@ -95,24 +95,24 @@ class UserRepository
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable($row['updated']));
     }
 
-    public function getByUuid(UuidInterface $uuid)
+    public function getByUuid(UuidInterface $uuid) : User
     {
         return $this->getUserFromRow($this->getRow('
                 SELECT user_uuid, email_address, password, display_name, created, updated
                   FROM users
-            INNER JOIN objects ON (page_uuid = uuid AND type = "pages")
+            INNER JOIN objects ON (user_uuid = uuid AND type = "users")
                  WHERE user_uuid = :user_uuid
         ', [
             'user_uuid' => $uuid->getBytes(),
         ]));
     }
 
-    public function getByEmailAddress(EmailAddress $emailAddress)
+    public function getByEmailAddress(EmailAddress $emailAddress) : User
     {
         return $this->getUserFromRow($this->getRow('
                 SELECT user_uuid, email_address, password, display_name, created, updated
                   FROM users
-            INNER JOIN objects ON (page_uuid = uuid AND type = "pages")
+            INNER JOIN objects ON (user_uuid = uuid AND type = "users")
                  WHERE email_address = :email_address
         ', [
             'email_address' => $emailAddress->toString(),
