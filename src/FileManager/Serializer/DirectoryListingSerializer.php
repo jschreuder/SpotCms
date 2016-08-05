@@ -25,4 +25,14 @@ class DirectoryListingSerializer implements SerializerInterface
     {
         throw new \OutOfBoundsException('Unknown relationship ' . $name . ' for ' . $this->getType($model));
     }
+
+    public function getLinks($model)
+    {
+        return [];
+    }
+
+    public function getMeta($model)
+    {
+        return [];
+    }
 }

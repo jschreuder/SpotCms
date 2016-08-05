@@ -56,4 +56,14 @@ class PageSerializer implements SerializerInterface
 
         throw new \OutOfBoundsException('Unknown relationship ' . $name . ' for ' . $this->getType($page));
     }
+
+    public function getLinks($model)
+    {
+        return [];
+    }
+
+    public function getMeta($model)
+    {
+        return [];
+    }
 }
