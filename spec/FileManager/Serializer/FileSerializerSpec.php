@@ -76,4 +76,14 @@ class FileSerializerSpec extends ObjectBehavior
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationship(new \stdClass(), File::TYPE);
     }
+
+    public function it_can_get_links()
+    {
+        $this->getLinks(new \stdClass())->shouldReturn([]);
+    }
+
+    public function it_can_get_meta()
+    {
+        $this->getMeta(new \stdClass())->shouldReturn([]);
+    }
 }

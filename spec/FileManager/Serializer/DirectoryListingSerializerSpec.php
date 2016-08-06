@@ -42,4 +42,14 @@ class DirectoryListingSerializerSpec extends ObjectBehavior
     {
         $this->shouldThrow(\OutOfBoundsException::class)->duringGetRelationship($this->listing, 'nope');
     }
+
+    public function it_can_get_links()
+    {
+        $this->getLinks(new \stdClass())->shouldReturn([]);
+    }
+
+    public function it_can_get_meta()
+    {
+        $this->getMeta(new \stdClass())->shouldReturn([]);
+    }
 }
