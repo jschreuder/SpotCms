@@ -32,6 +32,17 @@ class FileRepository
         $this->objectRepository = $objectRepository;
     }
 
+    public function fromInput(string $name, string $path, string $mimeType, $stream)
+    {
+        return new File(
+            Uuid::uuid4(),
+            FileNameValue::get($name),
+            FilePathValue::get($path),
+            MimeTypeValue::get($mimeType),
+            $stream
+        );
+    }
+
     public function createFromUpload(File $file)
     {
         $this->pdo->beginTransaction();

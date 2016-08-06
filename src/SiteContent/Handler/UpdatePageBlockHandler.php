@@ -86,15 +86,34 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
 
     private function applyRequestToBlock(RequestInterface $request, PageBlock $block)
     {
+        $this->setBlockParameters($block, $request);
+        $this->setBlockSortOrder($block, $request);
+        $this->setBlockStatus($block, $request);
+
+        $blockType = $this->blockTypeContainer->getType($block->getType());
+        $blockType->validate($block, $request);
+    }
+
+    private function setBlockParameters(PageBlock $block, RequestInterface $request)
+    {
         if (isset($request['parameters'])) {
             foreach ($request['parameters'] as $key => $value) {
                 $block[$key] = $value;
             }
         }
-        isset($request['sort_order']) && $block->setSortOrder($request['sort_order']);
-        isset($request['status']) && $block->setStatus(PageStatusValue::get($request['status']));
+    }
 
-        $blockType = $this->blockTypeContainer->getType($block->getType());
-        $blockType->validate($block, $request);
+    private function setBlockSortOrder(PageBlock $block, RequestInterface $request)
+    {
+        if (isset($request['sort_order'])) {
+            $block->setSortOrder($request['sort_order']);
+        }
+    }
+
+    private function setBlockStatus(PageBlock $block, RequestInterface $request)
+    {
+        if (isset($request['status'])) {
+            $block->setStatus(PageStatusValue::get($request['status']));
+        }
     }
 }

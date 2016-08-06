@@ -3,7 +3,6 @@
 namespace spec\Spot\FileManager\Handler;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Log\LoggerInterface;
@@ -62,18 +61,19 @@ class UploadFileHandlerSpec extends ObjectBehavior
         $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, UploadedFileInterface $file)
+    public function it_can_execute_a_request(RequestInterface $request, UploadedFileInterface $file, File $fileEntity)
     {
         $path = '/path/To/a';
-        $file->getClientFilename()->willReturn('file.ext');
-        $file->getClientMediaType()->willReturn('text/xml');
-        $file->getStream()->willReturn(tmpfile());
+        $file->getClientFilename()->willReturn($name = 'file.ext');
+        $file->getClientMediaType()->willReturn($mime = 'text/xml');
+        $file->getStream()->willReturn($stream = tmpfile());
         $files = [$file];
 
         $request->offsetGet('path')->willReturn($path);
         $request->offsetGet('files')->willReturn($files);
         $request->getAcceptContentType()->willReturn('application/json');
-        $this->fileRepository->createFromUpload(new Argument\Token\TypeToken(File::class))->shouldBeCalled();
+        $this->fileRepository->fromInput($name, $path, $mime, $stream)->willReturn($fileEntity);
+        $this->fileRepository->createFromUpload($fileEntity)->shouldBeCalled();
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
@@ -84,15 +84,15 @@ class UploadFileHandlerSpec extends ObjectBehavior
     public function it_can_handle_exception_during_request(RequestInterface $request, UploadedFileInterface $file)
     {
         $path = '/path/To/a';
-        $file->getClientFilename()->willReturn('file.ext');
-        $file->getClientMediaType()->willReturn('text/xml');
-        $file->getStream()->willReturn(tmpfile());
+        $file->getClientFilename()->willReturn($name = 'file.ext');
+        $file->getClientMediaType()->willReturn($mime = 'text/xml');
+        $file->getStream()->willReturn($stream = tmpfile());
         $files = [$file];
 
         $request->offsetGet('path')->willReturn($path);
         $request->offsetGet('files')->willReturn($files);
         $request->getAcceptContentType()->willReturn('application/json');
-        $this->fileRepository->createFromUpload(new Argument\Token\TypeToken(File::class))
+        $this->fileRepository->fromInput($name, $path, $mime, $stream)
             ->willThrow(new \RuntimeException());
 
         $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);

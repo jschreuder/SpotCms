@@ -6,7 +6,6 @@ use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
@@ -20,9 +19,6 @@ use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
-use Spot\FileManager\Value\FileNameValue;
-use Spot\FileManager\Value\FilePathValue;
-use Spot\FileManager\Value\MimeTypeValue;
 
 class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
 {
@@ -87,11 +83,10 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
     {
         $files = [];
         foreach ($uploadedFiles as $uploadedFile) {
-            $files[] = $file = new File(
-                Uuid::uuid4(),
-                FileNameValue::get(substr($uploadedFile->getClientFilename(), 0, 92)),
-                FilePathValue::get($path),
-                MimeTypeValue::get($uploadedFile->getClientMediaType()),
+            $files[] = $file = $this->fileRepository->fromInput(
+                substr($uploadedFile->getClientFilename(), 0, 92),
+                $path,
+                $uploadedFile->getClientMediaType(),
                 $uploadedFile->getStream()
             );
             $this->fileRepository->createFromUpload($file);

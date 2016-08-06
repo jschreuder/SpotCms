@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\DataModel\Repository\ObjectRepository;
 use Spot\FileManager\Entity\File;
@@ -37,6 +38,21 @@ class FileRepositorySpec extends ObjectBehavior
     public function it_is_initializable()
     {
         $this->shouldHaveType(FileRepository::class);
+    }
+
+    public function it_can_create_a_file_object()
+    {
+        $name = 'file.name';
+        $path = '/uploads';
+        $mime = 'text/xml';
+        $stream = tmpfile();
+
+        $file = $this->fromInput($name, $path, $mime, $stream);
+        $file->getUuid()->shouldHaveType(UuidInterface::class);
+        $file->getName()->toString()->shouldReturn($name);
+        $file->getPath()->toString()->shouldReturn($path);
+        $file->getMimeType()->toString()->shouldReturn($mime);
+        $file->getStream()->shouldReturn($stream);
     }
 
     public function it_can_create_a_new_file(File $file, \PDOStatement $uniqueStatement, \PDOStatement $insertStatement)

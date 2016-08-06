@@ -79,10 +79,45 @@ class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
 
     private function applyRequestToPage(RequestInterface $request, Page $page)
     {
-        isset($request['title']) && $page->setTitle($request['title']);
-        isset($request['slug']) && $page->setSlug($request['slug']);
-        isset($request['short_title']) && $page->setShortTitle($request['short_title']);
-        isset($request['sort_order']) && $page->setSortOrder($request['sort_order']);
-        isset($request['status']) && $page->setStatus(PageStatusValue::get($request['status']));
+        $this->setPageTitle($page, $request);
+        $this->setPageSlug($page, $request);
+        $this->setPageShortTitle($page, $request);
+        $this->setPageSortOrder($page, $request);
+        $this->setPageStatus($page, $request);
+    }
+
+    private function setPageTitle(Page $page, RequestInterface $request)
+    {
+        if (isset($request['title'])) {
+            $page->setTitle($request['title']);
+        }
+    }
+
+    private function setPageSlug(Page $page, RequestInterface $request)
+    {
+        if (isset($request['slug'])) {
+            $page->setSlug($request['slug']);
+        }
+    }
+
+    private function setPageShortTitle(Page $page, RequestInterface $request)
+    {
+        if (isset($request['short_title'])) {
+            $page->setShortTitle($request['short_title']);
+        }
+    }
+
+    private function setPageSortOrder(Page $page, RequestInterface $request)
+    {
+        if (isset($request['sort_order'])) {
+            $page->setSortOrder($request['sort_order']);
+        }
+    }
+
+    private function setPageStatus(Page $page, RequestInterface $request)
+    {
+        if (isset($request['status'])) {
+            $page->setStatus(PageStatusValue::get($request['status']));
+        }
     }
 }
