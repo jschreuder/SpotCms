@@ -2,6 +2,7 @@
 
 namespace Spot\SiteContent\Handler;
 
+use Particle\Validator\Validator;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -35,8 +36,11 @@ class ReorderPagesHandler implements HttpRequestParserInterface, ExecutorInterfa
     {
         $rpHelper = new HttpRequestParserHelper($httpRequest);
 
-        $rpHelper->getValidator()
-            ->required('data.ordered_page_uuids')->isArray();
+        $validator = $rpHelper->getValidator();
+        $validator->required('data.ordered_pages')->isArray()
+            ->each(function (Validator $validator) {
+                $validator->required('uuid')->uuid();
+            });
 
         return new Request(
             self::MESSAGE,
@@ -47,7 +51,7 @@ class ReorderPagesHandler implements HttpRequestParserInterface, ExecutorInterfa
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        $pages = $this->getPages($request['ordered_page_uuids']);
+        $pages = $this->getPages($request['ordered_pages']);
         $pageSortOrders = $this->getPageSortOrders($pages);
         foreach ($pages as $idx => $page) {
             $page->setSortOrder($pageSortOrders[$idx]);
@@ -59,14 +63,14 @@ class ReorderPagesHandler implements HttpRequestParserInterface, ExecutorInterfa
     }
 
     /**
-     * @param   string[] $pageUuids
+     * @param   array[] $pageArrays
      * @return  Page[]
      */
-    private function getPages(array $pageUuids) : array
+    private function getPages(array $pageArrays) : array
     {
         $pages = [];
-        foreach ($pageUuids as $pageUuid) {
-            $pages[] = $this->pageRepository->getByUuid(Uuid::fromString($pageUuid));
+        foreach ($pageArrays as $pageArray) {
+            $pages[] = $this->pageRepository->getByUuid(Uuid::fromString($pageArray['uuid']));
         }
         return $pages;
     }

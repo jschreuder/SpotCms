@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "26db4c9c2e3ab28d01b1ba4a7669d927",
-    "content-hash": "b99e86a5bbb7ec6d00b369484badf17a",
+    "hash": "73613f201af6cb8aa69c38b1266bf6e0",
+    "content-hash": "c1cabef3d2f5e25c8c93fc982224ddd5",
     "packages": [
         {
             "name": "imagine/imagine",
@@ -369,16 +369,16 @@
         },
         {
             "name": "particle/validator",
-            "version": "v2.1.1",
+            "version": "v2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/particle-php/Validator.git",
-                "reference": "d51a6e0dbee1fba490eb2161bd17dc88a611ff5c"
+                "reference": "115690d8f543426918ef88c17310cfc7276e7670"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/particle-php/Validator/zipball/d51a6e0dbee1fba490eb2161bd17dc88a611ff5c",
-                "reference": "d51a6e0dbee1fba490eb2161bd17dc88a611ff5c",
+                "url": "https://api.github.com/repos/particle-php/Validator/zipball/115690d8f543426918ef88c17310cfc7276e7670",
+                "reference": "115690d8f543426918ef88c17310cfc7276e7670",
                 "shasum": ""
             },
             "require": {
@@ -427,7 +427,7 @@
                 "validation",
                 "validator"
             ],
-            "time": "2016-08-05 11:47:13"
+            "time": "2016-08-05 12:56:25"
         },
         {
             "name": "pimple/pimple",

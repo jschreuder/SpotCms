@@ -3,7 +3,6 @@
 namespace spec\Spot\SiteContent\Handler;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -39,10 +38,10 @@ class ReorderPagesHandlerSpec extends ObjectBehavior
     {
         $body = [
             'data' => [
-                'ordered_page_uuids' => [
-                    Uuid::uuid4()->toString(),
-                    Uuid::uuid4()->toString(),
-                    Uuid::uuid4()->toString(),
+                'ordered_pages' => [
+                    ['uuid' => Uuid::uuid4()->toString()],
+                    ['uuid' => Uuid::uuid4()->toString()],
+                    ['uuid' => Uuid::uuid4()->toString()],
                 ],
             ],
         ];
@@ -86,12 +85,12 @@ class ReorderPagesHandlerSpec extends ObjectBehavior
         $this->pageRepository->update($page3)->shouldBeCalled();
 
         $orderedPageUuids = [
-            $page2Uuid->toString(),
-            $page3Uuid->toString(),
-            $page1Uuid->toString(),
+            ['uuid' => $page2Uuid->toString()],
+            ['uuid' => $page3Uuid->toString()],
+            ['uuid' => $page1Uuid->toString()],
         ];
         $request->getAcceptContentType()->willReturn('*/*');
-        $request->offsetGet('ordered_page_uuids')->willReturn($orderedPageUuids);
+        $request->offsetGet('ordered_pages')->willReturn($orderedPageUuids);
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);

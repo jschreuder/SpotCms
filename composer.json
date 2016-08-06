@@ -25,7 +25,7 @@
         "monolog/monolog": "^1.20",
         "pimple/pimple": "^3.0",
         "nikic/fast-route": "^1.0",
-        "particle/validator": "^2.1",
+        "particle/validator": "^2.2",
         "particle/filter": "^1.4",
         "robmorgan/phinx": "^0.6",
         "ramsey/uuid": "^3.4",
