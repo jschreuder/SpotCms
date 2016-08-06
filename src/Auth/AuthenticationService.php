@@ -58,26 +58,8 @@ class AuthenticationService
     public function login(string $email, string $password) : Token
     {
         try {
-            try {
-                $emailAddress = EmailAddress::get($email);
-            } catch (\InvalidArgumentException $exception) {
-                throw LoginFailedException::invalidEmailAddress();
-            }
-
-            try {
-                $user = $this->userRepository->getByEmailAddress($emailAddress);
-            } catch (NoUniqueResultException $exception) {
-                throw LoginFailedException::invalidCredentials($exception);
-            }
-
-            if (!password_verify($password, $user->getPassword())) {
-                throw LoginFailedException::invalidCredentials();
-            }
-
-            if (password_needs_rehash($user->getPassword(), $this->algorithm, $this->passwordOptions)) {
-                $user->setPassword(password_hash($password, $this->algorithm, $this->passwordOptions));
-                $this->userRepository->update($user);
-            }
+            $user = $this->getUserByEmail($email);
+            $this->verifyPassword($user, $password);
 
             return $this->tokenService->createTokenForUser($user);
         } catch (\Throwable $exception) {
@@ -86,6 +68,30 @@ class AuthenticationService
             }
             $this->log(LogLevel::ERROR, $exception->getMessage());
             throw LoginFailedException::systemError($exception);
+        }
+    }
+
+    private function getUserByEmail(string $email) : User
+    {
+        try {
+            $emailAddress = EmailAddress::get($email);
+            return $this->userRepository->getByEmailAddress($emailAddress);
+        } catch (NoUniqueResultException $exception) {
+            throw LoginFailedException::invalidCredentials($exception);
+        } catch (\InvalidArgumentException $exception) {
+            throw LoginFailedException::invalidEmailAddress();
+        }
+    }
+
+    private function verifyPassword(User $user, string $password)
+    {
+        if (!password_verify($password, $user->getPassword())) {
+            throw LoginFailedException::invalidCredentials();
+        }
+
+        if (password_needs_rehash($user->getPassword(), $this->algorithm, $this->passwordOptions)) {
+            $user->setPassword(password_hash($password, $this->algorithm, $this->passwordOptions));
+            $this->userRepository->update($user);
         }
     }
 
