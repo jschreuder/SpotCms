@@ -5,6 +5,7 @@ namespace Spot\SiteContent\Handler;
 use Particle\Validator\Validator;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Executor\ExecutorInterface;
@@ -12,6 +13,8 @@ use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\Message\Response;
+use Spot\Api\Response\Message\ServerErrorResponse;
+use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\SiteContent\Entity\Page;
@@ -51,15 +54,23 @@ class ReorderPagesHandler implements HttpRequestParserInterface, ExecutorInterfa
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
-        $pages = $this->getPages($request['ordered_pages']);
-        $pageSortOrders = $this->getPageSortOrders($pages);
-        foreach ($pages as $idx => $page) {
-            $page->setSortOrder($pageSortOrders[$idx]);
-            $this->pageRepository->update($page);
+        try {
+            $pages = $this->getPages($request['ordered_pages']);
+            $pageSortOrders = $this->getPageSortOrders($pages);
+            foreach ($pages as $idx => $page) {
+                $page->setSortOrder($pageSortOrders[$idx]);
+                $this->pageRepository->update($page);
+            }
+            return new Response(self::MESSAGE, [
+                'data' => $pages,
+            ], $request);
+        } catch (\Throwable $e) {
+            $this->log(LogLevel::ERROR, $e->getMessage());
+            throw new ResponseException(
+                'An error occurred during ReorderPagesHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
-        return new Response(self::MESSAGE, [
-            'data' => $pages,
-        ], $request);
     }
 
     /**

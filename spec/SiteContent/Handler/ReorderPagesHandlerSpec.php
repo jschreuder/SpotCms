@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\RequestInterface;
+use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
@@ -95,5 +96,18 @@ class ReorderPagesHandlerSpec extends ObjectBehavior
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
         $response['data']->shouldBe([$page2, $page3, $page1]);
+    }
+
+    public function it_can_handle_exception_during_request(RequestInterface $request)
+    {
+        $uuid = Uuid::uuid4();
+        $request->getAcceptContentType()->willReturn('*/*');
+        $request->offsetGet('ordered_pages')->willReturn([
+            ['uuid' => $uuid->toString()],
+        ]);
+
+        $this->pageRepository->getByUuid($uuid)->willThrow(new \RuntimeException());
+
+        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
     }
 }
