@@ -66,7 +66,6 @@ class ImageEditor
         throw new RuntimeException('Invalid image type, cannot edit: ' . $file->getMimeType()->toString());
     }
 
-    /** @return  resource */
     public function process(File $file, array $operations) : ImageInterface
     {
         $image = $this->imagine->read($file->getStream());
