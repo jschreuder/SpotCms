@@ -22,4 +22,12 @@ Monolog\ErrorHandler::register($container['logger']);
 (new Spot\DefaultServiceProvider())->init($container);
 (new Spot\Auth\AuthServiceProvider('/auth'))->init($container);
 
+// Instantiate Middlewares: Final Exception handler & HSTS headers
+$container->extend('app', function (\Spot\Api\ApplicationInterface $application, \Pimple\Container $container) {
+    return new \Spot\Api\Middleware\ExceptionCatchingMiddleware(
+        new \Spot\Api\Middleware\HstsMiddleware($application),
+        $container['logger']
+    );
+});
+
 return $container['app'];

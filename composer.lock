@@ -711,16 +711,16 @@
         },
         {
             "name": "spot/api",
-            "version": "1.0.0-beta4.2",
+            "version": "1.0.0-beta5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WebspotCode/SpotApi.git",
-                "reference": "ee4aceec63cdf0b30436a76b6793be9692a13c82"
+                "reference": "4d02a83a4124ffaaf2c8a1fdc38e1ef4d40d17a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WebspotCode/SpotApi/zipball/ee4aceec63cdf0b30436a76b6793be9692a13c82",
-                "reference": "ee4aceec63cdf0b30436a76b6793be9692a13c82",
+                "url": "https://api.github.com/repos/WebspotCode/SpotApi/zipball/4d02a83a4124ffaaf2c8a1fdc38e1ef4d40d17a7",
+                "reference": "4d02a83a4124ffaaf2c8a1fdc38e1ef4d40d17a7",
                 "shasum": ""
             },
             "require": {
@@ -731,6 +731,7 @@
                 "henrikbjorn/phpspec-code-coverage": "^2.0",
                 "monolog/monolog": "^1.17",
                 "nikic/fast-route": "^1.0",
+                "paragonie/csp-builder": "^2.0",
                 "phpspec/phpspec": "^2.5",
                 "phpspec/prophecy": "^1.6",
                 "pimple/pimple": "^3.0",
@@ -739,6 +740,7 @@
             },
             "suggest": {
                 "nikic/fast-route": "Required for the HttpRequestParserBus",
+                "paragonie/csp-builder": "When using Content-Security-Policy middleware",
                 "pimple/pimple": "Required for the HttpRequestParserBus, ExecutorBus & GeneratorBus",
                 "tobscure/json-api": "Required for the Single- and MultiEntityGenerator and ErrorHandler"
             },
@@ -759,10 +761,10 @@
             ],
             "description": "SpotApi, a web-API application framework",
             "support": {
-                "source": "https://github.com/WebspotCode/SpotApi/tree/master",
+                "source": "https://github.com/WebspotCode/SpotApi/tree/1.0.0-beta5",
                 "issues": "https://github.com/WebspotCode/SpotApi/issues"
             },
-            "time": "2016-07-28 21:07:50"
+            "time": "2016-08-06 19:30:05"
         },
         {
             "name": "symfony/config",
