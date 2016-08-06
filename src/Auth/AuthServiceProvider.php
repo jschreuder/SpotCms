@@ -43,7 +43,11 @@ class AuthServiceProvider implements
         };
 
         $container['service.authentication'] = function (Container $container) {
-            return new AuthenticationService($container['repository.users'], $container['service.tokens']);
+            return new AuthenticationService(
+                $container['repository.users'],
+                $container['service.tokens'],
+                $container['logger']
+            );
         };
 
         $container->extend('app.httpRequestParser',
@@ -52,7 +56,8 @@ class AuthServiceProvider implements
                     $httpRequestParser,
                     $container['service.tokens'],
                     $container['service.authentication'],
-                    []
+                    [],
+                    $container['logger']
                 );
             }
         );

@@ -2,8 +2,11 @@
 
 namespace Spot\Auth\Service;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Spot\Api\LoggableTrait;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Entity\User;
 use Spot\Auth\Exception\AuthException;
@@ -14,6 +17,8 @@ use Spot\DataModel\Repository\NoUniqueResultException;
 
 class AuthenticationService
 {
+    use LoggableTrait;
+
     /** @var  UserRepository */
     private $userRepository;
 
@@ -23,15 +28,19 @@ class AuthenticationService
     /** @var  int */
     private $algorithm = PASSWORD_BCRYPT;
 
+    /** @var  LoggerInterface */
+    private $logger;
+
     /** @var  array */
     private $passwordOptions = [
         'cost' => 10,
     ];
 
-    public function __construct(UserRepository $userRepository, TokenService $tokenService)
+    public function __construct(UserRepository $userRepository, TokenService $tokenService, LoggerInterface $logger)
     {
         $this->userRepository = $userRepository;
         $this->tokenService = $tokenService;
+        $this->logger = $logger;
     }
 
     public function createUser(EmailAddress $emailAddress, string $password, string $displayName) : User
@@ -75,6 +84,7 @@ class AuthenticationService
             if ($exception instanceof AuthException) {
                 throw $exception;
             }
+            $this->log(LogLevel::ERROR, $exception->getMessage());
             throw LoginFailedException::systemError($exception);
         }
     }
@@ -92,6 +102,7 @@ class AuthenticationService
             if ($exception instanceof AuthException) {
                 throw $exception;
             }
+            $this->log(LogLevel::ERROR, $exception->getMessage());
             throw LoginFailedException::systemError($exception);
         }
     }

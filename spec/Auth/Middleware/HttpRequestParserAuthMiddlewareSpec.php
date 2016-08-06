@@ -4,6 +4,7 @@ namespace spec\Spot\Auth\Middleware;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\UnauthorizedRequest;
@@ -27,16 +28,27 @@ class HttpRequestParserAuthMiddlewareSpec extends ObjectBehavior
 
     private $publicMessageName = 'test.public';
 
+    /** @var  LoggerInterface */
+    private $logger;
+
     public function let(
         HttpRequestParserInterface $httpRequestParser,
         TokenService $tokenService,
-        AuthenticationService $authenticationService
+        AuthenticationService $authenticationService,
+        LoggerInterface $logger
     )
     {
         $this->httpRequestParser = $httpRequestParser;
         $this->tokenService = $tokenService;
         $this->authenticationService = $authenticationService;
-        $this->beConstructedWith($httpRequestParser, $tokenService, $authenticationService, [$this->publicMessageName]);
+        $this->logger = $logger;
+        $this->beConstructedWith(
+            $httpRequestParser,
+            $tokenService,
+            $authenticationService,
+            [$this->publicMessageName],
+            $logger
+        );
     }
 
 

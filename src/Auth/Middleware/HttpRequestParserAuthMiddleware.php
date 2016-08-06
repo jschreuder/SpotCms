@@ -3,16 +3,23 @@
 namespace Spot\Auth\Middleware;
 
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
+use Spot\Api\LoggableTrait;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\UnauthorizedRequest;
 use Spot\Api\Request\RequestInterface;
+use Spot\Auth\Exception\AuthException;
+use Spot\Auth\Exception\LoginFailedException;
 use Spot\Auth\Handler\LoginHandler;
 use Spot\Auth\Service\AuthenticationService;
 use Spot\Auth\Service\TokenService;
 
 class HttpRequestParserAuthMiddleware implements HttpRequestParserInterface
 {
+    use LoggableTrait;
+
     /** @var  HttpRequestParserInterface */
     private $httpRequestParser;
 
@@ -27,17 +34,22 @@ class HttpRequestParserAuthMiddleware implements HttpRequestParserInterface
         LoginHandler::MESSAGE,
     ];
 
+    /** @var  LoggerInterface */
+    private $logger;
+
     public function __construct(
         HttpRequestParserInterface $httpRequestParser,
         TokenService $tokenService,
         AuthenticationService $authenticationService,
-        array $publicMessageNames
+        array $publicMessageNames,
+        LoggerInterface $logger
     )
     {
         $this->httpRequestParser = $httpRequestParser;
         $this->tokenService = $tokenService;
         $this->authenticationService = $authenticationService;
         $this->publicMessageNames = array_merge($this->publicMessageNames, $publicMessageNames);
+        $this->logger = $logger;
     }
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
@@ -62,6 +74,9 @@ class HttpRequestParserAuthMiddleware implements HttpRequestParserInterface
             );
             return true;
         } catch (\Throwable $exception) {
+            if (!$exception instanceof AuthException) {
+                $this->log(LogLevel::ERROR, $exception->getMessage());
+            }
             return false;
         }
     }

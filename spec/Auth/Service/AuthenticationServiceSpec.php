@@ -4,6 +4,7 @@ namespace spec\Spot\Auth\Service;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\Auth\Entity\Token;
@@ -24,11 +25,15 @@ class AuthenticationServiceSpec extends ObjectBehavior
     /** @var  TokenService */
     private $tokenService;
 
-    public function let(UserRepository $userRepository, TokenService $tokenService)
+    /** @var  LoggerInterface */
+    private $logger;
+
+    public function let(UserRepository $userRepository, TokenService $tokenService, LoggerInterface $logger)
     {
         $this->userRepository = $userRepository;
         $this->tokenService = $tokenService;
-        $this->beConstructedWith($userRepository, $tokenService);
+        $this->logger = $logger;
+        $this->beConstructedWith($userRepository, $tokenService, $logger);
     }
 
     public function it_is_initializable()
