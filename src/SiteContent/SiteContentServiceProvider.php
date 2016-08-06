@@ -23,6 +23,7 @@ use Spot\SiteContent\Handler\DeletePageBlockHandler;
 use Spot\SiteContent\Handler\GetPageHandler;
 use Spot\SiteContent\Handler\GetPageBlockHandler;
 use Spot\SiteContent\Handler\ListPagesHandler;
+use Spot\SiteContent\Handler\ReorderPagesHandler;
 use Spot\SiteContent\Handler\UpdatePageHandler;
 use Spot\SiteContent\Handler\UpdatePageBlockHandler;
 use Spot\SiteContent\Repository\PageRepository;
@@ -75,6 +76,9 @@ class SiteContentServiceProvider implements
         };
         $container['handler.pages.update'] = function (Container $container) {
             return new UpdatePageHandler($container['repository.pages'], $container['logger']);
+        };
+        $container['handler.pages.reorder'] = function (Container $container) {
+            return new ReorderPagesHandler($container['repository.pages'], $container['logger']);
         };
         $container['handler.pages.delete'] = function (Container $container) {
             return new DeletePageHandler($container['repository.pages'], $container['logger']);
@@ -141,6 +145,10 @@ class SiteContentServiceProvider implements
             ->addParser('PATCH', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.update')
             ->addExecutor(UpdatePageHandler::MESSAGE, 'handler.pages.update')
             ->addGenerator(UpdatePageHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.single');
+        $builder
+            ->addParser('PATCH', $this->uriSegment . '/{parent_uuid:[0-9a-z\-]+}/reorder', 'handler.pages.reorder')
+            ->addExecutor(ReorderPagesHandler::MESSAGE, 'handler.pages.reorder')
+            ->addGenerator(ReorderPagesHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.multi');
         $builder
             ->addParser('DELETE', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.delete')
             ->addExecutor(DeletePageHandler::MESSAGE, 'handler.pages.delete')
