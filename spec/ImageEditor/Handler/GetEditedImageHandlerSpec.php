@@ -4,7 +4,6 @@ namespace spec\Spot\ImageEditor\Handler;
 
 use Imagine\Image\ImageInterface;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
 use Spot\Api\Request\RequestInterface;
@@ -13,7 +12,6 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
-use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Value\FileNameValue;
 use Spot\FileManager\Value\MimeTypeValue;
 use Spot\ImageEditor\Handler\GetEditedImageHandler;
