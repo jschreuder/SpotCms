@@ -42,13 +42,13 @@ class StoreEditedImageHandler implements ExecutorInterface
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
         try {
+            // Fetch existing image and process operations on it
             $file = $this->imageRepository->getByFullPath($request['path']);
             $image = $this->imageEditor->process($file, $request['operations']);
 
+            // Get resulting image and store in stream
             $contents = tmpfile();
             fwrite($contents, $this->imageEditor->output($file, $image));
-            unset($image);
-            rewind($contents);
 
             $newImage = $this->imageRepository->createImage($file, $contents);
             return new Response(self::MESSAGE, ['data' => $newImage], $request);
