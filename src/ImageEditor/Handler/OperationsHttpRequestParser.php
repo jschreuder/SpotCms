@@ -3,15 +3,25 @@
 namespace Spot\ImageEditor\Handler;
 
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
+use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\RequestInterface;
 use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\FileManager\FileManagerHelper;
 
-trait OperationsHttpRequestParserTrait
+class OperationsHttpRequestParser implements HttpRequestParserInterface
 {
     /** @var  FileManagerHelper */
     private $helper;
+
+    /** @var  string */
+    private $messageName;
+
+    public function __construct(string $messageName, FileManagerHelper $helper)
+    {
+        $this->messageName = $messageName;
+        $this->helper = $helper;
+    }
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
     {
@@ -59,6 +69,6 @@ trait OperationsHttpRequestParserTrait
             $validator->required('operations.blur.amount')->numeric();
         }
 
-        return new Request(self::MESSAGE, $rpHelper->filterAndValidate($data), $httpRequest);
+        return new Request($this->messageName, $rpHelper->filterAndValidate($data), $httpRequest);
     }
 }

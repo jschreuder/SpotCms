@@ -29,24 +29,19 @@ class GetEditedImageHandlerSpec extends ObjectBehavior
     /** @var  ImageEditor */
     private $imageEditor;
 
-    /** @var  FileManagerHelper */
-    private $helper;
-
     /** @var  LoggerInterface */
     private $logger;
 
     public function let(
         ImageRepository $imageRepository,
         ImageEditor $imageEditor,
-        FileManagerHelper $helper,
         LoggerInterface $logger
     )
     {
         $this->imageRepository = $imageRepository;
         $this->imageEditor = $imageEditor;
-        $this->helper = $helper;
         $this->logger = $logger;
-        $this->beConstructedWith($imageRepository, $imageEditor, $helper, $logger);
+        $this->beConstructedWith($imageRepository, $imageEditor, $logger);
     }
 
     public function it_is_initializable()

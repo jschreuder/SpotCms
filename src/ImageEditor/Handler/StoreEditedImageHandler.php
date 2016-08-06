@@ -6,7 +6,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Executor\ExecutorInterface;
-use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\Message\NotFoundResponse;
 use Spot\Api\Response\Message\Response;
@@ -14,13 +13,12 @@ use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\DataModel\Repository\NoUniqueResultException;
-use Spot\FileManager\FileManagerHelper;
 use Spot\ImageEditor\ImageEditor;
 use Spot\ImageEditor\Repository\ImageRepository;
 
-class StoreEditedImageHandler implements HttpRequestParserInterface, ExecutorInterface
+class StoreEditedImageHandler implements ExecutorInterface
 {
-    use LoggableTrait, OperationsHttpRequestParserTrait;
+    use LoggableTrait;
 
     const MESSAGE = 'images.storeEdited';
 
@@ -30,19 +28,14 @@ class StoreEditedImageHandler implements HttpRequestParserInterface, ExecutorInt
     /** @var  ImageEditor */
     private $imageEditor;
 
-    /** @var  FileManagerHelper */
-    private $helper;
-
     public function __construct(
         ImageRepository $imageRepository,
         ImageEditor $imageEditor,
-        FileManagerHelper $helper,
         LoggerInterface $logger
     )
     {
         $this->imageRepository = $imageRepository;
         $this->imageEditor = $imageEditor;
-        $this->helper = $helper;
         $this->logger = $logger;
     }
 
