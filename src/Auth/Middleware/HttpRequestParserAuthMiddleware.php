@@ -11,7 +11,6 @@ use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\UnauthorizedRequest;
 use Spot\Api\Request\RequestInterface;
 use Spot\Auth\Exception\AuthException;
-use Spot\Auth\Exception\LoginFailedException;
 use Spot\Auth\Handler\LoginHandler;
 use Spot\Auth\Service\AuthenticationService;
 use Spot\Auth\Service\TokenService;
