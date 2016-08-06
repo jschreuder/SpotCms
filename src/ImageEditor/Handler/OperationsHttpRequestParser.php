@@ -2,6 +2,8 @@
 
 namespace Spot\ImageEditor\Handler;
 
+use Particle\Filter\Filter;
+use Particle\Validator\Validator;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\Request;
@@ -34,11 +36,28 @@ class OperationsHttpRequestParser implements HttpRequestParserInterface
         $data = $httpRequest->getQueryParams();
         $data['path'] = $attributes['path'];
 
+        $this->parseOperationResize($validator, $filter, $data);
+        $this->parseOperationCrop($validator, $filter, $data);
+        $this->parseOperationRotate($validator, $filter, $data);
+        $this->parseOperationNegative($validator, $filter, $data);
+        $this->parseOperationGamma($validator, $filter, $data);
+        $this->parseOperationGreyscale($validator, $filter, $data);
+        $this->parseOperationBlur($validator, $filter, $data);
+
+        return new Request($this->messageName, $rpHelper->filterAndValidate($data), $httpRequest);
+    }
+
+    private function parseOperationResize(Validator $validator, Filter $filter, array $data)
+    {
         if (isset($data['operations']['resize'])) {
             $filter->values(['operations.resize.width', 'operations.resize.height'])->int();
             $validator->required('operations.resize.width')->integer();
             $validator->required('operations.resize.height')->integer();
         }
+    }
+
+    private function parseOperationCrop(Validator $validator, Filter $filter, array $data)
+    {
         if (isset($data['operations']['crop'])) {
             $filter->values(
                 ['operations.crop.width', 'operations.crop.height', 'operations.crop.x', 'operations.crop.y']
@@ -48,27 +67,45 @@ class OperationsHttpRequestParser implements HttpRequestParserInterface
             $validator->required('operations.crop.width')->integer();
             $validator->required('operations.crop.height')->integer();
         }
+    }
+
+    private function parseOperationRotate(Validator $validator, Filter $filter, array $data)
+    {
         if (isset($data['operations']['rotate'])) {
             $filter->value('operations.rotate.degrees')->int();
             $validator->required('operations.rotate.degrees')->integer();
         }
+    }
+
+    private function parseOperationNegative(Validator $validator, Filter $filter, array $data)
+    {
         if (isset($data['operations']['negative'])) {
             $filter->value('operations.negative.apply')->bool();
             $validator->required('operations.negative.apply')->bool();
         }
+    }
+
+    private function parseOperationGamma(Validator $validator, Filter $filter, array $data)
+    {
         if (isset($data['operations']['gamma'])) {
             $filter->value('operations.gamma.correction')->float();
             $validator->required('operations.gamma.correction')->numeric();
         }
+    }
+
+    private function parseOperationGreyscale(Validator $validator, Filter $filter, array $data)
+    {
         if (isset($data['operations']['greyscale'])) {
             $filter->value('operations.greyscale.apply')->bool();
             $validator->required('operations.greyscale.apply')->bool();
         }
+    }
+
+    private function parseOperationBlur(Validator $validator, Filter $filter, array $data)
+    {
         if (isset($data['operations']['blur'])) {
             $filter->value('operations.blur.amount')->float();
             $validator->required('operations.blur.amount')->numeric();
         }
-
-        return new Request($this->messageName, $rpHelper->filterAndValidate($data), $httpRequest);
     }
 }
