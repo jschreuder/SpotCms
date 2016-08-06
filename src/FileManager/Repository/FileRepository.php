@@ -32,7 +32,7 @@ class FileRepository
         $this->objectRepository = $objectRepository;
     }
 
-    public function fromInput(string $name, string $path, string $mimeType, $stream)
+    public function fromInput(string $name, string $path, string $mimeType, $stream) : File
     {
         return new File(
             Uuid::uuid4(),
