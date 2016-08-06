@@ -54,18 +54,18 @@ class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
         $validator->optional('data.attributes.status')
             ->inArray([PageStatusValue::CONCEPT, PageStatusValue::PUBLISHED], true);
 
-        $data = $filter->filter((array) $httpRequest->getParsedBody());
+        $data = (array) $httpRequest->getParsedBody();
         $data['data']['id'] = $attributes['uuid'];
-        $request = new Request(self::MESSAGE, $rpHelper->filterAndValidate($data)['data']['attributes'], $httpRequest);
-        $request['uuid'] = $data['data']['id'];
+        $request = new Request(self::MESSAGE, $rpHelper->filterAndValidate($data)['data'], $httpRequest);
+
         return $request;
     }
 
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
         try {
-            $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));
-            $this->applyRequestToPage($request, $page);
+            $page = $this->pageRepository->getByUuid(Uuid::fromString($request['id']));
+            $this->applyRequestToPage($request['attributes'], $page);
             $this->pageRepository->update($page);
             return new Response(self::MESSAGE, ['data' => $page], $request);
         } catch (\Throwable $exception) {
@@ -77,47 +77,47 @@ class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
         }
     }
 
-    private function applyRequestToPage(RequestInterface $request, Page $page)
+    private function applyRequestToPage(array $requestAttributes, Page $page)
     {
-        $this->setPageTitle($page, $request);
-        $this->setPageSlug($page, $request);
-        $this->setPageShortTitle($page, $request);
-        $this->setPageSortOrder($page, $request);
-        $this->setPageStatus($page, $request);
+        $this->setPageTitle($page, $requestAttributes);
+        $this->setPageSlug($page, $requestAttributes);
+        $this->setPageShortTitle($page, $requestAttributes);
+        $this->setPageSortOrder($page, $requestAttributes);
+        $this->setPageStatus($page, $requestAttributes);
     }
 
-    private function setPageTitle(Page $page, RequestInterface $request)
+    private function setPageTitle(Page $page, array $requestAttributes)
     {
-        if (isset($request['title'])) {
-            $page->setTitle($request['title']);
+        if (isset($requestAttributes['title'])) {
+            $page->setTitle($requestAttributes['title']);
         }
     }
 
-    private function setPageSlug(Page $page, RequestInterface $request)
+    private function setPageSlug(Page $page, array $requestAttributes)
     {
-        if (isset($request['slug'])) {
-            $page->setSlug($request['slug']);
+        if (isset($requestAttributes['slug'])) {
+            $page->setSlug($requestAttributes['slug']);
         }
     }
 
-    private function setPageShortTitle(Page $page, RequestInterface $request)
+    private function setPageShortTitle(Page $page, array $requestAttributes)
     {
-        if (isset($request['short_title'])) {
-            $page->setShortTitle($request['short_title']);
+        if (isset($requestAttributes['short_title'])) {
+            $page->setShortTitle($requestAttributes['short_title']);
         }
     }
 
-    private function setPageSortOrder(Page $page, RequestInterface $request)
+    private function setPageSortOrder(Page $page, array $requestAttributes)
     {
-        if (isset($request['sort_order'])) {
-            $page->setSortOrder($request['sort_order']);
+        if (isset($requestAttributes['sort_order'])) {
+            $page->setSortOrder($requestAttributes['sort_order']);
         }
     }
 
-    private function setPageStatus(Page $page, RequestInterface $request)
+    private function setPageStatus(Page $page, array $requestAttributes)
     {
-        if (isset($request['status'])) {
-            $page->setStatus(PageStatusValue::get($request['status']));
+        if (isset($requestAttributes['status'])) {
+            $page->setStatus(PageStatusValue::get($requestAttributes['status']));
         }
     }
 }

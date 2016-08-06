@@ -19,6 +19,7 @@ use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Handler\AddPageBlockHandler;
 use Spot\SiteContent\Repository\PageRepository;
+use Spot\SiteContent\Value\PageStatusValue;
 
 /** @mixin  AddPageBlockHandler */
 class AddPageBlockHandlerSpec extends ObjectBehavior
@@ -66,7 +67,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
         $request->getRequestName()->shouldReturn(AddPageBlockHandler::MESSAGE);
-        $request->getAttributes()->shouldBe(array_merge($attributes, $post['data']['attributes']));
+        $request->getAttributes()->shouldBe(array_merge(['id' => $attributes['page_uuid']], $post['data']));
     }
 
     public function it_errors_on_invalid_uuid_when_parsing_request(ServerRequestInterface $httpRequest)
@@ -93,12 +94,15 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
     public function it_can_execute_a_request(RequestInterface $request, Page $page)
     {
         $uuid = Uuid::uuid4();
-        $request->offsetGet('page_uuid')->willReturn($uuid->toString());
-        $request->offsetGet('type')->willReturn('type');
-        $request->offsetGet('parameters')->willReturn(['content' => 1138]);
-        $request->offsetGet('location')->willReturn('main');
-        $request->offsetGet('sort_order')->willReturn(42);
-        $request->offsetGet('status')->willReturn('concept');
+        $attributes = [
+            'type' => 'type',
+            'parameters' => ['content' => 1138],
+            'location' => 'main',
+            'sort_order' => 52,
+            'status' => PageStatusValue::CONCEPT,
+        ];
+        $request->offsetGet('id')->willReturn($uuid->toString());
+        $request->offsetGet('attributes')->willReturn($attributes);
         $request->getAcceptContentType()->willReturn('application/json');
 
         $this->pageRepository->getByUuid($uuid)
@@ -119,7 +123,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
     public function it_can_execute_a_page_not_found_request(RequestInterface $request)
     {
         $uuid = Uuid::uuid4();
-        $request->offsetGet('page_uuid')->willReturn($uuid->toString());
+        $request->offsetGet('id')->willReturn($uuid->toString());
         $request->getAcceptContentType()->willReturn('text/xml');
 
         $this->pageRepository->getByUuid($uuid)
@@ -132,7 +136,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
     public function it_can_handle_exception_during_request(RequestInterface $request)
     {
         $pageUuid = Uuid::uuid4();
-        $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
+        $request->offsetGet('id')->willReturn($pageUuid->toString());
         $request->getAcceptContentType()->willReturn('text/xml');
 
         $this->pageRepository->getByUuid($pageUuid)->willThrow(new \RuntimeException());

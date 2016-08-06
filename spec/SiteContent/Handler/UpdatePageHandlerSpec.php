@@ -58,12 +58,15 @@ class UpdatePageHandlerSpec extends ObjectBehavior
         $request->shouldHaveType(RequestInterface::class);
         $request->getRequestName()->shouldReturn(UpdatePageHandler::MESSAGE);
         $request->getAttributes()->shouldBe([
-            'title' => 'Long title',
-            'slug' => 'long-title',
-            'short_title' => 'Title',
-            'sort_order' => 42,
-            'status' => 'published',
-            'uuid' => $uuid->toString(),
+            'type' => 'pages',
+            'id' => $uuid->toString(),
+            'attributes' => [
+                'title' => 'Long title',
+                'slug' => 'long-title',
+                'short_title' => 'Title',
+                'sort_order' => 42,
+                'status' => 'published',
+            ],
         ]);
     }
 
@@ -93,18 +96,13 @@ class UpdatePageHandlerSpec extends ObjectBehavior
     public function it_can_execute_a_request(RequestInterface $request, Page $page)
     {
         $pageUuid = Uuid::uuid4();
-        $title = 'New Title';
-        $slug = 'new-title';
-        $shortTitle = 'Title';
-        $request->offsetGet('uuid')->willReturn($pageUuid->toString());
-        $request->offsetExists('title')->willReturn(true);
-        $request->offsetGet('title')->willReturn($title);
-        $request->offsetExists('slug')->willReturn(true);
-        $request->offsetGet('slug')->willReturn($slug);
-        $request->offsetExists('short_title')->willReturn(true);
-        $request->offsetGet('short_title')->willReturn($shortTitle);
-        $request->offsetExists('sort_order')->willReturn(false);
-        $request->offsetExists('status')->willReturn(false);
+        $attributes = [
+            'title' => $title = 'New Title',
+            'slug' => $slug = 'new-title',
+            'short_title' => $shortTitle = 'Title',
+        ];
+        $request->offsetGet('id')->willReturn($pageUuid->toString());
+        $request->offsetGet('attributes')->willReturn($attributes);
         $request->getAcceptContentType()->willReturn('text/xml');
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
@@ -120,21 +118,17 @@ class UpdatePageHandlerSpec extends ObjectBehavior
     public function it_can_execute_a_request_part_deux(RequestInterface $request, Page $page)
     {
         $pageUuid = Uuid::uuid4();
-        $sortOrder = 3;
-        $status = PageStatusValue::get(PageStatusValue::CONCEPT);
-        $request->offsetGet('uuid')->willReturn($pageUuid->toString());
-        $request->offsetExists('title')->willReturn(false);
-        $request->offsetExists('slug')->willReturn(false);
-        $request->offsetExists('short_title')->willReturn(false);
-        $request->offsetExists('sort_order')->willReturn(true);
-        $request->offsetGet('sort_order')->willReturn($sortOrder);
-        $request->offsetExists('status')->willReturn(true);
-        $request->offsetGet('status')->willReturn($status->toString());
+        $attributes = [
+            'sort_order' => $sortOrder = 3,
+            'status' => PageStatusValue::CONCEPT,
+        ];
+        $request->offsetGet('id')->willReturn($pageUuid->toString());
+        $request->offsetGet('attributes')->willReturn($attributes);
         $request->getAcceptContentType()->willReturn('text/xml');
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
         $page->setSortOrder($sortOrder)->shouldBeCalled();
-        $page->setStatus($status)->shouldBeCalled();
+        $page->setStatus(PageStatusValue::get($attributes['status']))->shouldBeCalled();
 
         $this->pageRepository->update($page)->shouldBeCalled();
         $response = $this->executeRequest($request);
