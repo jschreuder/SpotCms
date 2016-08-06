@@ -16,6 +16,7 @@ use Spot\Api\Response\Message\ServerErrorResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\HttpRequestParserHelper;
+use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
@@ -64,11 +65,7 @@ class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
     {
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['uuid']));
-            isset($request['title']) && $page->setTitle($request['title']);
-            isset($request['slug']) && $page->setSlug($request['slug']);
-            isset($request['short_title']) && $page->setShortTitle($request['short_title']);
-            isset($request['sort_order']) && $page->setSortOrder($request['sort_order']);
-            isset($request['status']) && $page->setStatus(PageStatusValue::get($request['status']));
+            $this->applyRequestToPage($request, $page);
             $this->pageRepository->update($page);
             return new Response(self::MESSAGE, ['data' => $page], $request);
         } catch (\Throwable $exception) {
@@ -78,5 +75,14 @@ class UpdatePageHandler implements HttpRequestParserInterface, ExecutorInterface
                 new ServerErrorResponse([], $request)
             );
         }
+    }
+
+    private function applyRequestToPage(RequestInterface $request, Page $page)
+    {
+        isset($request['title']) && $page->setTitle($request['title']);
+        isset($request['slug']) && $page->setSlug($request['slug']);
+        isset($request['short_title']) && $page->setShortTitle($request['short_title']);
+        isset($request['sort_order']) && $page->setSortOrder($request['sort_order']);
+        isset($request['status']) && $page->setStatus(PageStatusValue::get($request['status']));
     }
 }

@@ -17,6 +17,7 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\SiteContent\BlockType\BlockTypeContainerInterface;
+use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
@@ -71,17 +72,7 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
         try {
             $page = $this->pageRepository->getByUuid(Uuid::fromString($request['page_uuid']));
             $block = $page->getBlockByUuid(Uuid::fromString($request['uuid']));
-            if (isset($request['parameters'])) {
-                foreach ($request['parameters'] as $key => $value) {
-                    $block[$key] = $value;
-                }
-            }
-            isset($request['sort_order']) && $block->setSortOrder($request['sort_order']);
-            isset($request['status']) && $block->setStatus(PageStatusValue::get($request['status']));
-
-            $blockType = $this->blockTypeContainer->getType($block->getType());
-            $blockType->validate($block, $request);
-
+            $this->applyRequestToBlock($request, $block);
             $this->pageRepository->updateBlockForPage($block, $page);
             return new Response(self::MESSAGE, ['data' => $block], $request);
         } catch (\Throwable $exception) {
@@ -91,5 +82,19 @@ class UpdatePageBlockHandler implements HttpRequestParserInterface, ExecutorInte
                 new ServerErrorResponse([], $request)
             );
         }
+    }
+
+    private function applyRequestToBlock(RequestInterface $request, PageBlock $block)
+    {
+        if (isset($request['parameters'])) {
+            foreach ($request['parameters'] as $key => $value) {
+                $block[$key] = $value;
+            }
+        }
+        isset($request['sort_order']) && $block->setSortOrder($request['sort_order']);
+        isset($request['status']) && $block->setStatus(PageStatusValue::get($request['status']));
+
+        $blockType = $this->blockTypeContainer->getType($block->getType());
+        $blockType->validate($block, $request);
     }
 }

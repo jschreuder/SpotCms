@@ -66,14 +66,9 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
             /** @var  UploadedFileInterface[] $uploadedFiles */
             $uploadedFiles = $request['files'];
             $path = $request['path'];
-
-            $files = [];
-            foreach ($uploadedFiles as $uploadedFile) {
-                $files[] = $file = $this->createFile($uploadedFile, $path);
-                $this->fileRepository->createFromUpload($file);
-            }
-
-            return new Response(self::MESSAGE, ['data' => $files], $request);
+            return new Response(self::MESSAGE, [
+                'data' => $this->createFiles($uploadedFiles, $path),
+            ], $request);
         } catch (\Throwable $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage());
             throw new ResponseException(
@@ -83,14 +78,24 @@ class UploadFileHandler implements HttpRequestParserInterface, ExecutorInterface
         }
     }
 
-    private function createFile(UploadedFileInterface $uploadedFile, string $path) : File
+    /**
+     * @param   UploadedFileInterface[] $uploadedFiles
+     * @param   string $path
+     * @return  File[]
+     */
+    private function createFiles(array $uploadedFiles, string $path) : array
     {
-        return new File(
-            Uuid::uuid4(),
-            FileNameValue::get(substr($uploadedFile->getClientFilename(), 0, 92)),
-            FilePathValue::get($path),
-            MimeTypeValue::get($uploadedFile->getClientMediaType()),
-            $uploadedFile->getStream()
-        );
+        $files = [];
+        foreach ($uploadedFiles as $uploadedFile) {
+            $files[] = $file = new File(
+                Uuid::uuid4(),
+                FileNameValue::get(substr($uploadedFile->getClientFilename(), 0, 92)),
+                FilePathValue::get($path),
+                MimeTypeValue::get($uploadedFile->getClientMediaType()),
+                $uploadedFile->getStream()
+            );
+            $this->fileRepository->createFromUpload($file);
+        }
+        return $files;
     }
 }
