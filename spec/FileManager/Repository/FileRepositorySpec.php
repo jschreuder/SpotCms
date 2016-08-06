@@ -82,7 +82,7 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('name REGEXP :name'))
             ->willReturn($uniqueStatement);
-        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_[0-9]+)?\.name'])
+        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_(?P<idx>[0-9]+))?\.name'])
             ->shouldBeCalled();
         $uniqueStatement->rowCount()
             ->willReturn(0);
@@ -135,7 +135,7 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('name REGEXP :name'))
             ->willReturn($uniqueStatement);
-        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_[0-9]+)?\.name'])
+        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_(?P<idx>[0-9]+))?\.name'])
             ->shouldBeCalled();
         $uniqueStatement->rowCount()
             ->willReturn(0);
@@ -177,7 +177,7 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('name REGEXP :name'))
             ->willReturn($uniqueStatement);
-        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_[0-9]+)?\.name'])
+        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_(?P<idx>[0-9]+))?\.name'])
             ->shouldBeCalled();
         $uniqueStatement->rowCount()
             ->willReturn(3);
@@ -231,7 +231,7 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('name REGEXP :name'))
             ->willReturn($uniqueStatement);
-        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_[0-9]+)?\.name'])
+        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_(?P<idx>[0-9]+))?\.name'])
             ->shouldBeCalled();
         $uniqueStatement->rowCount()
             ->willReturn(0);
@@ -357,7 +357,6 @@ class FileRepositorySpec extends ObjectBehavior
         $file->setName($name)->willReturn($file);
         $file->getPath()->willReturn($path);
         $file->getMimeType()->willReturn($mime);
-        $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeInterface::class))->shouldBeCalled();
 
         $this->pdo->beginTransaction()
             ->shouldBeCalled();
@@ -379,9 +378,6 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->commit()
             ->shouldBeCalled();
-
-        $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
-            ->willReturn($file);
 
         $this->updateMetaData($file);
     }

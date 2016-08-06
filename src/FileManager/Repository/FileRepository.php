@@ -48,12 +48,7 @@ class FileRepository
         $this->pdo->beginTransaction();
         try {
             $this->objectRepository->create(File::TYPE, $file->getUuid());
-
-            $file->setName($this->getUniqueFileName($file->getPath(), $file->getName()));
-            if (!$this->fileSystem->writeStream($file->getUuid()->toString(), $file->getStream())) {
-                throw new \RuntimeException('Failed to process uploaded file.');
-            }
-            $file->setStream($this->getFileStream($file->getUuid()));
+            $this->uploadFile($file);
 
             $this->executeSql('
                 INSERT INTO files (file_uuid, name, path, mime_type)
@@ -64,8 +59,9 @@ class FileRepository
                 'path' => $file->getPath()->toString(),
                 'mime_type' => $file->getMimeType()->toString(),
             ]);
-            $this->pdo->commit();
+
             $file->metaDataSetInsertTimestamp(new \DateTimeImmutable());
+            $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
             if ($this->fileSystem->has($file->getUuid()->toString())) {
@@ -73,6 +69,15 @@ class FileRepository
             }
             throw $exception;
         }
+    }
+
+    private function uploadFile(File $file)
+    {
+        $file->setName($this->getUniqueFileName($file->getPath(), $file->getName()));
+        if (!$this->fileSystem->writeStream($file->getUuid()->toString(), $file->getStream())) {
+            throw new \RuntimeException('Failed to process uploaded file.');
+        }
+        $file->setStream($this->getFileStream($file->getUuid()));
     }
 
     public function updateContent(File $file)
@@ -107,7 +112,6 @@ class FileRepository
                 $file->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
             }
 
-            $file->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
             $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
@@ -216,7 +220,17 @@ class FileRepository
     private function getUniqueFileName(FilePathValue $path, FileNameValue $name) : FileNameValue
     {
         $nameInfo = pathinfo($name->toString());
-        $nameRegex = preg_quote($nameInfo['filename']) . '(_[0-9]+)?\.' . preg_quote($nameInfo['extension'] ?? '');
+        $index = $this->getFileNameIndex($path, $nameInfo['filename'], $nameInfo['extension']);
+
+        if ($index === 0) {
+            return $name;
+        }
+        return FileNameValue::get($nameInfo['filename'] . '_' . strval($index) . '.' . ($nameInfo['extension'] ?? ''));
+    }
+
+    private function getFileNameIndex(FilePathValue $path, string $fileName, string $extension) : int
+    {
+        $nameRegex = preg_quote($fileName) . '(_(?P<idx>[0-9]+))?\.' . preg_quote($extension ?? '');
 
         $query = $this->executeSql('
               SELECT name
@@ -224,22 +238,18 @@ class FileRepository
                WHERE path = :path AND name REGEXP :name
             ORDER BY name ASC
         ', ['path' => $path->toString(), 'name' => $nameRegex]);
-
         if ($query->rowCount() === 0) {
-            return $name;
+            return 0;
         }
 
         $max = 0;
         while ($row = $query->fetchColumn()) {
-            if ($row === $name->toString()) {
+            if ($row === ($fileName . '.' . $extension)) {
                 continue;
             }
             preg_match('#' . $nameRegex . '#', $row, $match);
-            $number = intval(substr($match[1], 1));
-            $max = max($max, $number);
+            $max = max($max, intval($match['idx'], 1));
         }
-        return FileNameValue::get(
-            $nameInfo['filename'] . '_' . strval($max + 1) . '.' . ($nameInfo['extension'] ?? '')
-        );
+        return $max + 1;
     }
 }
