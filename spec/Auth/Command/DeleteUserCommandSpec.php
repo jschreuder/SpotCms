@@ -3,7 +3,6 @@
 namespace spec\Spot\Auth\Command;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Spot\Auth\Command\DeleteUserCommand;
 use Spot\Auth\Entity\User;
 use Spot\Auth\Repository\UserRepository;

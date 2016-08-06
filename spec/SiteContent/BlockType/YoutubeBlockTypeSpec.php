@@ -3,7 +3,6 @@
 namespace spec\Spot\SiteContent\BlockType;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Ramsey\Uuid\UuidInterface;
 use Spot\Api\Request\RequestInterface;
 use Spot\Application\Response\ValidationFailedException;

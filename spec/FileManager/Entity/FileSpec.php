@@ -3,7 +3,6 @@
 namespace spec\Spot\FileManager\Entity;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\FileManager\Entity\File;

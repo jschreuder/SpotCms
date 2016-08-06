@@ -3,11 +3,9 @@
 namespace spec\Spot\FileManager\Handler;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\Http\JsonApiResponse;
 use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;

@@ -3,7 +3,6 @@
 namespace spec\Spot\FileManager\Serializer;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\Serializer\FileSerializer;

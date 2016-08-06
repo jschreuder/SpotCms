@@ -3,7 +3,6 @@
 namespace spec\Spot\SiteContent\Handler;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -97,8 +96,6 @@ class UpdatePageHandlerSpec extends ObjectBehavior
         $title = 'New Title';
         $slug = 'new-title';
         $shortTitle = 'Title';
-        $sortOrder = 3;
-        $status = PageStatusValue::get(PageStatusValue::CONCEPT);
         $request->offsetGet('uuid')->willReturn($pageUuid->toString());
         $request->offsetExists('title')->willReturn(true);
         $request->offsetGet('title')->willReturn($title);
@@ -123,9 +120,6 @@ class UpdatePageHandlerSpec extends ObjectBehavior
     public function it_can_execute_a_request_part_deux(RequestInterface $request, Page $page)
     {
         $pageUuid = Uuid::uuid4();
-        $title = 'New Title';
-        $slug = 'new-title';
-        $shortTitle = 'Title';
         $sortOrder = 3;
         $status = PageStatusValue::get(PageStatusValue::CONCEPT);
         $request->offsetGet('uuid')->willReturn($pageUuid->toString());

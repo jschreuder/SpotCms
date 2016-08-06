@@ -3,7 +3,6 @@
 namespace spec\Spot\SiteContent\Value;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Spot\SiteContent\Value\PageStatusValue;
 
 /** @mixin  PageStatusValue */

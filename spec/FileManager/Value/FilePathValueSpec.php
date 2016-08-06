@@ -3,7 +3,6 @@
 namespace spec\Spot\FileManager\Value;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Spot\FileManager\Value\FilePathValue;
 
 /** @mixin  FilePathValue */

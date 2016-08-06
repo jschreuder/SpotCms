@@ -5,7 +5,6 @@ namespace spec\Spot\Application\Request;
 use Particle\Filter\Filter;
 use Particle\Validator\Validator;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface as HttpRequest;
 use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\Application\Request\ValidationFailedException;

@@ -3,7 +3,6 @@
 namespace spec\Spot\FileManager\Handler;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Spot\Api\Request\RequestInterface;

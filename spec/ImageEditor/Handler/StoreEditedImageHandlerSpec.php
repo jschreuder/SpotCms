@@ -12,7 +12,6 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
-use Spot\FileManager\FileManagerHelper;
 use Spot\ImageEditor\Handler\StoreEditedImageHandler;
 use Spot\ImageEditor\ImageEditor;
 use Spot\ImageEditor\Repository\ImageRepository;

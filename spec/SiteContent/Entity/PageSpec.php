@@ -3,7 +3,6 @@
 namespace spec\Spot\SiteContent\Entity;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\DataModel\Repository\NoResultException;

@@ -4,7 +4,6 @@ namespace spec\Spot\Application\Response;
 
 use Particle\Validator\ValidationResult;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Response\ValidationFailedException;

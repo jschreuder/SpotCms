@@ -8,7 +8,6 @@ use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\Point;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\Value\MimeTypeValue;
 use Spot\ImageEditor\ImageEditor;
