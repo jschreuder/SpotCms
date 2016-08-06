@@ -66,13 +66,13 @@ class AuthServiceProvider implements
     public function registerRouting(Container $container, ApplicationServiceProvider $builder)
     {
         $container['handler.login'] = function (Container $container) {
-            return new LoginHandler($container['service.authentication']);
+            return new LoginHandler($container['service.authentication'], $container['logger']);
         };
         $container['handler.refreshToken'] = function (Container $container) {
-            return new RefreshTokenHandler($container['service.tokens']);
+            return new RefreshTokenHandler($container['service.tokens'], $container['logger']);
         };
         $container['handler.logout'] = function (Container $container) {
-            return new LogoutHandler($container['service.tokens']);
+            return new LogoutHandler($container['service.tokens'], $container['logger']);
         };
 
         // ErrorHandlers

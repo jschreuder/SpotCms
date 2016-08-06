@@ -4,13 +4,18 @@ namespace Spot\Auth\Handler;
 
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
+use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\Request;
 use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\Generator\GeneratorInterface;
 use Spot\Api\Response\Message\Response;
+use Spot\Api\Response\Message\ServerErrorResponse;
+use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\Auth\Exception\AuthException;
@@ -19,14 +24,17 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class RefreshTokenHandler implements HttpRequestParserInterface, ExecutorInterface, GeneratorInterface
 {
+    use LoggableTrait;
+
     const MESSAGE = 'token.refresh';
 
     /** @var  TokenService */
     private $tokenService;
 
-    public function __construct(TokenService $tokenService)
+    public function __construct(TokenService $tokenService, LoggerInterface $logger)
     {
         $this->tokenService = $tokenService;
+        $this->logger = $logger;
     }
 
     public function parseHttpRequest(ServerHttpRequest $httpRequest, array $attributes) : RequestInterface
@@ -48,15 +56,21 @@ class RefreshTokenHandler implements HttpRequestParserInterface, ExecutorInterfa
         try {
             $token = $this->tokenService->getToken(Uuid::fromString($request['token']), $request['pass_code']);
             $newToken = $this->tokenService->refresh($token);
+
+            return new Response(self::MESSAGE, [
+                'token' => $newToken->getUuid()->toString(),
+                'pass_code' => $newToken->getPassCode(),
+                'expires'=> $newToken->getExpires()->format('Y-m-d H:i:s'),
+            ], $request);
         } catch (AuthException $exception) {
             return new Response($exception->getMessage(), [], $request);
+        } catch (\Throwable $exception) {
+            $this->log(LogLevel::ERROR, $exception->getMessage());
+            throw new ResponseException(
+                'An error occurred during RefreshTokenHandler.',
+                new ServerErrorResponse([], $request)
+            );
         }
-
-        return new Response(self::MESSAGE, [
-            'token' => $newToken->getUuid()->toString(),
-            'pass_code' => $newToken->getPassCode(),
-            'expires'=> $newToken->getExpires()->format('Y-m-d H:i:s'),
-        ], $request);
     }
 
     public function generateResponse(ResponseInterface $response) : HttpResponse

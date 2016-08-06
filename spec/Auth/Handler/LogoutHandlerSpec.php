@@ -4,8 +4,10 @@ namespace spec\Spot\Auth\Handler;
 
 use Psr\Http\Message\ServerRequestInterface;
 use PhpSpec\ObjectBehavior;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\RequestInterface;
+use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Auth\Entity\Token;
@@ -19,10 +21,14 @@ class LogoutHandlerSpec extends ObjectBehavior
     /** @var  TokenService */
     private $tokenService;
 
-    public function let(TokenService $tokenService)
+    /** @var  LoggerInterface */
+    private $logger;
+
+    public function let(TokenService $tokenService, LoggerInterface $logger)
     {
         $this->tokenService = $tokenService;
-        $this->beConstructedWith($tokenService);
+        $this->logger = $logger;
+        $this->beConstructedWith($tokenService, $logger);
     }
 
     public function it_is_initializable()
@@ -68,7 +74,7 @@ class LogoutHandlerSpec extends ObjectBehavior
         $response->getResponseName()->shouldReturn(LogoutHandler::MESSAGE);
     }
 
-    public function it_can_handle_errors_when_executing_a_request(RequestInterface $request)
+    public function it_can_handle_auth_errors_when_executing_a_request(RequestInterface $request)
     {
         $tokenUuid = Uuid::uuid4()->toString();
         $passCode = bin2hex(random_bytes(20));
@@ -84,6 +90,21 @@ class LogoutHandlerSpec extends ObjectBehavior
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
         $response->getResponseName()->shouldReturn($error);
+    }
+
+    public function it_can_handle_errors_when_executing_a_request(RequestInterface $request)
+    {
+        $tokenUuid = Uuid::uuid4()->toString();
+        $passCode = bin2hex(random_bytes(20));
+
+        $request->getAcceptContentType()->willReturn('*/*');
+        $request->offsetGet('token')->willReturn($tokenUuid);
+        $request->offsetGet('pass_code')->willReturn($passCode);
+
+        $this->tokenService->getToken(Uuid::fromString($tokenUuid), $passCode)
+            ->willThrow(new \RuntimeException());
+
+        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
     }
 
     public function it_can_generate_a_response(ResponseInterface $response)

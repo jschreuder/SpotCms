@@ -4,8 +4,10 @@ namespace spec\Spot\Auth\Handler;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Api\Request\RequestInterface;
+use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Auth\Entity\Token;
@@ -19,10 +21,14 @@ class LoginHandlerSpec extends ObjectBehavior
     /** @var  AuthenticationService */
     private $authenticationService;
 
-    public function let(AuthenticationService $authenticationService)
+    /** @var  LoggerInterface */
+    private $logger;
+
+    public function let(AuthenticationService $authenticationService, LoggerInterface $logger)
     {
         $this->authenticationService = $authenticationService;
-        $this->beConstructedWith($authenticationService);
+        $this->logger = $logger;
+        $this->beConstructedWith($authenticationService, $logger);
     }
 
     public function it_is_initializable()
@@ -84,7 +90,7 @@ class LoginHandlerSpec extends ObjectBehavior
         $response['expires']->shouldBe($expires->format('Y-m-d H:i:s'));
     }
 
-    public function it_can_handle_errors_when_executing_a_request(RequestInterface $request)
+    public function it_can_handle_auth_errors_when_executing_a_request(RequestInterface $request)
     {
         $emailAddress = 'bb@eight.poe';
         $password = 'not.damerons.coat';
@@ -99,6 +105,20 @@ class LoginHandlerSpec extends ObjectBehavior
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
         $response->getResponseName()->shouldReturn($error);
+    }
+
+    public function it_can_handle_errors_when_executing_a_request(RequestInterface $request)
+    {
+        $emailAddress = 'bb@eight.poe';
+        $password = 'not.damerons.coat';
+
+        $request->getAcceptContentType()->willReturn('*/*');
+        $request->offsetGet('email_address')->willReturn($emailAddress);
+        $request->offsetGet('password')->willReturn($password);
+
+        $this->authenticationService->login($emailAddress, $password)->willThrow(new \RuntimeException());
+
+        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
     }
 
     public function it_can_generate_a_response(ResponseInterface $response)
