@@ -13,7 +13,7 @@ use Spot\Application\Request\ValidationFailedException;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Exception\AuthException;
 use Spot\Auth\Handler\LoginHandler;
-use Spot\Auth\Service\AuthenticationService;
+use Spot\Auth\AuthenticationService;
 
 /** @mixin  LoginHandler */
 class LoginHandlerSpec extends ObjectBehavior

@@ -1,6 +1,6 @@
 <?php
 
-namespace spec\Spot\Auth\Service;
+namespace spec\Spot\Auth;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -9,7 +9,7 @@ use Spot\Auth\Entity\Token;
 use Spot\Auth\Entity\User;
 use Spot\Auth\Exception\LoginFailedException;
 use Spot\Auth\Repository\TokenRepository;
-use Spot\Auth\Service\TokenService;
+use Spot\Auth\TokenService;
 use Spot\DataModel\Repository\NoUniqueResultException;
 
 /** @mixin  TokenService */

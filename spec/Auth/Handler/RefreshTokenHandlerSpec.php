@@ -13,7 +13,7 @@ use Spot\Application\Request\ValidationFailedException;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Exception\AuthException;
 use Spot\Auth\Handler\RefreshTokenHandler;
-use Spot\Auth\Service\TokenService;
+use Spot\Auth\TokenService;
 
 /** @mixin  RefreshTokenHandler */
 class RefreshTokenHandlerSpec extends ObjectBehavior

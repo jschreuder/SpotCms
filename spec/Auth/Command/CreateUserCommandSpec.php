@@ -4,7 +4,7 @@ namespace spec\Spot\Auth\Command;
 
 use PhpSpec\ObjectBehavior;
 use Spot\Auth\Command\CreateUserCommand;
-use Spot\Auth\Service\AuthenticationService;
+use Spot\Auth\AuthenticationService;
 use Spot\Auth\Value\EmailAddress;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

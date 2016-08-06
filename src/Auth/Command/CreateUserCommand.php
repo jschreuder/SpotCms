@@ -2,7 +2,7 @@
 
 namespace Spot\Auth\Command;
 
-use Spot\Auth\Service\AuthenticationService;
+use Spot\Auth\AuthenticationService;
 use Spot\Auth\Value\EmailAddress;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

@@ -12,8 +12,8 @@ use Spot\Api\Request\Message\UnauthorizedRequest;
 use Spot\Api\Request\RequestInterface;
 use Spot\Auth\Exception\AuthException;
 use Spot\Auth\Handler\LoginHandler;
-use Spot\Auth\Service\AuthenticationService;
-use Spot\Auth\Service\TokenService;
+use Spot\Auth\AuthenticationService;
+use Spot\Auth\TokenService;
 
 class HttpRequestParserAuthMiddleware implements HttpRequestParserInterface
 {

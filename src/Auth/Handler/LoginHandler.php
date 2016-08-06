@@ -18,7 +18,7 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\Auth\Exception\AuthException;
-use Spot\Auth\Service\AuthenticationService;
+use Spot\Auth\AuthenticationService;
 use Zend\Diactoros\Response\JsonResponse;
 
 class LoginHandler implements HttpRequestParserInterface, ExecutorInterface, GeneratorInterface

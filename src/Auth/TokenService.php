@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Spot\Auth\Service;
+namespace Spot\Auth;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;

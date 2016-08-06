@@ -19,7 +19,7 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\HttpRequestParserHelper;
 use Spot\Auth\Exception\AuthException;
-use Spot\Auth\Service\TokenService;
+use Spot\Auth\TokenService;
 use Zend\Diactoros\Response\JsonResponse;
 
 class RefreshTokenHandler implements HttpRequestParserInterface, ExecutorInterface, GeneratorInterface

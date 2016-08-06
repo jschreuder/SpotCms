@@ -11,8 +11,8 @@ use Spot\Api\Request\Message\UnauthorizedRequest;
 use Spot\Api\Request\RequestInterface;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Middleware\HttpRequestParserAuthMiddleware;
-use Spot\Auth\Service\AuthenticationService;
-use Spot\Auth\Service\TokenService;
+use Spot\Auth\AuthenticationService;
+use Spot\Auth\TokenService;
 
 /** @mixin  HttpRequestParserAuthMiddleware */
 class HttpRequestParserAuthMiddlewareSpec extends ObjectBehavior
