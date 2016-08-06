@@ -14,8 +14,6 @@ use Spot\Auth\Handler\RefreshTokenHandler;
 use Spot\Auth\Middleware\HttpRequestParserAuthMiddleware;
 use Spot\Auth\Repository\TokenRepository;
 use Spot\Auth\Repository\UserRepository;
-use Spot\Auth\Service\AuthenticationService;
-use Spot\Auth\Service\TokenService;
 
 class AuthServiceProvider implements
     RoutingProviderInterface
