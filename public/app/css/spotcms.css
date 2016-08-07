@@ -1,6 +1,7 @@
 html, body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: Raleway, Helvetica, Arial, sans-serif;
     font-size: 14px;
+    line-height: 1.5em;
     height: 100%;
     margin: 0;
     padding: 0;
@@ -15,6 +16,13 @@ md-sidenav header {
     text-align: center;
 }
 
+md-sidenav footer {
+    font-size: .9em;
+    color: #ddd;
+    margin: .9em !important;
+    text-align: right;
+}
+
 md-toolbar {
     background-color: white !important;
     color: black !important;
@@ -26,7 +34,7 @@ md-toolbar h3 {
 }
 
 md-toolbar .md-icon-button {
-    margin: auto 10px auto 10px !important;
+    margin: auto .72em auto .72em !important;
     vertical-align: middle;
     color: black !important;
 }
@@ -37,17 +45,17 @@ md-list-item > button {
 }
 
 #content {
-    padding: 5px 40px 0 40px;
+    padding: .3em 3em 0 3em;
 }
 
 .menu-item {
     text-align: center;
-    line-height: 64px;
-    font-size:48px;
+    line-height: 1.3em;
+    font-size: 3.5em;
     position: relative;
-    width: 64px;
-    height: 64px;
-    border: 1px solid #ddd;
+    width: 1.3em;
+    height: 1.3em;
+    border: .03em solid #ddd;
     border-radius: 50%;
     display: inline-block;
     overflow: hidden;
