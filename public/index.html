@@ -1,0 +1,61 @@
+<!doctype html>
+
+<html>
+
+<head>
+    <title>SpotCMS</title>
+    <link rel="stylesheet" href="components/angular-material/angular-material.min.css" />
+    <link rel="stylesheet" href="assets/fonts/material-icons/material-icons.css" />
+    <link rel="stylesheet" href="app/css/spotcms.css" />
+</head>
+
+<body ng-app="SpotCms" layout="row">
+
+<md-sidenav md-component-id="main-menu" md-is-locked-open="$mdMedia('gt-sm')" layout="column" class="md-whiteframe-4dp" role="navigation" hide-print>
+    <md-list>
+        <md-list-item>
+            <md-button>
+                <md-icon class="avatar" md-svg-src="assets/avatars/avatar-2.svg"></md-icon>
+                Darth Vader
+            </md-button>
+        </md-list-item>
+        <md-list-item>
+            <md-button>
+                <md-icon class="avatar" md-svg-src="assets/avatars/avatar-8.svg"></md-icon>
+                Count Dooku
+            </md-button>
+        </md-list-item>
+    </md-list>
+</md-sidenav>
+
+<div class="container" layout="column" flex>
+    <md-toolbar layout="row" ng-controller="pageHeader as pageHeader">
+        <md-button class="md-icon-button" ng-click="pageHeader.sideNavToggle()" hide-gt-sm aria-label="Toggle Menu">
+            <span class="material-icons">menu</span>
+        </md-button>
+        <h3>SpotCms</h3>
+    </md-toolbar>
+
+    <md-content id="content" flex>
+        <md-icon class="avatar" md-svg-src="assets/avatars/avatar-8.svg"></md-icon>
+        <h2>Count Dooku</h2>
+
+        <p>
+            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui.
+        </p>
+        <p>
+            Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia.
+        </p>
+    </md-content>
+</div>
+
+<script src="components/angular/angular.min.js"></script>
+<script src="components/angular-animate/angular-animate.min.js"></script>
+<script src="components/angular-aria/angular-aria.min.js"></script>
+<script src="components/angular-material/angular-material.min.js"></script>
+
+<script src="app/main.js"></script>
+
+</body>
+
+</html>

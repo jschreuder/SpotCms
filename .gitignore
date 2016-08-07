@@ -2,6 +2,7 @@
 /bin/
 /config/*.php
 /logs/
+/public/components
 /vendor/
 composer.phar
 coverage.xml
