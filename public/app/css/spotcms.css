@@ -6,6 +6,20 @@ html, body {
     padding: 0;
 }
 
+md-sidenav {
+    background: rgb(63,81,181);
+    color: white;
+}
+
+md-sidenav header {
+    text-align: center;
+}
+
+md-toolbar {
+    background-color: white !important;
+    color: black !important;
+}
+
 md-toolbar h3 {
     margin: auto;
     font-weight: 500;
@@ -14,6 +28,7 @@ md-toolbar h3 {
 md-toolbar .md-icon-button {
     margin: auto 10px auto 10px !important;
     vertical-align: middle;
+    color: black !important;
 }
 
 md-list-item > button {
@@ -25,18 +40,21 @@ md-list-item > button {
     padding: 5px 40px 0 40px;
 }
 
-.avatar {
+.menu-item {
+    text-align: center;
+    line-height: 64px;
+    font-size:48px;
     position: relative;
-    width: 128px;
-    height: 128px;
+    width: 64px;
+    height: 64px;
     border: 1px solid #ddd;
     border-radius: 50%;
     display: inline-block;
     overflow: hidden;
     margin: 0;
     vertical-align: middle;
-    zoom: 0.70;
+    zoom: 0.80;
     transform: translateZ(0);
-    -webkit-transform: scale(0.70);
-    -moz-transform: scale(0.70);
+    -webkit-transform: scale(0.80);
+    -moz-transform: scale(0.80);
 }

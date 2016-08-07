@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>SpotCMS</title>
+    <title>SpotCMS | Dashboard</title>
     <link rel="stylesheet" href="components/angular-material/angular-material.min.css" />
     <link rel="stylesheet" href="assets/fonts/material-icons/material-icons.css" />
     <link rel="stylesheet" href="app/css/spotcms.css" />
@@ -11,35 +11,53 @@
 
 <body ng-app="SpotCms" layout="row">
 
-<md-sidenav md-component-id="main-menu" md-is-locked-open="$mdMedia('gt-sm')" layout="column" class="md-whiteframe-4dp" role="navigation" hide-print>
+<md-sidenav md-component-id="main-menu" md-is-locked-open="$mdMedia('gt-sm')" layout="column" class="md-whiteframe-2dp" role="navigation" hide-print>
+    <header>
+        <h1>SpotCMS</h1>
+    </header>
     <md-list>
         <md-list-item>
             <md-button>
-                <md-icon class="avatar" md-svg-src="assets/avatars/avatar-2.svg"></md-icon>
-                Darth Vader
+                <span class="menu-item material-icons">dashboard</span>
+                Dashboard
             </md-button>
         </md-list-item>
         <md-list-item>
             <md-button>
-                <md-icon class="avatar" md-svg-src="assets/avatars/avatar-8.svg"></md-icon>
-                Count Dooku
+                <span class="menu-item material-icons">library_books</span>
+                Site pages
+            </md-button>
+        </md-list-item>
+        <md-list-item>
+            <md-button>
+                <span class="menu-item material-icons">archive</span>
+                Content
+            </md-button>
+        </md-list-item>
+        <md-list-item>
+            <md-button>
+                <span class="menu-item material-icons">format_paint</span>
+                Layout
+            </md-button>
+        </md-list-item>
+        <md-list-item>
+            <md-button>
+                <span class="menu-item material-icons">settings</span>
+                Configuration
             </md-button>
         </md-list-item>
     </md-list>
 </md-sidenav>
 
 <div class="container" layout="column" flex>
-    <md-toolbar layout="row" ng-controller="pageHeader as pageHeader">
+    <md-toolbar layout="row" ng-controller="pageHeader as pageHeader" class="md-whiteframe-4dp">
         <md-button class="md-icon-button" ng-click="pageHeader.sideNavToggle()" hide-gt-sm aria-label="Toggle Menu">
             <span class="material-icons">menu</span>
         </md-button>
-        <h3>SpotCms</h3>
+        <h3>Dashboard</h3>
     </md-toolbar>
 
     <md-content id="content" flex>
-        <md-icon class="avatar" md-svg-src="assets/avatars/avatar-8.svg"></md-icon>
-        <h2>Count Dooku</h2>
-
         <p>
             Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui.
         </p>
