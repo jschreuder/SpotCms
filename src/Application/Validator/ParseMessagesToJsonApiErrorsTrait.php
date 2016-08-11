@@ -12,7 +12,6 @@ trait ParseMessagesToJsonApiErrorsTrait
         foreach ($result->getMessages() as $field => $messages) {
             foreach ($messages as $errorKey => $errorMessage) {
                 $errors[] = [
-                    'id' => $field . '::' . $errorKey,
                     'title' => $errorMessage,
                     'code' => $errorKey,
                     'source' => ['parameter' => $field],

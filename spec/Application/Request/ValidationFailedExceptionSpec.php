@@ -45,7 +45,6 @@ class ValidationFailedExceptionSpec extends ObjectBehavior
         $request->shouldHaveType(RequestInterface::class);
         $request->offsetGet('errors')->shouldReturn([
             [
-                'id' => key($this->messages) . '::' . key($this->messages['field']),
                 'title' => reset($this->messages['field']),
                 'code' => key($this->messages['field']),
                 'source' => ['parameter' => key($this->messages)],
