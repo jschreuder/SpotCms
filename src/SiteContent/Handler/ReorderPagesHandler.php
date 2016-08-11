@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Spot\Api\LoggableTrait;
 use Spot\Api\Request\Executor\ExecutorInterface;
 use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
@@ -55,7 +56,7 @@ class ReorderPagesHandler implements HttpRequestParserInterface, ExecutorInterfa
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
         try {
-            $pages = $this->getPages($request['parent_uuid'], $request['ordered_pages']);
+            $pages = $this->getPages($request['ordered_pages'], Uuid::fromString($request['parent_uuid'] ?: Uuid::NIL));
             $pageSortOrders = $this->getPageSortOrders($pages);
             foreach ($pages as $idx => $page) {
                 $page->setSortOrder($pageSortOrders[$idx]);
@@ -74,19 +75,16 @@ class ReorderPagesHandler implements HttpRequestParserInterface, ExecutorInterfa
     }
 
     /**
-     * @param   string|null $uuid
      * @param   array[] $pageArrays
+     * @param   UuidInterface $parentUuid
      * @return  Page[]
      */
-    private function getPages($uuid, array $pageArrays) : array
+    private function getPages(array $pageArrays, UuidInterface $parentUuid) : array
     {
         $pages = [];
         foreach ($pageArrays as $pageArray) {
             $pages[] = $page = $this->pageRepository->getByUuid(Uuid::fromString($pageArray['page_uuid']));
-            if (
-                (is_null($page->getParentUuid()) && !is_null($uuid))
-                || (!is_null($page->getParentUuid()) && $page->getParentUuid()->toString() !== $uuid)
-            ) {
+            if (!$parentUuid->equals($page->getParentUuid() ?: Uuid::fromString(Uuid::NIL))) {
                 throw new \OutOfBoundsException('All reordered pages must be children of the given parent page.');
             }
         }
