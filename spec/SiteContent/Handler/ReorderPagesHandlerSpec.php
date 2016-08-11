@@ -108,7 +108,7 @@ class ReorderPagesHandlerSpec extends ObjectBehavior
 
     public function it_can_execute_request_with_null_parent(RequestInterface $request, Page $page1, Page $page2)
     {
-        $parentUuid = Uuid::fromString(Uuid::NIL);
+        $parentUuid = null;
         $page1Uuid = Uuid::uuid4();
         $page1->getUuid()->willReturn($page1Uuid);
         $page1->getParentUuid()->willReturn(null);
@@ -132,7 +132,7 @@ class ReorderPagesHandlerSpec extends ObjectBehavior
         ];
         $request->getAcceptContentType()->willReturn('*/*');
         $request->offsetGet('ordered_pages')->willReturn($orderedPageUuids);
-        $request->offsetGet('parent_uuid')->willReturn($parentUuid->toString());
+        $request->offsetGet('parent_uuid')->willReturn($parentUuid);
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);

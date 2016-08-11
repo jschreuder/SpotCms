@@ -45,10 +45,10 @@ class ReorderPagesHandler implements HttpRequestParserInterface, ExecutorInterfa
             ->each(function (Validator $validator) {
                 $validator->required('page_uuid')->uuid();
             });
-        $validator->required('data.parent_uuid')->uuid();
+        $validator->required('data.parent_uuid', null, true)->uuid();
 
         $data = (array) $httpRequest->getParsedBody();
-        $data['data']['parent_uuid'] = $attributes['parent_uuid'];
+        $data['data']['parent_uuid'] = $attributes['parent_uuid'] === Uuid::NIL ? null : $attributes['parent_uuid'];
 
         return new Request(self::MESSAGE, $rpHelper->filterAndValidate($data)['data'], $httpRequest);
     }
@@ -56,7 +56,7 @@ class ReorderPagesHandler implements HttpRequestParserInterface, ExecutorInterfa
     public function executeRequest(RequestInterface $request) : ResponseInterface
     {
         try {
-            $pages = $this->getPages(Uuid::fromString($request['parent_uuid']), $request['ordered_pages']);
+            $pages = $this->getPages($request['parent_uuid'], $request['ordered_pages']);
             $pageSortOrders = $this->getPageSortOrders($pages);
             foreach ($pages as $idx => $page) {
                 $page->setSortOrder($pageSortOrders[$idx]);
@@ -75,19 +75,19 @@ class ReorderPagesHandler implements HttpRequestParserInterface, ExecutorInterfa
     }
 
     /**
+     * @param   string|null $uuid
      * @param   array[] $pageArrays
      * @return  Page[]
      */
-    private function getPages(UuidInterface $uuid, array $pageArrays) : array
+    private function getPages($uuid, array $pageArrays) : array
     {
-        if ($uuid->toString() === Uuid::NIL) {
-            $uuid = null;
-        }
-
         $pages = [];
         foreach ($pageArrays as $pageArray) {
             $pages[] = $page = $this->pageRepository->getByUuid(Uuid::fromString($pageArray['page_uuid']));
-            if ((is_null($page->getParentUuid()) && !is_null($uuid)) || $page->getParentUuid()->equals($uuid)) {
+            if (
+                (is_null($page->getParentUuid()) && !is_null($uuid))
+                || (!is_null($page->getParentUuid()) && $page->getParentUuid()->toString() !== $uuid)
+            ) {
                 throw new \OutOfBoundsException('All reordered pages must be children of the given parent page.');
             }
         }
