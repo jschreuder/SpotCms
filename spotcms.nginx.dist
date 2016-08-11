@@ -3,7 +3,7 @@ server {
     listen spotcms.dev:443 ssl;
 
     root YOUR_ROOT;
-    index index.html index.htm;
+    index index.html;
 
     # Make site accessible from http://spotcms.dev/
     server_name spotcms.dev;
@@ -15,7 +15,6 @@ server {
 
     location ~ /api {
         include fastcgi_params;
-        fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $document_root/api.php;
     }
