@@ -3,8 +3,8 @@ suites:
         namespace: Spot
         psr4_prefix: Spot
 
-#extensions:
-#    - PhpSpec\Extension\CodeCoverageExtension
+extensions:
+    - PhpSpec\Extension\CodeCoverageExtension
 
 code_coverage:
     format:
