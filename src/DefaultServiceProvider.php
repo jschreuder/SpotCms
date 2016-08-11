@@ -30,6 +30,7 @@ class DefaultServiceProvider implements
                 $container,
                 $container['logger']
             ),
+            '/api',
             new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
             new ExecutorBus($container, $container['logger']),
             new GeneratorBus($container, $container['logger'])
