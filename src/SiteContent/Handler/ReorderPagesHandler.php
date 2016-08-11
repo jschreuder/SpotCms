@@ -86,8 +86,8 @@ class ReorderPagesHandler implements HttpRequestParserInterface, ExecutorInterfa
 
         $pages = [];
         foreach ($pageArrays as $pageArray) {
-            $pages[] = $page = $this->pageRepository->getByUuid(Uuid::fromString($pageArray['uuid']));
-            if (!(is_null($page->getParentUuid()) && is_null($uuid)) && !$page->getParentUuid()->equals($uuid)) {
+            $pages[] = $page = $this->pageRepository->getByUuid(Uuid::fromString($pageArray['page_uuid']));
+            if ((is_null($page->getParentUuid()) && !is_null($uuid)) || $page->getParentUuid()->equals($uuid)) {
                 throw new \OutOfBoundsException('All reordered pages must be children of the given parent page.');
             }
         }

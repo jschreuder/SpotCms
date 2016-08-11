@@ -93,9 +93,9 @@ class ReorderPagesHandlerSpec extends ObjectBehavior
         $this->pageRepository->update($page3)->shouldBeCalled();
 
         $orderedPageUuids = [
-            ['uuid' => $page2Uuid->toString()],
-            ['uuid' => $page3Uuid->toString()],
-            ['uuid' => $page1Uuid->toString()],
+            ['page_uuid' => $page2Uuid->toString()],
+            ['page_uuid' => $page3Uuid->toString()],
+            ['page_uuid' => $page1Uuid->toString()],
         ];
         $request->getAcceptContentType()->willReturn('*/*');
         $request->offsetGet('ordered_pages')->willReturn($orderedPageUuids);
@@ -127,8 +127,8 @@ class ReorderPagesHandlerSpec extends ObjectBehavior
         $this->pageRepository->update($page2)->shouldBeCalled();
 
         $orderedPageUuids = [
-            ['uuid' => $page2Uuid->toString()],
-            ['uuid' => $page1Uuid->toString()],
+            ['page_uuid' => $page2Uuid->toString()],
+            ['page_uuid' => $page1Uuid->toString()],
         ];
         $request->getAcceptContentType()->willReturn('*/*');
         $request->offsetGet('ordered_pages')->willReturn($orderedPageUuids);
@@ -150,7 +150,7 @@ class ReorderPagesHandlerSpec extends ObjectBehavior
         $this->pageRepository->getByUuid($page1Uuid)->willReturn($page1);
 
         $orderedPageUuids = [
-            ['uuid' => $page1Uuid->toString()],
+            ['page_uuid' => $page1Uuid->toString()],
         ];
         $request->getAcceptContentType()->willReturn('*/*');
         $request->offsetGet('ordered_pages')->willReturn($orderedPageUuids);
@@ -164,7 +164,7 @@ class ReorderPagesHandlerSpec extends ObjectBehavior
         $uuid = Uuid::uuid4();
         $request->getAcceptContentType()->willReturn('*/*');
         $request->offsetGet('ordered_pages')->willReturn([
-            ['uuid' => $uuid->toString()],
+            ['page_uuid' => $uuid->toString()],
         ]);
 
         $this->pageRepository->getByUuid($uuid)->willThrow(new \RuntimeException());
