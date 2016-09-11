@@ -11,7 +11,7 @@ SpotCMS
    :target: https://scrutinizer-ci.com/g/jschreuder/SpotCms/?branch=master
    :alt: Code Coverage
 
-SpotCMS based on `SpotAPI <https://github.com/WebspotCode/SpotApi>`_.
+SpotCMS based on `SpotAPI <https://github.com/jschreuder/SpotApi>`_.
 
 License
 -------
