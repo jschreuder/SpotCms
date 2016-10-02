@@ -43,7 +43,10 @@ class RefreshTokenController implements RequestValidatorInterface, ControllerInt
     public function execute(ServerHttpRequest $request) : HttpResponse
     {
         try {
-            $token = $this->tokenService->getToken(Uuid::fromString($request['token']), $request['pass_code']);
+            $token = $this->tokenService->getToken(
+                Uuid::fromString($request->getHeaderLine('Authentication-Token')),
+                $request->getHeaderLine('Authentication-Pass-Code')
+            );
             $newToken = $this->tokenService->refresh($token);
 
             return $this->generateResponse($newToken->getUuid(), $newToken->getPassCode(), $newToken->getExpires());
