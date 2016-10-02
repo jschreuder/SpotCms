@@ -12,10 +12,10 @@ use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Exception\AuthException;
-use Spot\Auth\Handler\RefreshTokenHandler;
+use Spot\Auth\Controller\RefreshTokenController;
 use Spot\Auth\TokenService;
 
-/** @mixin  RefreshTokenHandler */
+/** @mixin  RefreshTokenController */
 class RefreshTokenHandlerSpec extends ObjectBehavior
 {
     /** @var  TokenService */
@@ -33,7 +33,7 @@ class RefreshTokenHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(RefreshTokenHandler::class);
+        $this->shouldHaveType(RefreshTokenController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -47,7 +47,7 @@ class RefreshTokenHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, []);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(RefreshTokenHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(RefreshTokenController::MESSAGE);
         $request['token']->shouldBe($token);
         $request['pass_code']->shouldBe($passCode);
     }
@@ -78,7 +78,7 @@ class RefreshTokenHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(RefreshTokenHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(RefreshTokenController::MESSAGE);
         $response['token']->shouldBe($newUuid->toString());
         $response['pass_code']->shouldBe($newPassCode);
         $response['expires']->shouldBe($expires->format('Y-m-d H:i:s'));
@@ -122,7 +122,7 @@ class RefreshTokenHandlerSpec extends ObjectBehavior
         $tokenUuid = Uuid::uuid4()->toString();
         $passCode = bin2hex(random_bytes(20));
         $expires = (new \DateTimeImmutable('+42 seconds'))->format('Y-m-d H:i:s');
-        $response->getResponseName()->willReturn(RefreshTokenHandler::MESSAGE);
+        $response->getResponseName()->willReturn(RefreshTokenController::MESSAGE);
         $response->offsetGet('token')->willReturn($tokenUuid);
         $response->offsetGet('pass_code')->willReturn($passCode);
         $response->offsetGet('expires')->willReturn($expires);

@@ -2,31 +2,35 @@
 
 namespace Spot\Auth;
 
+use jschreuder\Middle\ApplicationStackInterface;
+use jschreuder\Middle\Router\RouterInterface;
+use jschreuder\Middle\Router\RoutingProviderInterface;
 use Pimple\Container;
-use Spot\Api\ApplicationServiceProvider;
-use Spot\Api\Handler\ErrorHandler;
-use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
-use Spot\Api\ServiceProvider\RoutingProviderInterface;
-use Spot\Auth\Exception\LoginFailedException;
-use Spot\Auth\Handler\LoginHandler;
-use Spot\Auth\Handler\LogoutHandler;
-use Spot\Auth\Handler\RefreshTokenHandler;
-use Spot\Auth\Middleware\HttpRequestParserAuthMiddleware;
+use Pimple\ServiceProviderInterface;
+use Spot\Auth\Controller\LoginController;
+use Spot\Auth\Controller\LogoutController;
+use Spot\Auth\Controller\RefreshTokenController;
+use Spot\Auth\Middleware\AuthMiddleware;
 use Spot\Auth\Repository\TokenRepository;
 use Spot\Auth\Repository\UserRepository;
 
-class AuthServiceProvider implements
-    RoutingProviderInterface
+class AuthServiceProvider implements ServiceProviderInterface, RoutingProviderInterface
 {
+    /** @var  Container */
+    private $container;
+
     /** @var  string */
     private $uriSegment;
 
-    public function __construct(string $uriSegment)
+    public function __construct(Container $container, string $uriSegment)
     {
+        $this->container = $container;
+        $container->register($this);
+
         $this->uriSegment = $uriSegment;
     }
 
-    public function init(Container $container)
+    public function register(Container $container)
     {
         $container['repository.tokens'] = function (Container $container) {
             return new TokenRepository($container['db']);
@@ -47,78 +51,18 @@ class AuthServiceProvider implements
                 $container['logger']
             );
         };
-
-        $container->extend('app.httpRequestParser',
-            function (HttpRequestParserInterface $httpRequestParser, Container $container) {
-                return new HttpRequestParserAuthMiddleware(
-                    $httpRequestParser,
-                    $container['service.tokens'],
-                    $container['service.authentication'],
-                    [],
-                    $container['logger']
-                );
-            }
-        );
     }
 
-    public function registerRouting(Container $container, ApplicationServiceProvider $builder)
+    public function registerRoutes(RouterInterface $router)
     {
-        $container['handler.login'] = function (Container $container) {
-            return new LoginHandler($container['service.authentication'], $container['logger']);
-        };
-        $container['handler.refreshToken'] = function (Container $container) {
-            return new RefreshTokenHandler($container['service.tokens'], $container['logger']);
-        };
-        $container['handler.logout'] = function (Container $container) {
-            return new LogoutHandler($container['service.tokens'], $container['logger']);
-        };
-
-        // ErrorHandlers
-        $container['error.invalidCredentials'] = function () {
-            return new ErrorHandler(LoginFailedException::ERROR_INVALID_CREDENTIALS, 400);
-        };
-        $container['error.invalidEmailAddress'] = function () {
-            return new ErrorHandler(LoginFailedException::ERROR_INVALID_EMAIL_ADDRESS, 400);
-        };
-        $container['error.invalidToken'] = function () {
-            return new ErrorHandler(LoginFailedException::ERROR_INVALID_TOKEN, 401);
-        };
-        $container['error.systemError'] = function () {
-            return new ErrorHandler(LoginFailedException::ERROR_SYSTEM_ERROR, 500);
-        };
-        $builder->addGenerator(
-            LoginFailedException::ERROR_INVALID_CREDENTIALS,
-            self::JSON_API_CT,
-            'error.invalidCredentials'
-        );
-        $builder->addGenerator(
-            LoginFailedException::ERROR_INVALID_EMAIL_ADDRESS,
-            self::JSON_API_CT,
-            'error.invalidEmailAddress'
-        );
-        $builder->addGenerator(
-            LoginFailedException::ERROR_INVALID_TOKEN,
-            self::JSON_API_CT,
-            'error.invalidToken'
-        );
-        $builder->addGenerator(
-            LoginFailedException::ERROR_SYSTEM_ERROR,
-            self::JSON_API_CT,
-            'error.systemError'
-        );
-
-        // Configure ApiBuilder to use Handlers & Response Generators
-        $builder
-            ->addParser('POST', $this->uriSegment . '/login', 'handler.login')
-            ->addExecutor(LoginHandler::MESSAGE, 'handler.login')
-            ->addGenerator(LoginHandler::MESSAGE, self::JSON_API_CT, 'handler.login');
-        $builder
-            ->addParser('POST', $this->uriSegment . '/token/refresh', 'handler.refreshToken')
-            ->addExecutor(RefreshTokenHandler::MESSAGE, 'handler.refreshToken')
-            ->addGenerator(RefreshTokenHandler::MESSAGE, self::JSON_API_CT, 'handler.refreshToken');
-        $builder
-            ->addParser('DELETE', $this->uriSegment . '/logout', 'handler.logout')
-            ->addExecutor(LogoutHandler::MESSAGE, 'handler.logout')
-            ->addGenerator(LogoutHandler::MESSAGE, self::JSON_API_CT, 'handler.logout');
+        $router->post('login', $this->uriSegment . '/login', function () {
+            return new LoginController($this->container['service.authentication'], $this->container['logger']);
+        });
+        $router->post('refreshToken', $this->uriSegment . '/token/refresh', function () {
+            return new RefreshTokenController($this->container['service.tokens'], $this->container['logger']);
+        });
+        $router->delete('logout', $this->uriSegment . '/logout', function () {
+            return new LogoutController($this->container['service.tokens'], $this->container['logger']);
+        });
     }
 }

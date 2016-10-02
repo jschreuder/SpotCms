@@ -10,11 +10,11 @@ use Spot\Api\Request\HttpRequestParser\HttpRequestParserInterface;
 use Spot\Api\Request\Message\UnauthorizedRequest;
 use Spot\Api\Request\RequestInterface;
 use Spot\Auth\Entity\Token;
-use Spot\Auth\Middleware\HttpRequestParserAuthMiddleware;
+use Spot\Auth\Middleware\AuthMiddleware;
 use Spot\Auth\AuthenticationService;
 use Spot\Auth\TokenService;
 
-/** @mixin  HttpRequestParserAuthMiddleware */
+/** @mixin  AuthMiddleware */
 class HttpRequestParserAuthMiddlewareSpec extends ObjectBehavior
 {
     /** @var  HttpRequestParserInterface */
@@ -54,7 +54,7 @@ class HttpRequestParserAuthMiddlewareSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(HttpRequestParserAuthMiddleware::class);
+        $this->shouldHaveType(AuthMiddleware::class);
     }
 
     public function it_can_parse_a_http_request(ServerHttpRequest $httpRequest, RequestInterface $request)

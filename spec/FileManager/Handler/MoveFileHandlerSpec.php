@@ -13,11 +13,11 @@ use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
-use Spot\FileManager\Handler\MoveFileHandler;
+use Spot\FileManager\Controller\MoveFileController;
 use Spot\FileManager\Repository\FileRepository;
 use Spot\FileManager\Value\FilePathValue;
 
-/** @mixin  MoveFileHandler */
+/** @mixin  MoveFileController */
 class MoveFileHandlerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
@@ -39,7 +39,7 @@ class MoveFileHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(MoveFileHandler::class);
+        $this->shouldHaveType(MoveFileController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -52,7 +52,7 @@ class MoveFileHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(MoveFileHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(MoveFileController::MESSAGE);
         $request['path']->shouldBe($attributes['path']);
         $request['new_path']->shouldBe($newPath);
     }
@@ -76,7 +76,7 @@ class MoveFileHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(MoveFileHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(MoveFileController::MESSAGE);
         $response['data']->shouldBe($file);
     }
 

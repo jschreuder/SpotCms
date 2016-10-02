@@ -2,44 +2,76 @@
 
 namespace Spot;
 
-use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
-use FastRoute\RouteCollector;
-use FastRoute\RouteParser\Std as StdRouteParser;
+use jschreuder\Middle\ApplicationStack;
+use jschreuder\Middle\Controller\CallableController;
+use jschreuder\Middle\Controller\ControllerRunner;
+use jschreuder\Middle\Controller\FilterValidationMiddleware;
+use jschreuder\Middle\Controller\ValidationFailedException;
+use jschreuder\Middle\Router\RouterInterface;
+use jschreuder\Middle\Router\RoutingMiddleware;
+use jschreuder\Middle\Router\SymfonyRouter;
 use Pimple\Container;
-use Spot\Api\Handler\ErrorHandler;
-use Spot\Api\ApplicationInterface;
-use Spot\Api\Middleware\JsonApiRequestParser;
-use Spot\Api\Request\HttpRequestParser\HttpRequestParserBus;
-use Spot\Api\Request\Executor\ExecutorBus;
-use Spot\Api\Response\Generator\GeneratorBus;
-use Spot\Api\ApplicationServiceProvider;
-use Spot\Api\ServiceProvider\RepositoryProviderInterface;
-use Spot\Api\ServiceProvider\RoutingProviderInterface;
+use Pimple\ServiceProviderInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Spot\Application\Http\JsonApiErrorResponse;
+use Spot\Application\Http\JsonRequestBodyParser;
+use Spot\Auth\Middleware\AuthMiddleware;
 use Spot\DataModel\Repository\ObjectRepository;
 
-class DefaultServiceProvider implements
-    RepositoryProviderInterface,
-    RoutingProviderInterface
+class DefaultServiceProvider implements ServiceProviderInterface
 {
     /** {@inheritdoc} */
-    public function init(Container $container)
+    public function register(Container $container)
     {
-        $container->register((new ApplicationServiceProvider(
-            $container,
-            new HttpRequestParserBus(
-                $container,
-                $container['logger']
-            ),
-            '/api',
-            new RouteCollector(new StdRouteParser(), new GroupCountBasedDataGenerator()),
-            new ExecutorBus($container, $container['logger']),
-            new GeneratorBus($container, $container['logger'])
-        ))->addModule($this)->addModules($container['modules'] ?? []));
+        $container['app'] = function (Container $container) {
+            return new ApplicationStack([
+                new ControllerRunner(),
+                new FilterValidationMiddleware(
+                    function (ServerRequestInterface $request, ValidationFailedException $exception) {
+                        return new JsonApiErrorResponse($exception->getValidationErrors(), 400);
+                    }
+                ),
+                new RoutingMiddleware(
+                    $container['app.router'],
+                    $container['app.error_handlers.404']
+                ),
+                new AuthMiddleware(
+                    $container['service.tokens'],
+                    $container['service.authentication'],
+                    []
+                ),
+                new JsonRequestBodyParser(),
+            ]);
+        };
 
-        // Support JSON bodies for requests
-        $container->extend('app', function (ApplicationInterface $application) {
-            return new JsonApiRequestParser($application);
-        });
+        $container['app.router'] = function () use ($container) {
+            return new SymfonyRouter($container['site.url']);
+        };
+
+        $container['url_generator'] = function () use ($container) {
+            /** @var  RouterInterface $router */
+            $router = $container['app.router'];
+            return $router->getGenerator();
+        };
+
+        $container['app.error_handlers.404'] = CallableController::fromCallable(
+            function (ServerRequestInterface $request) use ($container) : ResponseInterface {
+                return new JsonApiErrorResponse(
+                    [
+                        'ENDPOINT_NOT_FOUND' => 'Endpoint not found: ' .
+                            $request->getMethod() . ' ' . $request->getUri()->getPath(),
+                    ],
+                    404
+                );
+            }
+        );
+
+        $container['app.error_handlers.500'] = CallableController::fromCallable(
+            function () use ($container) : ResponseInterface {
+                return new JsonApiErrorResponse(['SYSTEM_ERROR' => 'System Error'], 500);
+            }
+        );
 
         $container['db'] = function (Container $container) {
             return new \PDO(
@@ -52,38 +84,9 @@ class DefaultServiceProvider implements
                 ]
             );
         };
-    }
 
-    public function registerRepositories(Container $container)
-    {
         $container['repository.objects'] = function (Container $container) {
             return new ObjectRepository($container['db']);
         };
-    }
-
-    public function registerRouting(Container $container, ApplicationServiceProvider $builder)
-    {
-        $container['errorHandler.badRequest'] = function () {
-            return new ErrorHandler('error.badRequest', 400, 'Bad Request');
-        };
-        $container['errorHandler.unauthorized'] = function () {
-            return new ErrorHandler('error.unauthorized', 401, 'Unauthorized');
-        };
-        $container['errorHandler.notFound'] = function () {
-            return new ErrorHandler('error.notFound', 404, 'Not Found');
-        };
-        $container['errorHandler.serverError'] = function () {
-            return new ErrorHandler('error.serverError', 500, 'Server Error');
-        };
-
-        // Add error handlers
-        $builder->addExecutor('error.unauthorized', 'errorHandler.unauthorized');
-        $builder->addGenerator('error.unauthorized', self::JSON_API_CT, 'errorHandler.unauthorized');
-        $builder->addExecutor('error.badRequest', 'errorHandler.badRequest');
-        $builder->addGenerator('error.badRequest', self::JSON_API_CT, 'errorHandler.badRequest');
-        $builder->addExecutor('error.notFound', 'errorHandler.notFound');
-        $builder->addGenerator('error.notFound', self::JSON_API_CT, 'errorHandler.notFound');
-        $builder->addExecutor('error.serverError', 'errorHandler.serverError');
-        $builder->addGenerator('error.serverError', self::JSON_API_CT, 'errorHandler.serverError');
     }
 }

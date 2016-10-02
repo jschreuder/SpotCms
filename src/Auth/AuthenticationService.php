@@ -3,10 +3,8 @@
 namespace Spot\Auth;
 
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Spot\Api\LoggableTrait;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Entity\User;
 use Spot\Auth\Exception\AuthException;
@@ -17,8 +15,6 @@ use Spot\DataModel\Repository\NoUniqueResultException;
 
 class AuthenticationService
 {
-    use LoggableTrait;
-
     /** @var  UserRepository */
     private $userRepository;
 
@@ -66,7 +62,10 @@ class AuthenticationService
             if ($exception instanceof AuthException) {
                 throw $exception;
             }
-            $this->log(LogLevel::ERROR, $exception->getMessage());
+            $this->logger->error(
+                $exception->getMessage(),
+                ['file' => $exception->getFile(), 'line' => $exception->getLine()]
+            );
             throw LoginFailedException::systemError($exception);
         }
     }
@@ -108,7 +107,10 @@ class AuthenticationService
             if ($exception instanceof AuthException) {
                 throw $exception;
             }
-            $this->log(LogLevel::ERROR, $exception->getMessage());
+            $this->logger->error(
+                $exception->getMessage(),
+                ['file' => $exception->getFile(), 'line' => $exception->getLine()]
+            );
             throw LoginFailedException::systemError($exception);
         }
     }

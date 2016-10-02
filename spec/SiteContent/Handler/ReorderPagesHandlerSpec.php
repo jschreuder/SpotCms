@@ -11,10 +11,10 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
-use Spot\SiteContent\Handler\ReorderPagesHandler;
+use Spot\SiteContent\Controller\ReorderPagesController;
 use Spot\SiteContent\Repository\PageRepository;
 
-/** @mixin ReorderPagesHandler */
+/** @mixin ReorderPagesController */
 class ReorderPagesHandlerSpec extends ObjectBehavior
 {
     /** @var  PageRepository */
@@ -32,7 +32,7 @@ class ReorderPagesHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(ReorderPagesHandler::class);
+        $this->shouldHaveType(ReorderPagesController::class);
     }
 
     public function it_can_parse_httpRequest(ServerHttpRequest $httpRequest)

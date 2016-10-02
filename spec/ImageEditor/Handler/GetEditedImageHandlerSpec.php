@@ -14,11 +14,11 @@ use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\Value\FileNameValue;
 use Spot\FileManager\Value\MimeTypeValue;
-use Spot\ImageEditor\Handler\GetEditedImageHandler;
+use Spot\ImageEditor\Handler\GetEditedImageController;
 use Spot\ImageEditor\ImageEditor;
 use Spot\ImageEditor\Repository\ImageRepository;
 
-/** @mixin  GetEditedImageHandler */
+/** @mixin  GetEditedImageController */
 class GetEditedImageHandlerSpec extends ObjectBehavior
 {
     /** @var  ImageRepository */
@@ -44,7 +44,7 @@ class GetEditedImageHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(GetEditedImageHandler::class);
+        $this->shouldHaveType(GetEditedImageController::class);
     }
 
     public function it_can_execute_a_request(RequestInterface $request, File $file, ImageInterface $image)

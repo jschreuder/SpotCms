@@ -12,10 +12,10 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
-use Spot\SiteContent\Handler\ListPagesHandler;
+use Spot\SiteContent\Controller\ListPagesController;
 use Spot\SiteContent\Repository\PageRepository;
 
-/** @mixin  ListPagesHandler */
+/** @mixin  ListPagesController */
 class ListPagesHandlerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
@@ -33,7 +33,7 @@ class ListPagesHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(ListPagesHandler::class);
+        $this->shouldHaveType(ListPagesController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -44,7 +44,7 @@ class ListPagesHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, []);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(ListPagesHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(ListPagesController::MESSAGE);
         $request['parent_uuid']->shouldBe($uuid->toString());
     }
 
@@ -66,7 +66,7 @@ class ListPagesHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(ListPagesHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(ListPagesController::MESSAGE);
         $response['data']->shouldBe([$page]);
         $response['parent_uuid']->toString()->shouldBe($uuid->toString());
         $response['includes']->shouldBe(['pageBlocks']);

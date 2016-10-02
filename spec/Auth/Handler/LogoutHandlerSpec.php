@@ -12,10 +12,10 @@ use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Exception\AuthException;
-use Spot\Auth\Handler\LogoutHandler;
+use Spot\Auth\Controller\LogoutController;
 use Spot\Auth\TokenService;
 
-/** @mixin  LogoutHandler */
+/** @mixin  LogoutController */
 class LogoutHandlerSpec extends ObjectBehavior
 {
     /** @var  TokenService */
@@ -33,7 +33,7 @@ class LogoutHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(LogoutHandler::class);
+        $this->shouldHaveType(LogoutController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -47,7 +47,7 @@ class LogoutHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, []);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(LogoutHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(LogoutController::MESSAGE);
         $request['token']->shouldBe($token);
         $request['pass_code']->shouldBe($passCode);
     }
@@ -71,7 +71,7 @@ class LogoutHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(LogoutHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(LogoutController::MESSAGE);
     }
 
     public function it_can_handle_auth_errors_when_executing_a_request(RequestInterface $request)
@@ -109,7 +109,7 @@ class LogoutHandlerSpec extends ObjectBehavior
 
     public function it_can_generate_a_response(ResponseInterface $response)
     {
-        $response->getResponseName()->willReturn(LogoutHandler::MESSAGE);
+        $response->getResponseName()->willReturn(LogoutController::MESSAGE);
         $httpResponse = $this->generateResponse($response);
         $httpResponse->shouldHaveType(\Psr\Http\Message\ResponseInterface::class);
     }

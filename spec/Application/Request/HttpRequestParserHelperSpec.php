@@ -2,12 +2,12 @@
 
 namespace spec\Spot\Application\Request;
 
+use jschreuder\Middle\Controller\ValidationFailedException;
 use Particle\Filter\Filter;
 use Particle\Validator\Validator;
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface as HttpRequest;
 use Spot\Application\Request\HttpRequestParserHelper;
-use Spot\Application\Request\ValidationFailedException;
 
 /** @mixin  HttpRequestParserHelper */
 class HttpRequestParserHelperSpec extends ObjectBehavior

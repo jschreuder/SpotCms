@@ -2,7 +2,7 @@
 
 namespace Spot\SiteContent\BlockType;
 
-use Spot\Api\Request\RequestInterface;
+use jschreuder\Middle\Controller\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Value\PageStatusValue;
@@ -23,7 +23,7 @@ interface BlockTypeInterface
      * Validates if the given PageBlock is correctly configured
      *
      * @return  void
-     * @throws  \Spot\Application\Response\ValidationFailedException
+     * @throws  ValidationFailedException
      */
-    public function validate(PageBlock $block, RequestInterface $request);
+    public function validate(PageBlock $block);
 }

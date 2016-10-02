@@ -13,11 +13,11 @@ use Spot\SiteContent\BlockType\BlockTypeContainer;
 use Spot\SiteContent\BlockType\HtmlContentBlockType;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
-use Spot\SiteContent\Handler\UpdatePageBlockHandler;
+use Spot\SiteContent\Controller\UpdatePageBlockController;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
-/** @mixin  UpdatePageBlockHandler */
+/** @mixin  UpdatePageBlockController */
 class UpdatePageBlockHandlerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
@@ -39,7 +39,7 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(UpdatePageBlockHandler::class);
+        $this->shouldHaveType(UpdatePageBlockController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -65,7 +65,7 @@ class UpdatePageBlockHandlerSpec extends ObjectBehavior
             'page_uuid' => $pageUuid->toString(),
         ]);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(UpdatePageBlockHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(UpdatePageBlockController::MESSAGE);
         $request->getAttributes()->shouldBe([
             'page_uuid' => $pageUuid->toString(),
             'parameters' => ['thx' => 1138],

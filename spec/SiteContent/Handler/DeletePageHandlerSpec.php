@@ -13,10 +13,10 @@ use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Entity\Page;
-use Spot\SiteContent\Handler\DeletePageHandler;
+use Spot\SiteContent\Controller\DeletePageController;
 use Spot\SiteContent\Repository\PageRepository;
 
-/** @mixin  DeletePageHandler */
+/** @mixin  DeletePageController */
 class DeletePageHandlerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
@@ -34,7 +34,7 @@ class DeletePageHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(DeletePageHandler::class);
+        $this->shouldHaveType(DeletePageController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -44,7 +44,7 @@ class DeletePageHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(DeletePageHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(DeletePageController::MESSAGE);
         $request['uuid']->shouldBe($attributes['uuid']);
     }
 
@@ -64,7 +64,7 @@ class DeletePageHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(DeletePageHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(DeletePageController::MESSAGE);
         $response['data']->shouldBe($page);
     }
 

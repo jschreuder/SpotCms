@@ -13,11 +13,11 @@ use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
-use Spot\FileManager\Handler\RenameFileHandler;
+use Spot\FileManager\Controller\RenameFileController;
 use Spot\FileManager\Repository\FileRepository;
 use Spot\FileManager\Value\FileNameValue;
 
-/** @mixin  RenameFileHandler */
+/** @mixin  RenameFileController */
 class RenameFileHandlerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
@@ -39,7 +39,7 @@ class RenameFileHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(RenameFileHandler::class);
+        $this->shouldHaveType(RenameFileController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -52,7 +52,7 @@ class RenameFileHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(RenameFileHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(RenameFileController::MESSAGE);
         $request['path']->shouldBe($attributes['path']);
         $request['filename']->shouldBe($filename);
     }
@@ -76,7 +76,7 @@ class RenameFileHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(RenameFileHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(RenameFileController::MESSAGE);
         $response['data']->shouldBe($file);
     }
 

@@ -10,10 +10,10 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\FileManager\FileManagerHelper;
-use Spot\FileManager\Handler\GetDirectoryListingHandler;
+use Spot\FileManager\Controller\GetDirectoryListingController;
 use Spot\FileManager\Repository\FileRepository;
 
-/** @mixin  GetDirectoryListingHandler */
+/** @mixin  GetDirectoryListingController */
 class GetDirectoryListingHandlerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
@@ -35,7 +35,7 @@ class GetDirectoryListingHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(GetDirectoryListingHandler::class);
+        $this->shouldHaveType(GetDirectoryListingController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -45,7 +45,7 @@ class GetDirectoryListingHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(GetDirectoryListingHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(GetDirectoryListingController::MESSAGE);
         $request['path']->shouldBe(rtrim($attributes['path'], '/'));
     }
 
@@ -67,7 +67,7 @@ class GetDirectoryListingHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(GetDirectoryListingHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(GetDirectoryListingController::MESSAGE);
         $response['data']['path']->shouldBe($path);
         $response['data']['directories']->shouldBe($directories);
         $response['data']['files']->shouldBe($files);

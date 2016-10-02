@@ -3,27 +3,37 @@
 namespace Spot\ImageEditor;
 
 use Imagine\Gd\Imagine;
+use jschreuder\Middle\Router\RouterInterface;
+use jschreuder\Middle\Router\RoutingProviderInterface;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Spot\Api\ApplicationServiceProvider;
-use Spot\Api\ServiceProvider\RepositoryProviderInterface;
-use Spot\Api\ServiceProvider\RoutingProviderInterface;
+use Spot\Application\View\JsonApiRenderer;
 use Spot\FileManager\FileManagerHelper;
-use Spot\ImageEditor\Handler\GetEditedImageHandler;
-use Spot\ImageEditor\Handler\OperationsHttpRequestParser;
-use Spot\ImageEditor\Handler\StoreEditedImageHandler;
+use Spot\FileManager\Serializer\FileSerializer;
+use Spot\ImageEditor\Controller\GetEditedImageController;
+use Spot\ImageEditor\Controller\Operation\BlurOperation;
+use Spot\ImageEditor\Controller\Operation\CropOperation;
+use Spot\ImageEditor\Controller\Operation\GammaOperation;
+use Spot\ImageEditor\Controller\Operation\GreyscaleOperation;
+use Spot\ImageEditor\Controller\Operation\NegativeOperation;
+use Spot\ImageEditor\Controller\Operation\ResizeOperation;
+use Spot\ImageEditor\Controller\Operation\RotateOperation;
+use Spot\ImageEditor\Controller\StoreEditedImageController;
 use Spot\ImageEditor\Repository\ImageRepository;
 
-class ImageEditorServiceProvider implements
-    ServiceProviderInterface,
-    RepositoryProviderInterface,
-    RoutingProviderInterface
+class ImageEditorServiceProvider implements ServiceProviderInterface, RoutingProviderInterface
 {
+    /** @var  Container */
+    private $container;
+
     /** @var  string */
     private $uriSegment;
 
-    public function __construct(string $uriSegment)
+    public function __construct(Container $container, string $uriSegment)
     {
+        $this->container = $container;
+        $container->register($this);
+
         $this->uriSegment = $uriSegment;
     }
 
@@ -32,52 +42,46 @@ class ImageEditorServiceProvider implements
         $container['imageEditor'] = function () {
             return new ImageEditor(new Imagine());
         };
-
         $container['fileManager.helper'] = function () {
             return new FileManagerHelper();
         };
-    }
-
-    public function registerRepositories(Container $container)
-    {
         $container['repository.images'] = function (Container $container) {
             return new ImageRepository($container['db'], $container['repository.files']);
         };
+        $container['images.operations'] = function () {
+            return [
+                new BlurOperation(),
+                new CropOperation(),
+                new GammaOperation(),
+                new GreyscaleOperation(),
+                new NegativeOperation(),
+                new ResizeOperation(),
+                new RotateOperation(),
+            ];
+        };
+        $container['renderer.images'] = function (Container $container) {
+            return new JsonApiRenderer($container['http.response_factory'], new FileSerializer());
+        };
     }
 
-    public function registerRouting(Container $container, ApplicationServiceProvider $builder)
+    public function registerRoutes(RouterInterface $router)
     {
-        // Files API Calls
-        $container['requestParser.images.getEdited'] = function (Container $container) {
-            return new OperationsHttpRequestParser(GetEditedImageHandler::MESSAGE, $container['fileManager.helper']);
-        };
-        $container['handler.images.getEdited'] = function (Container $container) {
-            return new GetEditedImageHandler(
-                $container['repository.images'],
-                $container['imagine'],
-                $container['logger']
+        $router->get('images.getProcessed', $this->uriSegment . '/f/{path:.+}', function () {
+            return new GetEditedImageController(
+                $this->container['fileManager.helper'],
+                $this->container['repository.images'],
+                $this->container['imagine'],
+                $this->container['images.operations']
             );
-        };
-        $container['requestParser.images.storeEdited'] = function (Container $container) {
-            return new OperationsHttpRequestParser(StoreEditedImageHandler::MESSAGE, $container['fileManager.helper']);
-        };
-        $container['handler.images.storeEdited'] = function (Container $container) {
-            return new StoreEditedImageHandler(
-                $container['repository.images'],
-                $container['imagine'],
-                $container['fileManager.helper'],
-                $container['logger']
+        });
+        $router->patch('images.applyProcessing', $this->uriSegment . '/f/{path:.*}', function () {
+            return new StoreEditedImageController(
+                $this->container['fileManager.helper'],
+                $this->container['repository.images'],
+                $this->container['imagine'],
+                $this->container['images.operations'],
+                $this->container['renderer.images']
             );
-        };
-
-        // Configure ApiBuilder to use Handlers & Response Generators
-        $builder
-            ->addParser('GET', $this->uriSegment . '/f/{path:.+}', 'requestParser.images.getEdited')
-            ->addExecutor(GetEditedImageHandler::MESSAGE, 'handler.images.getEdited')
-            ->addGenerator(GetEditedImageHandler::MESSAGE, '*/*', 'handler.images.getEdited');
-        $builder
-            ->addParser('PUT', $this->uriSegment . '/d/{path:.*}', 'requestParser.images.storeEdited')
-            ->addExecutor(StoreEditedImageHandler::MESSAGE, 'handler.files.storeEdited')
-            ->addGenerator(StoreEditedImageHandler::MESSAGE, '*/*', 'responseGenerator.files.single');
+        });
     }
 }

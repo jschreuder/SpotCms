@@ -13,10 +13,10 @@ use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
-use Spot\FileManager\Handler\DeleteFileHandler;
+use Spot\FileManager\Controller\DeleteFileController;
 use Spot\FileManager\Repository\FileRepository;
 
-/** @mixin  DeleteFileHandler */
+/** @mixin  DeleteFileController */
 class DeleteFileHandlerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
@@ -38,7 +38,7 @@ class DeleteFileHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(DeleteFileHandler::class);
+        $this->shouldHaveType(DeleteFileController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -48,7 +48,7 @@ class DeleteFileHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(DeleteFileHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(DeleteFileController::MESSAGE);
         $request['path']->shouldBe($attributes['path']);
     }
 
@@ -68,7 +68,7 @@ class DeleteFileHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(DeleteFileHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(DeleteFileController::MESSAGE);
         $response['data']->shouldBe($file);
     }
 

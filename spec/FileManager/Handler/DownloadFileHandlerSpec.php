@@ -13,12 +13,12 @@ use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
-use Spot\FileManager\Handler\DownloadFileHandler;
+use Spot\FileManager\Controller\DownloadFileController;
 use Spot\FileManager\Repository\FileRepository;
 use Spot\FileManager\Value\FileNameValue;
 use Spot\FileManager\Value\MimeTypeValue;
 
-/** @mixin  DownloadFileHandler */
+/** @mixin  DownloadFileController */
 class DownloadFileHandlerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
@@ -40,7 +40,7 @@ class DownloadFileHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(DownloadFileHandler::class);
+        $this->shouldHaveType(DownloadFileController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -50,7 +50,7 @@ class DownloadFileHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(DownloadFileHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(DownloadFileController::MESSAGE);
         $request['path']->shouldBe($attributes['path']);
     }
 
@@ -69,7 +69,7 @@ class DownloadFileHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(DownloadFileHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(DownloadFileController::MESSAGE);
         $response['data']->shouldBe($file);
     }
 

@@ -11,10 +11,10 @@ use Spot\Api\Response\ResponseException;
 use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
-use Spot\SiteContent\Handler\CreatePageHandler;
+use Spot\SiteContent\Controller\CreatePageController;
 use Spot\SiteContent\Repository\PageRepository;
 
-/** @mixin  CreatePageHandler */
+/** @mixin  CreatePageController */
 class CreatePageHandlerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
@@ -32,7 +32,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(CreatePageHandler::class);
+        $this->shouldHaveType(CreatePageController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -55,7 +55,7 @@ class CreatePageHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, []);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(CreatePageHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(CreatePageController::MESSAGE);
         $request->getAttributes()->shouldBe($post['data']['attributes']);
     }
 

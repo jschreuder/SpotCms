@@ -13,10 +13,10 @@ use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Entity\Page;
-use Spot\SiteContent\Handler\GetPageHandler;
+use Spot\SiteContent\Controller\GetPageController;
 use Spot\SiteContent\Repository\PageRepository;
 
-/** @mixin  GetPageHandler */
+/** @mixin  GetPageController */
 class GetPageHandlerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
@@ -34,7 +34,7 @@ class GetPageHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(GetPageHandler::class);
+        $this->shouldHaveType(GetPageController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -44,7 +44,7 @@ class GetPageHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(GetPageHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(GetPageController::MESSAGE);
         $request['uuid']->shouldBe($attributes['uuid']);
     }
 
@@ -63,7 +63,7 @@ class GetPageHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(GetPageHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(GetPageController::MESSAGE);
         $response['data']->shouldBe($page);
         $response['includes']->shouldBe(['pageBlocks']);
     }

@@ -10,11 +10,11 @@ use Spot\Api\Request\RequestInterface;
 use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
-use Spot\SiteContent\Handler\UpdatePageHandler;
+use Spot\SiteContent\Controller\UpdatePageController;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
-/** @mixin  UpdatePageHandler */
+/** @mixin  UpdatePageController */
 class UpdatePageHandlerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
@@ -32,7 +32,7 @@ class UpdatePageHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(UpdatePageHandler::class);
+        $this->shouldHaveType(UpdatePageController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -56,7 +56,7 @@ class UpdatePageHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, ['uuid' => $uuid->toString()]);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(UpdatePageHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(UpdatePageController::MESSAGE);
         $request->getAttributes()->shouldBe([
             'type' => 'pages',
             'id' => $uuid->toString(),

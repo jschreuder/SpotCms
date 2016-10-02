@@ -17,11 +17,11 @@ use Spot\SiteContent\BlockType\BlockTypeContainer;
 use Spot\SiteContent\BlockType\HtmlContentBlockType;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
-use Spot\SiteContent\Handler\AddPageBlockHandler;
+use Spot\SiteContent\Controller\AddPageBlockController;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
-/** @mixin  AddPageBlockHandler */
+/** @mixin  AddPageBlockController */
 class AddPageBlockHandlerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
@@ -43,7 +43,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(AddPageBlockHandler::class);
+        $this->shouldHaveType(AddPageBlockController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -66,7 +66,7 @@ class AddPageBlockHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(AddPageBlockHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(AddPageBlockController::MESSAGE);
         $request->getAttributes()->shouldBe(array_merge(['id' => $attributes['page_uuid']], $post['data']));
     }
 

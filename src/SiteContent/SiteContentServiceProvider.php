@@ -2,44 +2,44 @@
 
 namespace Spot\SiteContent;
 
+use jschreuder\Middle\Router\RouterInterface;
+use jschreuder\Middle\Router\RoutingProviderInterface;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Ramsey\Uuid\UuidInterface;
-use Spot\Api\Response\Generator\MultiEntityGenerator;
-use Spot\Api\Response\Generator\SingleEntityGenerator;
-use Spot\Api\Response\ResponseInterface;
-use Spot\Api\ApplicationServiceProvider;
-use Spot\Api\ServiceProvider\RepositoryProviderInterface;
-use Spot\Api\ServiceProvider\RoutingProviderInterface;
+use Ramsey\Uuid\Uuid;
+use Spot\Application\View\JsonApiRenderer;
 use Spot\SiteContent\BlockType\BlockTypeContainer;
 use Spot\SiteContent\BlockType\HtmlContentBlockType;
 use Spot\SiteContent\BlockType\RssFeedBlockType;
 use Spot\SiteContent\BlockType\VimeoBlockType;
 use Spot\SiteContent\BlockType\YoutubeBlockType;
-use Spot\SiteContent\Handler\AddPageBlockHandler;
-use Spot\SiteContent\Handler\CreatePageHandler;
-use Spot\SiteContent\Handler\DeletePageHandler;
-use Spot\SiteContent\Handler\DeletePageBlockHandler;
-use Spot\SiteContent\Handler\GetPageHandler;
-use Spot\SiteContent\Handler\GetPageBlockHandler;
-use Spot\SiteContent\Handler\ListPagesHandler;
-use Spot\SiteContent\Handler\ReorderPagesHandler;
-use Spot\SiteContent\Handler\UpdatePageHandler;
-use Spot\SiteContent\Handler\UpdatePageBlockHandler;
+use Spot\SiteContent\Controller\AddPageBlockController;
+use Spot\SiteContent\Controller\CreatePageController;
+use Spot\SiteContent\Controller\DeletePageController;
+use Spot\SiteContent\Controller\DeletePageBlockController;
+use Spot\SiteContent\Controller\GetPageController;
+use Spot\SiteContent\Controller\GetPageBlockController;
+use Spot\SiteContent\Controller\ListPagesController;
+use Spot\SiteContent\Controller\ReorderPagesController;
+use Spot\SiteContent\Controller\UpdatePageController;
+use Spot\SiteContent\Controller\UpdatePageBlockController;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Serializer\PageBlockSerializer;
 use Spot\SiteContent\Serializer\PageSerializer;
 
-class SiteContentServiceProvider implements
-    ServiceProviderInterface,
-    RepositoryProviderInterface,
-    RoutingProviderInterface
+class SiteContentServiceProvider implements ServiceProviderInterface, RoutingProviderInterface
 {
+    /** @var  Container */
+    private $container;
+
     /** @var  string */
     private $uriSegment;
 
-    public function __construct(string $uriSegment)
+    public function __construct(Container $container, string $uriSegment)
     {
+        $this->container = $container;
+        $container->register($this);
+
         $this->uriSegment = $uriSegment;
     }
 
@@ -53,124 +53,75 @@ class SiteContentServiceProvider implements
                 new YoutubeBlockType(),
             ]);
         };
-    }
-
-    public function registerRepositories(Container $container)
-    {
         $container['repository.pages'] = function (Container $container) {
             return new PageRepository($container['db'], $container['repository.objects']);
         };
+        $container['renderer.pages'] = function (Container $container) {
+            return new JsonApiRenderer($container['http.response_factory'], new PageSerializer());
+        };
+        $container['renderer.pageBlocks'] = function (Container $container) {
+            return new JsonApiRenderer($container['http.response_factory'], new PageBlockSerializer());
+        };
     }
 
-    public function registerRouting(Container $container, ApplicationServiceProvider $builder)
+    public function registerRoutes(RouterInterface $router)
     {
-        // Pages API Calls
-        $container['handler.pages.create'] = function (Container $container) {
-            return new CreatePageHandler($container['repository.pages'], $container['logger']);
-        };
-        $container['handler.pages.list'] = function (Container $container) {
-            return new ListPagesHandler($container['repository.pages'], $container['logger']);
-        };
-        $container['handler.pages.get'] = function (Container $container) {
-            return new GetPageHandler($container['repository.pages'], $container['logger']);
-        };
-        $container['handler.pages.update'] = function (Container $container) {
-            return new UpdatePageHandler($container['repository.pages'], $container['logger']);
-        };
-        $container['handler.pages.reorder'] = function (Container $container) {
-            return new ReorderPagesHandler($container['repository.pages'], $container['logger']);
-        };
-        $container['handler.pages.delete'] = function (Container $container) {
-            return new DeletePageHandler($container['repository.pages'], $container['logger']);
-        };
+        $router->post('pages.create', $this->uriSegment, function () {
+            return new CreatePageController($this->container['repository.pages'], $this->container['renderer.pages']);
+        });
+        $router->get('pages.list', $this->uriSegment, function () {
+            return new ListPagesController($this->container['repository.pages'], $this->container['renderer.pages']);
+        });
+        $router->get('pages.get', $this->uriSegment . '/{page_uuid}', function () {
+            return new GetPageController($this->container['repository.pages'], $this->container['renderer.pages']);
+        }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
+        $router->patch('pages.update', $this->uriSegment . '/{page_uuid}', function () {
+            return new UpdatePageController($this->container['repository.pages'], $this->container['renderer.pages']);
+        }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
+        $router->patch('pages.reorder', $this->uriSegment . '/{parent_uuid}/reorder', function () {
+            return new ReorderPagesController($this->container['repository.pages'], $this->container['renderer.pages']);
+        }, [], ['parent_uuid' => Uuid::VALID_PATTERN]);
+        $router->delete('pages.delete', $this->uriSegment . '/{page_uuid}', function () {
+            return new DeletePageController($this->container['repository.pages'], $this->container['renderer.pages']);
+        }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
 
-        // PageBlocks API Calls
-        $container['handler.pageBlocks.create'] = function (Container $container) {
-            return new AddPageBlockHandler(
-                $container['repository.pages'],
-                $container['siteContent.blockTypes'],
-                $container['logger']
+        $router->post('pageBlocks.create', $this->uriSegment . '/{page_uuid}/blocks', function () {
+            return new AddPageBlockController(
+                $this->container['repository.pages'],
+                $this->container['siteContent.blockTypes'],
+                $this->container['renderer.pageBlocks']
             );
-        };
-        $container['handler.pageBlocks.get'] = function (Container $container) {
-            return new GetPageBlockHandler($container['repository.pages'], $container['logger']);
-        };
-        $container['handler.pageBlocks.update'] = function (Container $container) {
-            return new UpdatePageBlockHandler(
-                $container['repository.pages'],
-                $container['siteContent.blockTypes'],
-                $container['logger']
-            );
-        };
-        $container['handler.pageBlocks.delete'] = function (Container $container) {
-            return new DeletePageBlockHandler($container['repository.pages'], $container['logger']);
-        };
-
-        // Response Generators for both
-        $container['responseGenerator.pages.single'] = function (Container $container) {
-            return new SingleEntityGenerator(new PageSerializer(), null, $container['logger']);
-        };
-        $container['responseGenerator.pages.multi'] = function (Container $container) {
-            return new MultiEntityGenerator(
-                new PageSerializer(),
-                function (ResponseInterface $response) : array {
-                    $metaData = [
-                        'parent_uuid' => (isset($response['parent_uuid'])
-                            && $response['parent_uuid'] instanceof UuidInterface)
-                            ? $response['parent_uuid']->toString() : null,
-                    ];
-                    return $metaData;
-                },
-                $container['logger']
-            );
-        };
-        $container['responseGenerator.pageBlocks.single'] = function (Container $container) {
-            return new SingleEntityGenerator(new PageBlockSerializer(), null, $container['logger']);
-        };
-
-        // Configure ApiBuilder to use Handlers & Response Generators
-        $builder
-            ->addParser('POST', $this->uriSegment, 'handler.pages.create')
-            ->addExecutor(CreatePageHandler::MESSAGE, 'handler.pages.create')
-            ->addGenerator(CreatePageHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.single');
-        $builder
-            ->addParser('GET', $this->uriSegment, 'handler.pages.list')
-            ->addExecutor(ListPagesHandler::MESSAGE, 'handler.pages.list')
-            ->addGenerator(ListPagesHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.multi');
-        $builder
-            ->addParser('GET', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.get')
-            ->addExecutor(GetPageHandler::MESSAGE, 'handler.pages.get')
-            ->addGenerator(GetPageHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.single');
-        $builder
-            ->addParser('PATCH', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.update')
-            ->addExecutor(UpdatePageHandler::MESSAGE, 'handler.pages.update')
-            ->addGenerator(UpdatePageHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.single');
-        $builder
-            ->addParser('PATCH', $this->uriSegment . '/{parent_uuid:[0-9a-z\-]+}/reorder', 'handler.pages.reorder')
-            ->addExecutor(ReorderPagesHandler::MESSAGE, 'handler.pages.reorder')
-            ->addGenerator(ReorderPagesHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.multi');
-        $builder
-            ->addParser('DELETE', $this->uriSegment . '/{uuid:[0-9a-z\-]+}', 'handler.pages.delete')
-            ->addExecutor(DeletePageHandler::MESSAGE, 'handler.pages.delete')
-            ->addGenerator(DeletePageHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pages.single');
-        $builder
-            ->addParser('POST', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks', 'handler.pageBlocks.create')
-            ->addExecutor(AddPageBlockHandler::MESSAGE, 'handler.pageBlocks.create')
-            ->addGenerator(AddPageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
-        $builder
-            ->addParser('GET', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}',
-                'handler.pageBlocks.get')
-            ->addExecutor(GetPageBlockHandler::MESSAGE, 'handler.pageBlocks.get')
-            ->addGenerator(GetPageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
-        $builder
-            ->addParser('PATCH', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}',
-                'handler.pageBlocks.update')
-            ->addExecutor(UpdatePageBlockHandler::MESSAGE, 'handler.pageBlocks.update')
-            ->addGenerator(UpdatePageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
-        $builder
-            ->addParser('DELETE', $this->uriSegment . '/{page_uuid:[0-9a-z\-]+}/blocks/{uuid:[0-9a-z\-]+}',
-                'handler.pageBlocks.delete')
-            ->addExecutor(DeletePageBlockHandler::MESSAGE, 'handler.pageBlocks.delete')
-            ->addGenerator(DeletePageBlockHandler::MESSAGE, self::JSON_API_CT, 'responseGenerator.pageBlocks.single');
+        }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
+        $router->get('pageBlocks.get', $this->uriSegment . '/{page_uuid}/blocks/{page_block_uuid}',
+            function () {
+                return new GetPageBlockController(
+                    $this->container['repository.pages'],
+                    $this->container['renderer.pageBlocks']
+                );
+            },
+            [],
+            ['page_uuid' => Uuid::VALID_PATTERN, 'page_block_uuid' => Uuid::VALID_PATTERN]
+        );
+        $router->patch('pageBlocks.update', $this->uriSegment . '/{page_uuid}/blocks/{page_block_uuid}',
+            function () {
+                return new UpdatePageBlockController(
+                    $this->container['repository.pages'],
+                    $this->container['siteContent.blockTypes'],
+                    $this->container['renderer.pageBlocks']
+                );
+            },
+            [],
+            ['page_uuid' => Uuid::VALID_PATTERN, 'page_block_uuid' => Uuid::VALID_PATTERN]
+        );
+        $router->delete('pageBlocks.delete', $this->uriSegment . '/{page_uuid}/blocks/{page_block_uuid}',
+            function () {
+                return new DeletePageBlockController(
+                    $this->container['repository.pages'],
+                    $this->container['renderer.pageBlocks']
+                );
+            },
+            [],
+            ['page_uuid' => Uuid::VALID_PATTERN, 'page_block_uuid' => Uuid::VALID_PATTERN]
+        );
     }
 }

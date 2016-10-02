@@ -14,15 +14,10 @@ return [
         return new \League\Flysystem\Adapter\Local(__DIR__.'/../data/local');
     },
 
-    'db.dsn' => 'mysql:host=localhost;charset=utf8',
-    'db.dbname' => 'spot_cms_dev',
-    'db.user' => 'root',
-    'db.pass' => 'root',
+    'site.url' => 'http://spotcms.dev/api',
 
-    'modules' => [
-        new \Spot\SiteContent\SiteContentServiceProvider('/pages'),
-        new \Spot\FileManager\FileManagerServiceProvider('/files'),
-        new \Spot\ImageEditor\ImageEditorServiceProvider('/images'),
-        new \Spot\Auth\AuthServiceProvider('/auth'),
-    ],
+    'db.dsn'    => 'mysql:host=localhost;charset=utf8',
+    'db.dbname' => 'spot_cms_dev',
+    'db.user'   => 'root',
+    'db.pass'   => 'root',
 ];

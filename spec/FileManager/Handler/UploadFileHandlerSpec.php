@@ -12,10 +12,10 @@ use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
-use Spot\FileManager\Handler\UploadFileHandler;
+use Spot\FileManager\Controller\UploadFileController;
 use Spot\FileManager\Repository\FileRepository;
 
-/** @mixin  UploadFileHandler */
+/** @mixin  UploadFileController */
 class UploadFileHandlerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
@@ -37,7 +37,7 @@ class UploadFileHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(UploadFileHandler::class);
+        $this->shouldHaveType(UploadFileController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest, UploadedFileInterface $file)
@@ -51,7 +51,7 @@ class UploadFileHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(UploadFileHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(UploadFileController::MESSAGE);
         $request['path']->shouldBe($attributes['path']);
     }
 
@@ -77,7 +77,7 @@ class UploadFileHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(UploadFileHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(UploadFileController::MESSAGE);
         $response['data'][0]->shouldHaveType(File::class);
     }
 

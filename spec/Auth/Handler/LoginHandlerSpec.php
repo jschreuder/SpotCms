@@ -12,10 +12,10 @@ use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\Auth\Entity\Token;
 use Spot\Auth\Exception\AuthException;
-use Spot\Auth\Handler\LoginHandler;
+use Spot\Auth\Controller\LoginController;
 use Spot\Auth\AuthenticationService;
 
-/** @mixin  LoginHandler */
+/** @mixin  LoginController */
 class LoginHandlerSpec extends ObjectBehavior
 {
     /** @var  AuthenticationService */
@@ -33,7 +33,7 @@ class LoginHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(LoginHandler::class);
+        $this->shouldHaveType(LoginController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -54,7 +54,7 @@ class LoginHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, []);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(LoginHandler::MESSAGE);
+        $request->getRequestName()->shouldReturn(LoginController::MESSAGE);
         $request['email_address']->shouldBe($emailAddress);
         $request['password']->shouldBe($password);
     }
@@ -84,7 +84,7 @@ class LoginHandlerSpec extends ObjectBehavior
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(LoginHandler::MESSAGE);
+        $response->getResponseName()->shouldReturn(LoginController::MESSAGE);
         $response['token']->shouldBe($tokenUuid->toString());
         $response['pass_code']->shouldBe($passCode);
         $response['expires']->shouldBe($expires->format('Y-m-d H:i:s'));
@@ -126,7 +126,7 @@ class LoginHandlerSpec extends ObjectBehavior
         $tokenUuid = Uuid::uuid4()->toString();
         $passCode = bin2hex(random_bytes(20));
         $expires = (new \DateTimeImmutable('+42 seconds'))->format('Y-m-d H:i:s');
-        $response->getResponseName()->willReturn(LoginHandler::MESSAGE);
+        $response->getResponseName()->willReturn(LoginController::MESSAGE);
         $response->offsetGet('token')->willReturn($tokenUuid);
         $response->offsetGet('pass_code')->willReturn($passCode);
         $response->offsetGet('expires')->willReturn($expires);
