@@ -1,17 +1,8 @@
 SpotCMS
 =======
 
-.. image:: https://secure.travis-ci.org/jschreuder/SpotCms.png
-   :target: http://travis-ci.org/jschreuder/SpotCms
-   :alt: Build status
-.. image:: https://scrutinizer-ci.com/g/jschreuder/SpotCms/badges/quality-score.png?b=master
-   :target: https://scrutinizer-ci.com/g/jschreuder/SpotCms/?branch=master
-   :alt: Scrutinizer Code Quality
-.. image:: https://scrutinizer-ci.com/g/jschreuder/SpotCms/badges/coverage.png?b=master
-   :target: https://scrutinizer-ci.com/g/jschreuder/SpotCms/?branch=master
-   :alt: Code Coverage
-
-SpotCMS based on `SpotAPI <https://github.com/jschreuder/SpotApi>`_.
+SpotCMS based on `Middle framework <https://github.com/jschreuder/Middle>`_.
+Just a bit playing around with code, nothing serious.
 
 License
 -------
