@@ -3,60 +3,68 @@
 namespace Spot;
 
 use jschreuder\Middle\ApplicationStack;
+use jschreuder\Middle\ApplicationStackInterface;
 use jschreuder\Middle\Controller\CallableController;
+use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\ControllerRunner;
-use jschreuder\Middle\Controller\FilterValidationMiddleware;
-use jschreuder\Middle\Controller\ValidationFailedException;
+use jschreuder\Middle\Exception\ValidationFailedException;
 use jschreuder\Middle\Router\RouterInterface;
-use jschreuder\Middle\Router\RoutingMiddleware;
 use jschreuder\Middle\Router\SymfonyRouter;
-use Pimple\Container;
-use Pimple\ServiceProviderInterface;
+use jschreuder\Middle\Router\UrlGeneratorInterface;
+use jschreuder\Middle\ServerMiddleware\ErrorHandlerMiddleware;
+use jschreuder\Middle\ServerMiddleware\RequestFilterMiddleware;
+use jschreuder\Middle\ServerMiddleware\RequestValidatorMiddleware;
+use jschreuder\Middle\ServerMiddleware\RoutingMiddleware;
+use PDO;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Application\Http\JsonRequestBodyParser;
 use Spot\Auth\Middleware\AuthMiddleware;
 use Spot\DataModel\Repository\ObjectRepository;
 
-class DefaultServiceProvider implements ServiceProviderInterface
+trait DefaultServiceProvider
 {
-    /** {@inheritdoc} */
-    public function register(Container $container)
+    public function getApp(): ApplicationStackInterface
     {
-        $container['app'] = function (Container $container) {
-            return new ApplicationStack([
-                new ControllerRunner(),
-                new FilterValidationMiddleware(
-                    function (ServerRequestInterface $request, ValidationFailedException $exception) {
-                        return new JsonApiErrorResponse($exception->getValidationErrors(), 400);
-                    }
-                ),
-                new RoutingMiddleware(
-                    $container['app.router'],
-                    $container['app.error_handlers.404']
-                ),
-                new AuthMiddleware(
-                    $container['service.tokens'],
-                    $container['service.authentication'],
-                    []
-                ),
-                new JsonRequestBodyParser(),
-            ]);
-        };
+        return new ApplicationStack(
+            new ControllerRunner(),
+            new RequestValidatorMiddleware(
+                function (ServerRequestInterface $request, ValidationFailedException $exception) {
+                    return new JsonApiErrorResponse($exception->getValidationErrors(), 400);
+                }),
+            new RequestFilterMiddleware(),
+            new RoutingMiddleware($this->getRouter(), $this->get404Handler()),
+            new AuthMiddleware($this->getTokenService(), $this->getAuthenticationService(), []),
+            new JsonRequestBodyParser(),
+            new ErrorHandlerMiddleware($this->getLogger(), $this->get500Handler())
+        );
+    }
+    public function getLogger(): LoggerInterface
+    {
+        $logger = new \Monolog\Logger($this->config('logger.name'));
+        $logger->pushHandler((new \Monolog\Handler\StreamHandler(
+            $this->config('logger.path'),
+            $this->config('logger.level')
+        ))->setFormatter(new \Monolog\Formatter\LineFormatter()));
+        return $logger;
+    }
 
-        $container['app.router'] = function () use ($container) {
-            return new SymfonyRouter($container['site.url']);
-        };
+    public function getRouter(): RouterInterface
+    {
+        return new SymfonyRouter($this->config('site.url'));
+    }
 
-        $container['url_generator'] = function () use ($container) {
-            /** @var  RouterInterface $router */
-            $router = $container['app.router'];
-            return $router->getGenerator();
-        };
+    public function getUrlGenerator(): UrlGeneratorInterface
+    {
+        return $this->getRouter()->getGenerator();
+    }
 
-        $container['app.error_handlers.404'] = CallableController::fromCallable(
-            function (ServerRequestInterface $request) use ($container) : ResponseInterface {
+    public function get404Handler(): ControllerInterface
+    {
+        return CallableController::fromCallable(
+            function (ServerRequestInterface $request) : ResponseInterface {
                 return new JsonApiErrorResponse(
                     [
                         'ENDPOINT_NOT_FOUND' => 'Endpoint not found: ' .
@@ -66,27 +74,32 @@ class DefaultServiceProvider implements ServiceProviderInterface
                 );
             }
         );
+    }
 
-        $container['app.error_handlers.500'] = CallableController::fromCallable(
-            function () use ($container) : ResponseInterface {
+    public function get500Handler(): ControllerInterface
+    {
+        return CallableController::fromCallable(
+            function () : ResponseInterface {
                 return new JsonApiErrorResponse(['SYSTEM_ERROR' => 'System Error'], 500);
             }
         );
+    }
 
-        $container['db'] = function (Container $container) {
-            return new \PDO(
-                $container['db.dsn'] . ';dbname=' . $container['db.dbname'],
-                $container['db.user'],
-                $container['db.pass'],
-                [
-                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                ]
-            );
-        };
+    public function getDatabase(): PDO
+    {
+        return new PDO(
+            $this->config('db.dsn') . ';dbname=' . $this->config('db.dbname'),
+            $this->config('db.user'),
+            $this->config('db.pass'),
+            [
+                \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            ]
+        );
+    }
 
-        $container['repository.objects'] = function (Container $container) {
-            return new ObjectRepository($container['db']);
-        };
+    public function getObjectRepository(): ObjectRepository
+    {
+        return new ObjectRepository($this->getDatabase());
     }
 }

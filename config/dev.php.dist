@@ -1,23 +1,48 @@
 <?php
 
+use Psr\Log\LogLevel;
+use Spot\ImageEditor\Controller\Operation\BlurOperation;
+use Spot\ImageEditor\Controller\Operation\CropOperation;
+use Spot\ImageEditor\Controller\Operation\GammaOperation;
+use Spot\ImageEditor\Controller\Operation\GreyscaleOperation;
+use Spot\ImageEditor\Controller\Operation\NegativeOperation;
+use Spot\ImageEditor\Controller\Operation\ResizeOperation;
+use Spot\ImageEditor\Controller\Operation\RotateOperation;
+use Spot\SiteContent\BlockType\BlockTypeContainer;
+use Spot\SiteContent\BlockType\HtmlContentBlockType;
+use Spot\SiteContent\BlockType\RssFeedBlockType;
+use Spot\SiteContent\BlockType\VimeoBlockType;
+use Spot\SiteContent\BlockType\YoutubeBlockType;
+
 return [
-    'logger' => function () {
-        $logger = new \Monolog\Logger('spot-api');
-        $logger->pushHandler((new \Monolog\Handler\StreamHandler(
-            __DIR__ . '/../logs/' . (php_sapi_name() === 'cli' ? 'cli' : 'web') . '-' . date('Ymd') . '.log',
-            \Monolog\Logger::NOTICE
-        ))->setFormatter(new \Monolog\Formatter\LineFormatter()));
-        return $logger;
-    },
+    'site.url' => 'http://spotcms.test/api',
 
-    'fileManager.adapter' => function () {
-        return new \League\Flysystem\Adapter\Local(__DIR__.'/../data/local');
-    },
-
-    'site.url' => 'http://spotcms.dev/api',
+    'logger.name' => 'spot-cms',
+    'logger.path' => __DIR__ . '/../logs/' . (php_sapi_name() === 'cli' ? 'cli' : 'web') . '-' . date('Ymd') . '.log',
+    'logger.level' => LogLevel::NOTICE,
 
     'db.dsn'    => 'mysql:host=localhost;charset=utf8',
     'db.dbname' => 'spot_cms_dev',
     'db.user'   => 'root',
     'db.pass'   => 'root',
+
+    'siteContent.blockTypes' => new BlockTypeContainer([
+        new HtmlContentBlockType(),
+        new RssFeedBlockType(),
+        new VimeoBlockType(),
+        new YoutubeBlockType(),
+    ]),
+
+    'fileManager.adapter' => 'local',
+    'fileManager.localPath' => __DIR__.'/../data/local',
+
+    'imageEditor.operations' => [
+        new BlurOperation(),
+        new CropOperation(),
+        new GammaOperation(),
+        new GreyscaleOperation(),
+        new NegativeOperation(),
+        new ResizeOperation(),
+        new RotateOperation(),
+    ],
 ];

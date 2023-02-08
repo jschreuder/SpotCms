@@ -2,9 +2,9 @@
 
 namespace Spot\Application\Http;
 
+use Laminas\Diactoros\Response\JsonResponse;
 use Spot\Application\View\JsonApiViewInterface;
 use Tobscure\JsonApi\Document;
-use Zend\Diactoros\Response\JsonResponse;
 
 class JsonApiErrorResponse extends JsonResponse
 {

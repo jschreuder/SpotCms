@@ -4,7 +4,7 @@ namespace Spot\Application\View;
 
 use jschreuder\Middle\View\RendererInterface;
 use jschreuder\Middle\View\ViewInterface;
-use Psr\Http\Factory\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Collection;

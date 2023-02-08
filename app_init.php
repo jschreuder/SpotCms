@@ -1,5 +1,19 @@
 <?php declare(strict_types = 1);
 
+use jschreuder\MiddleDi\ConfigTrait;
+use Spot\Auth\AuthRoutingProvider;
+use Spot\Auth\AuthServiceProviderInterface;
+use Spot\DefaultServiceProvider;
+use Spot\FileManager\FileManagerRoutingProvider;
+use Spot\FileManager\FileManagerServiceProvider;
+use Spot\FileManager\FileManagerServiceProviderInterface;
+use Spot\ImageEditor\ImageEditorRoutingProvider;
+use Spot\ImageEditor\ImageEditorServiceProvider;
+use Spot\ImageEditor\ImageEditorServiceProviderInterface;
+use Spot\SiteContent\SiteContentRoutingProvider;
+use Spot\SiteContent\SiteContentServiceProvider;
+use Spot\SiteContent\SiteContentServiceProviderInterface;
+
 // Load autoloader & 3rd party libraries
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -10,34 +24,34 @@ ini_set('display_errors', 'no');
 date_default_timezone_set('UTC');
 mb_internal_encoding('UTF-8');
 
-// Setup DiC with Environment config
+// Fetch environment and configuration
 $environment = require __DIR__ . '/config/env.php';
-$container = new Pimple\Container(require __DIR__ . '/config/' . $environment . '.php');
-$container['environment'] = $environment;
+$config = require __DIR__ . '/config/' . $environment . '.php';
+$config['environment'] = $environment;
+
+// Setup service container
+$container = new class($config) implements 
+    SiteContentServiceProviderInterface,
+    FileManagerServiceProviderInterface,
+    ImageEditorServiceProviderInterface,
+    AuthServiceProviderInterface
+{
+    use ConfigTrait;
+    use DefaultServiceProvider;
+    use SiteContentServiceProvider;
+    use FileManagerServiceProvider;
+    use ImageEditorServiceProvider;
+    use AuthRoutingProvider;
+};
 
 // Have Monolog log all PHP errors
-Monolog\ErrorHandler::register($container['logger']);
+Monolog\ErrorHandler::register($container->getLogger());
 
-// Register services to DiC & Router
-$container->register(new Spot\DefaultServiceProvider());
-$container->register(new \Spot\Application\HttpFactoryProvider());
-$container->register($siteProvider = new Spot\SiteContent\SiteContentServiceProvider($container, '/api/pages'));
-$container['app.router']->registerRoutes($siteProvider);
-$container->register($fileProvider = new Spot\FileManager\FileManagerServiceProvider($container, '/api/files'));
-$container['app.router']->registerRoutes($fileProvider);
-$container->register($imageProvider = new Spot\ImageEditor\ImageEditorServiceProvider($container, '/api/images'));
-$container['app.router']->registerRoutes($imageProvider);
-$container->register($authProvider = new Spot\Auth\AuthServiceProvider($container, '/api/auth'));
-$container['app.router']->registerRoutes($authProvider);
+// Register routes
+$router = $container->getRouter();
+$router->registerRoutes(new SiteContentRoutingProvider('/api/pages', $container));
+$router->registerRoutes(new FileManagerRoutingProvider('/api/files', $container));
+$router->registerRoutes(new ImageEditorRoutingProvider('/api/images', $container));
+$router->registerRoutes(new AuthRoutingProvider('/api/auth', $container));
 
-// Finally: add the error catching middleware
-$container->extend('app',
-    function (jschreuder\Middle\ApplicationStack $application, \Pimple\Container $container) {
-        return $application->withMiddleware(new jschreuder\Middle\ErrorHandlerMiddleware(
-            $container['logger'],
-            $container['app.error_handlers.500']
-        ));
-    }
-);
-
-return $container['app'];
+return $container->getApp();

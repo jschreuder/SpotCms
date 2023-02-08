@@ -2,7 +2,8 @@
 
 namespace Spot\FileManager\Repository;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
+use PDO;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\DataModel\Repository\SqlRepositoryTrait;
@@ -16,20 +17,12 @@ class FileRepository
 {
     use SqlRepositoryTrait;
 
-    /** @var  FilesystemInterface */
-    private $fileSystem;
-
-    /** @var  \PDO */
-    private $pdo;
-
-    /** @var  ObjectRepository */
-    private $objectRepository;
-
-    public function __construct(FilesystemInterface $fileSystem, \PDO $pdo, ObjectRepository $objectRepository)
+    public function __construct(
+        private FilesystemOperator $fileSystem, 
+        private PDO $pdo,
+        private ObjectRepository $objectRepository
+    )
     {
-        $this->fileSystem = $fileSystem;
-        $this->pdo = $pdo;
-        $this->objectRepository = $objectRepository;
     }
 
     public function fromInput(string $name, string $path, string $mimeType, $stream) : File
@@ -82,7 +75,7 @@ class FileRepository
 
     public function updateContent(File $file)
     {
-        if (!$this->fileSystem->putStream($file->getUuid()->toString(), $file->getStream())) {
+        if (!$this->fileSystem->writeStream($file->getUuid()->toString(), $file->getStream())) {
             throw new \RuntimeException('Failed to update file content.');
         }
         $this->objectRepository->update(File::TYPE, $file->getUuid());

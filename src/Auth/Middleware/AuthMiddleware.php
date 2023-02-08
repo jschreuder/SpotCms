@@ -2,26 +2,21 @@
 
 namespace Spot\Auth\Middleware;
 
-use Interop\Http\Middleware\DelegateInterface;
-use Interop\Http\Middleware\ServerMiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Auth\Exception\AuthException;
 use Spot\Auth\AuthenticationService;
 use Spot\Auth\TokenService;
 
-class AuthMiddleware implements ServerMiddlewareInterface
+class AuthMiddleware implements MiddlewareInterface
 {
-    /** @var  TokenService */
-    private $tokenService;
-
-    /** @var  AuthenticationService */
-    private $authenticationService;
-
-    /** @var  string[] */
-    private $publicUris = [
+    private TokenService $tokenService;
+    private AuthenticationService $authenticationService;
+    private array $publicUris = [
         '/api/auth/login',
     ];
 
@@ -36,15 +31,15 @@ class AuthMiddleware implements ServerMiddlewareInterface
         $this->publicUris = array_merge($this->publicUris, $publicUris);
     }
 
-    public function process(ServerHttpRequest $request, DelegateInterface $delegate) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         if (!$this->isAllowed($request)) {
             return new JsonApiErrorResponse(['UNAUTHORIZED' => 'Not authorized'], 401);
         }
-        return $delegate->next($request);
+        return $handler->handle($request);
     }
 
-    private function isAllowed(ServerHttpRequest $request)
+    private function isAllowed(ServerRequestInterface $request)
     {
         if (in_array($request->getUri()->getPath(), $this->publicUris, true)) {
             return true;
