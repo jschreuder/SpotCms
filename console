@@ -1,0 +1,11 @@
+#!/usr/bin/php
+<?php declare(strict_types = 1);
+
+require __DIR__ . '/config/app_init.php';
+
+$application = new \Symfony\Component\Console\Application('SpotCms-CLI');
+
+$application->add(new \Spot\Auth\Command\CreateUserCommand($container->getAuthenticationService()));
+$application->add(new \Spot\Auth\Command\DeleteUserCommand($container->getUserRepository()));
+
+$application->run();

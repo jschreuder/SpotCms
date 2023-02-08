@@ -20,6 +20,7 @@
         "jschreuder/middle": "^2.0",
         "jschreuder/middle-di": "dev-master",
         "laminas/laminas-diactoros": "^2.24",
+        "laminas/laminas-httphandlerrunner": "^2.5",
         "monolog/monolog": "^3.2",
         "robmorgan/phinx": "^0.13",
         "symfony/routing": "^6.0",

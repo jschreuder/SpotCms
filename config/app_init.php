@@ -1,6 +1,7 @@
 <?php declare(strict_types = 1);
 
 use jschreuder\MiddleDi\ConfigTrait;
+use Spot\Application\HttpFactoryProvider;
 use Spot\Auth\AuthRoutingProvider;
 use Spot\Auth\AuthServiceProviderInterface;
 use Spot\DefaultServiceProvider;
@@ -15,7 +16,7 @@ use Spot\SiteContent\SiteContentServiceProvider;
 use Spot\SiteContent\SiteContentServiceProviderInterface;
 
 // Load autoloader & 3rd party libraries
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // Disable error messages in output
 ini_set('display_errors', 'no');
@@ -25,8 +26,8 @@ date_default_timezone_set('UTC');
 mb_internal_encoding('UTF-8');
 
 // Fetch environment and configuration
-$environment = require __DIR__ . '/config/env.php';
-$config = require __DIR__ . '/config/' . $environment . '.php';
+$environment = require __DIR__ . '/env.php';
+$config = require __DIR__ . '/' . $environment . '.php';
 $config['environment'] = $environment;
 
 // Setup service container
@@ -37,6 +38,7 @@ $container = new class($config) implements
     AuthServiceProviderInterface
 {
     use ConfigTrait;
+    use HttpFactoryProvider;
     use DefaultServiceProvider;
     use SiteContentServiceProvider;
     use FileManagerServiceProvider;

@@ -1,6 +1,7 @@
 /.idea/
 /bin/
-/config/*.php
+/config/env.php
+/config/dev.php
 /logs/
 /public/components
 /vendor/
