@@ -18,7 +18,7 @@ return [
     'site.url' => 'http://spotcms.test/api',
 
     'logger.name' => 'spot-cms',
-    'logger.path' => __DIR__ . '/../logs/' . (php_sapi_name() === 'cli' ? 'cli' : 'web') . '-' . date('Ymd') . '.log',
+    'logger.path' => __DIR__ . '/../var/logs/' . (php_sapi_name() === 'cli' ? 'cli' : 'web') . '-' . date('Ymd') . '.log',
     'logger.level' => LogLevel::NOTICE,
 
     'db.dsn'    => 'mysql:host=localhost;charset=utf8',

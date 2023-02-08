@@ -2,7 +2,7 @@
 /bin/
 /config/env.php
 /config/dev.php
-/logs/
+/var/logs/*.log
 /web/components
 /vendor/
 composer.phar
