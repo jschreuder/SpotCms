@@ -1,8 +1,10 @@
 <?php declare(strict_types = 1);
 
 use jschreuder\MiddleDi\ConfigTrait;
+use jschreuder\MiddleDi\DiCompiler;
 use Spot\Application\HttpFactoryProvider;
 use Spot\Auth\AuthRoutingProvider;
+use Spot\Auth\AuthServiceProvider;
 use Spot\Auth\AuthServiceProviderInterface;
 use Spot\DefaultServiceProvider;
 use Spot\FileManager\FileManagerRoutingProvider;
@@ -31,7 +33,7 @@ $config = require __DIR__ . '/' . $environment . '.php';
 $config['environment'] = $environment;
 
 // Setup service container
-$container = new class($config) implements 
+class SpotCmsContainer implements 
     SiteContentServiceProviderInterface,
     FileManagerServiceProviderInterface,
     ImageEditorServiceProviderInterface,
@@ -43,8 +45,10 @@ $container = new class($config) implements
     use SiteContentServiceProvider;
     use FileManagerServiceProvider;
     use ImageEditorServiceProvider;
-    use AuthRoutingProvider;
+    use AuthServiceProvider;
 };
+/** @var SpotCmsContainer $container */
+$container = (new DiCompiler(SpotCmsContainer::class))->compile()->newInstance($config);
 
 // Have Monolog log all PHP errors
 Monolog\ErrorHandler::register($container->getLogger());
