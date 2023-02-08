@@ -6,7 +6,6 @@ use jschreuder\Middle\View\RendererInterface;
 use PDO;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Spot\DataModel\Repository\ObjectRepository;
-use Spot\SiteContent\BlockType\BlockTypeContainerInterface;
 use Spot\SiteContent\Repository\PageRepository;
 
 interface SiteContentServiceProviderInterface
@@ -18,8 +17,6 @@ interface SiteContentServiceProviderInterface
     public function getDatabase(): PDO;
 
     public function getObjectRepository(): ObjectRepository;
-
-    public function getSiteContentBlockTypes(): BlockTypeContainerInterface;
 
     public function getPageRepository(): PageRepository;
 
