@@ -1,7 +1,7 @@
 {
     "name": "spot/cms",
     "description": "Content management system",
-    "type": "Application",
+    "type": "application",
     "license": "MIT",
     "authors": [
         {
@@ -13,33 +13,28 @@
     "config": {
         "bin-dir": "bin"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/jschreuder/Middle"
-        }
-    ],
     "require": {
-        "jschreuder/middle": "^0.4",
-        "zendframework/zend-diactoros": "^1.3",
-        "monolog/monolog": "^1.20",
-        "robmorgan/phinx": "^0.6",
-        "pimple/pimple": "^3.0",
-        "symfony/routing": "^3.1",
-        "lcobucci/jwt": "^3.1",
-        "dflydev/fig-cookies": "^1.0",
-        "particle/validator": "^2.2",
-        "particle/filter": "^1.4",
-        "ramsey/uuid": "^3.4",
-        "tobscure/json-api": "^0.3",
-        "league/flysystem": "^1.0",
-        "imagine/imagine": "^0.6",
-        "symfony/console": "^3.1"
+        "php": ">=8.1",
+        "ext-PDO": "*",
+        "ext-json": "*",
+        "jschreuder/middle": "^2.0",
+        "jschreuder/middle-di": "dev-master",
+        "laminas/laminas-diactoros": "^2.24",
+        "monolog/monolog": "^3.2",
+        "robmorgan/phinx": "^0.13",
+        "symfony/routing": "^6.0",
+        "symfony/console": "^6.2",
+        "lcobucci/jwt": "^4.3",
+        "dflydev/fig-cookies": "^3.0",
+        "laminas/laminas-filter": "^2.31",
+        "laminas/laminas-validator": "^2.30",
+        "ramsey/uuid": "^4.7",
+        "league/flysystem": "^3.12",
+        "imagine/imagine": "^1.3"
     },
     "require-dev": {
-        "phpspec/phpspec": "^2.5",
-        "phpspec/prophecy": "^1.6",
-        "henrikbjorn/phpspec-code-coverage": "^2.0"
+        "phpspec/phpspec": "^7.2",
+        "friends-of-phpspec/phpspec-code-coverage": "^6.1"
     },
     "autoload": {
         "psr-4": {
