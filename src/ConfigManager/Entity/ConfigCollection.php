@@ -2,27 +2,21 @@
 
 namespace Spot\ConfigManager\Entity;
 
+use ArrayAccess;
 use Ramsey\Uuid\UuidInterface;
 use Spot\ConfigManager\ConfigType\ConfigTypeInterface;
 use Spot\DataModel\Entity\TimestampedMetaDataTrait;
 
-class ConfigCollection implements \ArrayAccess
+class ConfigCollection implements ArrayAccess
 {
     use TimestampedMetaDataTrait;
 
     const TYPE = 'configCollections';
 
-    /** @var  UuidInterface */
-    private $configCollectionUuid;
-
-    /** @var  ConfigTypeInterface */
-    private $type;
-
-    /** @var  string */
-    private $name;
-
-    /** @var  array */
-    private $items;
+    private UuidInterface $configCollectionUuid;
+    private ConfigTypeInterface $type;
+    private string $name;
+    private array $items;
 
     public function __construct(UuidInterface $uuid, ConfigTypeInterface $type, string $name)
     {
@@ -32,22 +26,22 @@ class ConfigCollection implements \ArrayAccess
         $this->items = $type->getDefaultItems();
     }
 
-    public function getUuid() : UuidInterface
+    public function getUuid(): UuidInterface
     {
         return $this->configCollectionUuid;
     }
 
-    public function getType() : ConfigTypeInterface
+    public function getType(): ConfigTypeInterface
     {
         return $this->type;
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function setItem(string $name, $value) : self
+    public function setItem(string $name, $value): self
     {
         if (!$this->hasItem($name)) {
             throw new \OutOfBoundsException('ConfigCollection does not have an item named: ' . $name);
@@ -56,12 +50,12 @@ class ConfigCollection implements \ArrayAccess
         return $this;
     }
 
-    public function hasItem(string $name) : bool
+    public function hasItem(string $name): bool
     {
         return array_key_exists($name, $this->items);
     }
 
-    public function getItem(string $name)
+    public function getItem(string $name): mixed
     {
         if (!$this->hasItem($name)) {
             throw new \OutOfBoundsException('ConfigCollection does not have an item named: ' . $name);
@@ -69,27 +63,27 @@ class ConfigCollection implements \ArrayAccess
         return $this->items[$name];
     }
 
-    public function getItems() : array
+    public function getItems(): array
     {
         return $this->items;
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return $this->hasItem($offset);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->getItem($offset);
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->setItem($offset, $value);
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->setItem($offset, null);
     }

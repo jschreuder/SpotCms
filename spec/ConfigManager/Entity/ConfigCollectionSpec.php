@@ -79,21 +79,19 @@ class ConfigCollectionSpec extends ObjectBehavior
     {
         $this->shouldHaveType(\ArrayAccess::class);
 
-        $this->offsetExists('val1')->shouldReturn(true);
-        $this->offsetExists('nope')->shouldReturn(false);
+        $this->shouldHaveKeyWithValue('val1', $this->items['val1']);
+        $this->shouldHaveKeyWithValue('val2', $this->items['val2']);
 
-        $this->offsetGet('val1')->shouldReturn($this->items['val1']);
-        $this->offsetGet('val2')->shouldReturn($this->items['val2']);
+        $this->shouldNotHaveKey('nope');
 
         $this->shouldThrow(\OutOfBoundsException::class)->duringOffsetGet('nope');
         $this->shouldThrow(\OutOfBoundsException::class)->duringOffsetSet('nope', true);
 
         $newValue = 'two';
         $this->offsetSet('val1', $newValue);
-        $this->offsetGet('val1')->shouldReturn($newValue);
+        $this->shouldHaveKeyWithValue('val1', $newValue);
 
         $this->offsetUnset('val2');
-        $this->offsetExists('val2')->shouldReturn(true);
-        $this->offsetGet('val2')->shouldReturn(null);
+        $this->shouldHaveKeyWithValue('val2', null);
     }
 }
