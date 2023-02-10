@@ -9,25 +9,21 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Auth\Exception\AuthException;
-use Spot\Auth\AuthenticationService;
 use Spot\Auth\TokenService;
 
 class AuthMiddleware implements MiddlewareInterface
 {
     private TokenService $tokenService;
-    private AuthenticationService $authenticationService;
     private array $publicUris = [
         '/api/auth/login',
     ];
 
     public function __construct(
         TokenService $tokenService,
-        AuthenticationService $authenticationService,
         array $publicUris
     )
     {
         $this->tokenService = $tokenService;
-        $this->authenticationService = $authenticationService;
         $this->publicUris = array_merge($this->publicUris, $publicUris);
     }
 

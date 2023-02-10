@@ -4,43 +4,39 @@ namespace Spot\Auth\Controller;
 
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
-use Particle\Validator\Validator;
-use Psr\Http\Message\ResponseInterface as HttpResponse;
-use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
+use Laminas\Diactoros\Response\JsonResponse;
+use Laminas\Validator\StringLength;
+use Laminas\Validator\Uuid as UuidValidator;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Spot\Application\ValidationService;
 use Spot\Auth\Exception\AuthException;
 use Spot\Auth\TokenService;
-use Zend\Diactoros\Response\JsonResponse;
 
 class RefreshTokenController implements RequestValidatorInterface, ControllerInterface
 {
-    /** @var  TokenService */
-    private $tokenService;
+    private TokenService $tokenService;
 
     public function __construct(TokenService $tokenService)
     {
         $this->tokenService = $tokenService;
     }
 
-    public function validateRequest(ServerHttpRequest $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $validator->required('token')->uuid();
-        $validator->required('pass_code')->length(40);
-
         $data = [
             'token' => $request->getHeaderLine('Authentication-Token'),
             'pass_code' => $request->getHeaderLine('Authentication-Pass-Code'),
         ];
-        $result = $validator->validate($data);
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validate($request->withParsedBody($data), [
+            'token' => new UuidValidator(),
+            'pass_code' => new StringLength(['min' => 40, 'max' => 40]),
+        ]);
     }
 
-    public function execute(ServerHttpRequest $request) : HttpResponse
+    public function execute(ServerRequestInterface $request): ResponseInterface
     {
         try {
             $token = $this->tokenService->getToken(
@@ -55,7 +51,7 @@ class RefreshTokenController implements RequestValidatorInterface, ControllerInt
         }
     }
 
-    public function generateResponse(UuidInterface $uuid, string $passCode, \DateTimeInterface $expires) : HttpResponse
+    public function generateResponse(UuidInterface $uuid, string $passCode, \DateTimeInterface $expires) : ResponseInterface
     {
         return new JsonResponse([
             'data' => [

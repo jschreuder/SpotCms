@@ -2,7 +2,7 @@
 
 namespace spec\Spot\Auth\Controller;
 
-use jschreuder\Middle\Controller\ValidationFailedException;
+use jschreuder\Middle\Exception\ValidationFailedException;
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -34,7 +34,7 @@ class LoginControllerSpec extends ObjectBehavior
         $httpRequest->getParsedBody()->willReturn([
             'data' => [
                 'type' => 'users',
-                'id' => 'bb@eight.poe',
+                'id' => 'bb@eight.poe.com',
                 'attributes' => [
                     'password' => 'not.damerons.coat',
                 ],

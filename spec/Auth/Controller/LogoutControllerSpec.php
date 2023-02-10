@@ -2,7 +2,7 @@
 
 namespace spec\Spot\Auth\Controller;
 
-use jschreuder\Middle\Controller\ValidationFailedException;
+use jschreuder\Middle\Exception\ValidationFailedException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use PhpSpec\ObjectBehavior;
@@ -29,47 +29,79 @@ class LogoutControllerSpec extends ObjectBehavior
         $this->shouldHaveType(LogoutController::class);
     }
 
-    public function it_can_validate_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_validate_a_HttpRequest(ServerRequestInterface $httpRequest, ServerRequestInterface $httpRequest2)
     {
         $token = Uuid::uuid4()->toString();
         $passCode = bin2hex(random_bytes(20));
+        $data = [
+            'token' => $token,
+            'pass_code' => $passCode,
+        ];
 
         $httpRequest->getHeaderLine('Authentication-Token')->willReturn($token);
         $httpRequest->getHeaderLine('Authentication-Pass-Code')->willReturn($passCode);
 
+        $httpRequest->withParsedBody($data)->willReturn($httpRequest2);
+        $httpRequest2->getParsedBody()->willReturn($data);
+
         $this->validateRequest($httpRequest);
     }
 
-    public function it_errors_on_invalid_request(ServerRequestInterface $httpRequest)
+    public function it_errors_on_invalid_request(ServerRequestInterface $request, ServerRequestInterface $request2)
     {
-        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($httpRequest);
+        $data = [
+            'token' => null,
+            'pass_code' => null,
+        ];
+
+        $request->getHeaderLine('Authentication-Token')->willReturn(null);
+        $request->getHeaderLine('Authentication-Pass-Code')->willReturn(null);
+
+        $request->withParsedBody($data)->willReturn($request2);
+        $request2->getParsedBody()->willReturn($data);
+
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(ServerRequestInterface $request, Token $token)
+    public function it_can_execute_a_request(ServerRequestInterface $request, ServerRequestInterface $request2, Token $currentToken)
     {
-        $tokenUuid = Uuid::uuid4()->toString();
+        $token = Uuid::uuid4()->toString();
         $passCode = bin2hex(random_bytes(20));
+        $data = [
+            'token' => $token,
+            'pass_code' => $passCode,
+        ];
 
-        $request->getHeaderLine('Authentication-Token')->willReturn($tokenUuid);
+        $request->getHeaderLine('Authentication-Token')->willReturn($token);
         $request->getHeaderLine('Authentication-Pass-Code')->willReturn($passCode);
 
-        $this->tokenService->getToken(Uuid::fromString($tokenUuid), $passCode)->willReturn($token);
-        $this->tokenService->remove($token)->shouldBeCalled();
+        $request->withParsedBody($data)->willReturn($request2);
+        $request2->getParsedBody()->willReturn($data);
+
+        $this->tokenService->getToken(Uuid::fromString($token), $passCode)->willReturn($currentToken);
+        $this->tokenService->remove($currentToken)->shouldBeCalled();
 
         $response = $this->execute($request);
         $response->shouldHaveType(ResponseInterface::class);
     }
 
-    public function it_can_handle_auth_errors_when_executing_a_request(ServerRequestInterface $request)
+    public function it_can_handle_auth_errors_when_executing_a_request(ServerRequestInterface $request, ServerRequestInterface $request2)
     {
-        $tokenUuid = Uuid::uuid4()->toString();
+        $token = Uuid::uuid4()->toString();
         $passCode = bin2hex(random_bytes(20));
+        $data = [
+            'token' => $token,
+            'pass_code' => $passCode,
+        ];
 
-        $request->getHeaderLine('Authentication-Token')->willReturn($tokenUuid);
+        $request->getHeaderLine('Authentication-Token')->willReturn($token);
         $request->getHeaderLine('Authentication-Pass-Code')->willReturn($passCode);
 
+        $request->withParsedBody($data)->willReturn($request2);
+        $request2->getParsedBody()->willReturn($data);
+
         $error = 'test';
-        $this->tokenService->getToken(Uuid::fromString($tokenUuid), $passCode)
+        $this->tokenService->getToken(Uuid::fromString($token), $passCode)
             ->willThrow(new AuthException($error, 500));
 
         $response = $this->execute($request);

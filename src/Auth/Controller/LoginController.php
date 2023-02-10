@@ -4,39 +4,37 @@ namespace Spot\Auth\Controller;
 
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
-use Particle\Validator\Validator;
+use Laminas\Diactoros\Response\JsonResponse;
+use Laminas\Validator\EmailAddress;
+use Laminas\Validator\Identical;
+use Laminas\Validator\NotEmpty;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
+use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\UuidInterface;
+use Spot\Application\ValidationService;
 use Spot\Auth\Exception\AuthException;
 use Spot\Auth\AuthenticationService;
-use Zend\Diactoros\Response\JsonResponse;
 
 class LoginController implements RequestValidatorInterface, ControllerInterface
 {
-    /** @var  AuthenticationService */
-    private $authenticationService;
+    private AuthenticationService $authenticationService;
 
     public function __construct(AuthenticationService $authenticationService)
     {
         $this->authenticationService = $authenticationService;
     }
 
-    public function validateRequest(ServerHttpRequest $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $validator->required('data.type')->equals('users');
-        $validator->required('data.id')->email();
-        $validator->required('data.attributes.password');
-
-        $result = $validator->validate($request->getParsedBody());
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validate($request, [
+            'data.type' => new Identical('users'),
+            'data.id' => new EmailAddress(),
+            'data.attributes.password' => new NotEmpty(),
+        ]);
     }
 
-    public function execute(ServerHttpRequest $request) : HttpResponse
+    public function execute(ServerHttpRequest $request): HttpResponse
     {
         $data = $request->getParsedBody()['data'];
 
@@ -48,7 +46,7 @@ class LoginController implements RequestValidatorInterface, ControllerInterface
         }
     }
 
-    public function generateResponse(UuidInterface $uuid, string $passCode, \DateTimeInterface $expires) : HttpResponse
+    public function generateResponse(UuidInterface $uuid, string $passCode, \DateTimeInterface $expires): HttpResponse
     {
         return new JsonResponse([
             'data' => [

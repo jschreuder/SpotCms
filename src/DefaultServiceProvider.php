@@ -36,7 +36,7 @@ trait DefaultServiceProvider
                 }),
             new RequestFilterMiddleware(),
             new RoutingMiddleware($this->getRouter(), $this->get404Handler()),
-            new AuthMiddleware($this->getTokenService(), $this->getAuthenticationService(), []),
+            new AuthMiddleware($this->getTokenService(), []),
             new JsonRequestBodyParser(),
             new ErrorHandlerMiddleware($this->getLogger(), $this->get500Handler())
         );
