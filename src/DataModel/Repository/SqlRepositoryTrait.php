@@ -2,12 +2,14 @@
 
 namespace Spot\DataModel\Repository;
 
+use PDO;
+use PDOStatement;
+
 trait SqlRepositoryTrait
 {
-    /** @var  \PDO */
-    private $pdo;
+    private PDO $pdo;
 
-    protected function executeSql(string $sql, array $parameters = []) : \PDOStatement
+    protected function executeSql(string $sql, array $parameters = []) : PDOStatement
     {
         $query = $this->pdo->prepare($sql);
         $query->execute($parameters);
@@ -20,6 +22,6 @@ trait SqlRepositoryTrait
         if ($query->rowCount() !== 1) {
             throw new NoUniqueResultException('Expected a unique result, but got ' . $query->rowCount() . ' results.');
         }
-        return (array) $query->fetch(\PDO::FETCH_ASSOC);
+        return (array) $query->fetch(PDO::FETCH_ASSOC);
     }
 }

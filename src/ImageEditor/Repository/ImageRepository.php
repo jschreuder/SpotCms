@@ -2,6 +2,7 @@
 
 namespace Spot\ImageEditor\Repository;
 
+use PDO;
 use Ramsey\Uuid\Uuid;
 use Spot\DataModel\Repository\SqlRepositoryTrait;
 use Spot\FileManager\Entity\File;
@@ -12,16 +13,9 @@ class ImageRepository
 {
     use SqlRepositoryTrait;
 
-    /** @var  \PDO */
-    private $pdo;
-
-    /** @var  FileRepository */
-    private $fileRepository;
-
-    public function __construct(\PDO $pdo, FileRepository $fileRepository)
+    public function __construct(PDO $pdo, private FileRepository $fileRepository)
     {
         $this->pdo = $pdo;
-        $this->fileRepository = $fileRepository;
     }
 
     public function getByFullPath(string $path) : File

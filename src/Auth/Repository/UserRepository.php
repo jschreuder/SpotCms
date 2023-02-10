@@ -2,6 +2,7 @@
 
 namespace Spot\Auth\Repository;
 
+use PDO;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\Auth\Entity\User;
@@ -13,16 +14,9 @@ class UserRepository
 {
     use SqlRepositoryTrait;
 
-    /** @var  \PDO */
-    private $pdo;
-
-    /** @var  ObjectRepository */
-    private $objectRepository;
-
-    public function __construct(\PDO $pdo, ObjectRepository $objectRepository)
+    public function __construct(PDO $pdo, private ObjectRepository $objectRepository)
     {
         $this->pdo = $pdo;
-        $this->objectRepository = $objectRepository;
     }
 
     public function create(User $user)

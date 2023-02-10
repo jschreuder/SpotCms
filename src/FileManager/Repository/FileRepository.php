@@ -19,10 +19,11 @@ class FileRepository
 
     public function __construct(
         private FilesystemOperator $fileSystem, 
-        private PDO $pdo,
+        PDO $pdo,
         private ObjectRepository $objectRepository
     )
     {
+        $this->pdo = $pdo;
     }
 
     public function fromInput(string $name, string $path, string $mimeType, $stream) : File

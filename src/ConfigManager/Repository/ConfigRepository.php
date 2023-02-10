@@ -2,6 +2,7 @@
 
 namespace Spot\ConfigManager\Repository;
 
+use PDO;
 use Ramsey\Uuid\Uuid;
 use Spot\ConfigManager\ConfigType\ConfigTypeContainerInterface;
 use Spot\ConfigManager\ConfigType\ConfigTypeInterface;
@@ -13,24 +14,13 @@ class ConfigRepository
 {
     use SqlRepositoryTrait;
 
-    /** @var  \PDO */
-    private $pdo;
-
-    /** @var  ConfigTypeContainerInterface */
-    private $typeContainer;
-
-    /** @var  ObjectRepository */
-    private $objectRepository;
-
     public function __construct(
-        \PDO $pdo,
-        ConfigTypeContainerInterface $typeContainer,
-        ObjectRepository $objectRepository
+        PDO $pdo,
+        private ConfigTypeContainerInterface $typeContainer,
+        private ObjectRepository $objectRepository
     )
     {
         $this->pdo = $pdo;
-        $this->typeContainer = $typeContainer;
-        $this->objectRepository = $objectRepository;
     }
 
     public function create(ConfigCollection $collection)
