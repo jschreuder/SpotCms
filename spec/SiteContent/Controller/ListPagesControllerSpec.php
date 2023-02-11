@@ -1,22 +1,19 @@
 <?php
 
-namespace spec\Spot\SiteContent\Handler;
+namespace spec\Spot\SiteContent\Controller;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\ListPagesController;
 use Spot\SiteContent\Repository\PageRepository;
 
 /** @mixin  ListPagesController */
-class ListPagesHandlerSpec extends ObjectBehavior
+class ListPagesControllerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
     private $pageRepository;

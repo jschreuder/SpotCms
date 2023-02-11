@@ -1,13 +1,11 @@
 <?php
 
-namespace spec\Spot\SiteContent\Handler;
+namespace spec\Spot\SiteContent\Controller;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\ResponseException;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\UpdatePageController;
@@ -15,7 +13,7 @@ use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
 
 /** @mixin  UpdatePageController */
-class UpdatePageHandlerSpec extends ObjectBehavior
+class UpdatePageControllerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
     private $pageRepository;

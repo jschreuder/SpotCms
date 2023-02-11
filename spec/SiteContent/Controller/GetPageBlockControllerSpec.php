@@ -1,15 +1,11 @@
 <?php
 
-namespace spec\Spot\SiteContent\Handler;
+namespace spec\Spot\SiteContent\Controller;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\Message\NotFoundResponse;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\DataModel\Repository\NoUniqueResultException;
@@ -19,7 +15,7 @@ use Spot\SiteContent\Controller\GetPageBlockController;
 use Spot\SiteContent\Repository\PageRepository;
 
 /** @mixin  GetPageBlockController */
-class GetPageBlockHandlerSpec extends ObjectBehavior
+class GetPageBlockControllerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
     private $pageRepository;

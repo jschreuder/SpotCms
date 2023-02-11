@@ -1,14 +1,11 @@
 <?php
 
-namespace spec\Spot\FileManager\Handler;
+namespace spec\Spot\FileManager\Controller;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Log\LoggerInterface;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
@@ -16,7 +13,7 @@ use Spot\FileManager\Controller\UploadFileController;
 use Spot\FileManager\Repository\FileRepository;
 
 /** @mixin  UploadFileController */
-class UploadFileHandlerSpec extends ObjectBehavior
+class UploadFileControllerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
     private $fileRepository;

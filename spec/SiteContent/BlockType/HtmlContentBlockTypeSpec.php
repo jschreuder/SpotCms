@@ -4,7 +4,6 @@ namespace spec\Spot\SiteContent\BlockType;
 
 use PhpSpec\ObjectBehavior;
 use Ramsey\Uuid\UuidInterface;
-use Spot\Api\Request\RequestInterface;
 use Spot\Application\Response\ValidationFailedException;
 use Spot\SiteContent\BlockType\HtmlContentBlockType;
 use Spot\SiteContent\Entity\Page;

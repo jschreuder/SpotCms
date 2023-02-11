@@ -1,24 +1,23 @@
 <?php
 
-namespace spec\Spot\FileManager\Handler;
+namespace spec\Spot\FileManager\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\Message\NotFoundResponse;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\View\JsonApiView;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
-use Spot\FileManager\Controller\MoveFileController;
+use Spot\FileManager\Controller\DeleteFileController;
 use Spot\FileManager\Repository\FileRepository;
-use Spot\FileManager\Value\FilePathValue;
 
-/** @mixin  MoveFileController */
-class MoveFileHandlerSpec extends ObjectBehavior
+/** @mixin  DeleteFileController */
+class DeleteFileControllerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
     private $fileRepository;
@@ -26,57 +25,52 @@ class MoveFileHandlerSpec extends ObjectBehavior
     /** @var  FileManagerHelper */
     private $helper;
 
-    /** @var  LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(FileRepository $fileRepository, LoggerInterface $logger)
+    public function let(FileRepository $fileRepository, RendererInterface $renderer)
     {
         $this->fileRepository = $fileRepository;
         $this->helper = new FileManagerHelper();
-        $this->logger = $logger;
-        $this->beConstructedWith($fileRepository, $this->helper, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($fileRepository, $this->helper, $renderer);
     }
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(MoveFileController::class);
+        $this->shouldHaveType(DeleteFileController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_parse_a_request(ServerRequestInterface $request, File $file, ResponseInterface $response)
     {
-        $path = '/path/to/a/file.ext';
-        $newPath = '/path/deux';
-        $attributes = ['path' => $path];
-        $httpRequest->getHeaderLine('Accept')->willReturn('*/*');
-        $httpRequest->getParsedBody()->willReturn(['new_path' => $newPath]);
+        $query = ['path' => '/path/to/a/file.ext'];
+        $request->getQueryParams()->willReturn($query);
 
-        $request = $this->parseHttpRequest($httpRequest, $attributes);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(MoveFileController::MESSAGE);
-        $request['path']->shouldBe($attributes['path']);
-        $request['new_path']->shouldBe($newPath);
+        $this->fileRepository->getByFullPath($query['path'])->willReturn($file);
+        $this->fileRepository->delete($file)->shouldBeCalled();
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->execute($request)->shouldReturn($response);
     }
 
-    public function it_errors_on_invalid_path_when_parsing_request(ServerRequestInterface $httpRequest)
+    public function it_errors_on_invalid_path_when_parsing_request(ServerRequestInterface $request)
     {
-        $attributes = ['path' => '/'];
-        $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
+        $query = ['path' => '/'];
+        $request->getQueryParams()->willReturn($query);
+
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
     public function it_can_execute_a_request(RequestInterface $request, File $file)
     {
         $path = '/path/to/a/file.ext';
-        $newPath = '/path/deux';
         $request->offsetGet('path')->willReturn($path);
-        $request->offsetGet('new_path')->willReturn($newPath);
         $request->getAcceptContentType()->willReturn('*/*');
-        $file->setPath(FilePathValue::get($newPath))->shouldBeCalled();
         $this->fileRepository->getByFullPath($path)->willReturn($file);
-        $this->fileRepository->updateMetaData($file)->shouldBeCalled();
+        $this->fileRepository->delete($file)->shouldBeCalled();
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(MoveFileController::MESSAGE);
+        $response->getResponseName()->shouldReturn(DeleteFileController::MESSAGE);
         $response['data']->shouldBe($file);
     }
 

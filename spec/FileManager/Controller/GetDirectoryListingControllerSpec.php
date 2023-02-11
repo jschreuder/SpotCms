@@ -1,20 +1,17 @@
 <?php
 
-namespace spec\Spot\FileManager\Handler;
+namespace spec\Spot\FileManager\Controller;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Controller\GetDirectoryListingController;
 use Spot\FileManager\Repository\FileRepository;
 
 /** @mixin  GetDirectoryListingController */
-class GetDirectoryListingHandlerSpec extends ObjectBehavior
+class GetDirectoryListingControllerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
     private $fileRepository;

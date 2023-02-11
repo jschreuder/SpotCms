@@ -1,23 +1,19 @@
 <?php
 
-namespace spec\Spot\ImageEditor\Handler;
+namespace spec\Spot\ImageEditor\Controller;
 
 use Imagine\Image\ImageInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\Message\NotFoundResponse;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
-use Spot\ImageEditor\Handler\StoreEditedImageHandler;
+use Spot\ImageEditor\Controller\StoreEditedImageController;
 use Spot\ImageEditor\ImageEditor;
 use Spot\ImageEditor\Repository\ImageRepository;
 
-/** @mixin  StoreEditedImageHandler */
-class StoreEditedImageHandlerSpec extends ObjectBehavior
+/** @mixin  StoreEditedImageController */
+class StoreEditedImageControllerSpec extends ObjectBehavior
 {
     /** @var  ImageRepository */
     private $imageRepository;
@@ -42,7 +38,7 @@ class StoreEditedImageHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(StoreEditedImageHandler::class);
+        $this->shouldHaveType(StoreEditedImageController::class);
     }
 
     public function it_can_execute_a_request(

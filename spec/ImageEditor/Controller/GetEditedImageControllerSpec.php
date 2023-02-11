@@ -1,25 +1,21 @@
 <?php
 
-namespace spec\Spot\ImageEditor\Handler;
+namespace spec\Spot\ImageEditor\Controller;
 
 use Imagine\Image\ImageInterface;
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use Psr\Log\LoggerInterface;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\Message\NotFoundResponse;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\Value\FileNameValue;
 use Spot\FileManager\Value\MimeTypeValue;
-use Spot\ImageEditor\Handler\GetEditedImageController;
+use Spot\ImageEditor\Controller\GetEditedImageController;
 use Spot\ImageEditor\ImageEditor;
 use Spot\ImageEditor\Repository\ImageRepository;
 
 /** @mixin  GetEditedImageController */
-class GetEditedImageHandlerSpec extends ObjectBehavior
+class GetEditedImageControllerSpec extends ObjectBehavior
 {
     /** @var  ImageRepository */
     private $imageRepository;

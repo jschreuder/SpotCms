@@ -7,17 +7,13 @@ use jschreuder\Middle\View\ViewInterface;
 
 class JsonApiView implements JsonApiViewInterface
 {
-    /** @var  ViewInterface */
-    private $view;
-
-    /** @var  bool */
-    private $isCollection;
-
+    private ViewInterface $view;
+    private bool $isCollection;
     /** @var  string[] */
-    private $includes;
+    private array $includes;
 
     public function __construct(
-        $data,
+        mixed $data,
         bool $isCollection = false,
         array $includes = [],
         array $metaData = [],
@@ -34,64 +30,64 @@ class JsonApiView implements JsonApiViewInterface
         $this->includes = $includes;
     }
 
-    public function getStatusCode() : int
+    public function getStatusCode(): int
     {
         return $this->view->getStatusCode();
     }
 
-    public function getContentType() : string
+    public function getContentType(): string
     {
         return $this->view->getContentType();
     }
 
-    public function getHeaders() : array
+    public function getHeaders(): array
     {
         return $this->view->getHeaders();
     }
 
-    public function setHeader(string $key, string $value)
+    public function setHeader(string $key, string $value): void
     {
         $this->view->setHeader($key, $value);
     }
 
-    public function getTemplate() : string
+    public function getTemplate(): string
     {
         throw new \BadMethodCallException('JsonApiViews do not support templates');
     }
 
-    public function getParameters() : array
+    public function getParameters(): array
     {
         return $this->view->getParameters();
     }
 
-    public function setParameter(string $key, $value)
+    public function setParameter(string $key, $value): void
     {
         $this->view->setParameter($key, $value);
     }
 
-    public function isCollection() : bool
+    public function isCollection(): bool
     {
         return $this->isCollection;
     }
 
-    public function getIncludes() : array
+    public function getIncludes(): array
     {
         return $this->includes;
     }
 
-    public function getData()
+    public function getData(): mixed
     {
         return $this->getParameters()['data'];
     }
 
-    public function setMetaData(string $key, $value)
+    public function setMetaData(string $key, $value): void
     {
         $meta = $this->view->getParameters()['meta'];
         $meta[$key] = $value;
         $this->view->setParameter('meta', $meta);
     }
 
-    public function getMetaData() : array
+    public function getMetaData(): array
     {
         return $this->view->getParameters()['meta'];
     }

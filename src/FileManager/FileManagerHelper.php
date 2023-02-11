@@ -2,8 +2,15 @@
 
 namespace Spot\FileManager;
 
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\Filter\FilterChain;
+use Laminas\Filter\FilterInterface;
+use Laminas\Filter\StringTrim;
+use Laminas\Filter\StripTags;
+use Laminas\Validator\NotEmpty;
+use Laminas\Validator\Regex;
+use Laminas\Validator\StringLength;
+use Laminas\Validator\ValidatorChain;
+use Laminas\Validator\ValidatorInterface;
 
 class FileManagerHelper
 {
@@ -11,41 +18,49 @@ class FileManagerHelper
     const PATH_LENGTH = 128;
     const FULL_PATH_LENGTH = self::PATH_LENGTH + self::FILENAME_LENGTH;
 
-    public function addPathFilter(Filter $filter, string $name)
+    public function getPathFilter(): FilterInterface
     {
-        $filter->value($name)
-            ->string()
-            ->stripHtml()
-            ->trim(" \t\n\r\0\x0B/")
-            ->prepend('/');
+        return (new FilterChain())
+            ->attach(strval(...))
+            ->attach(new StripTags())
+            ->attach(new StringTrim(" \t\n\r\0\x0B/"))
+            ->attach(function($value) {
+                return '/'.$value;
+            });
     }
 
-    public function addFileNameFilter(Filter $filter, string $name)
+    public function getFileNameFilter(): FilterInterface
     {
-        $filter->value($name)
-            ->string()
-            ->stripHtml()
-            ->trim(" \t\n\r\0\x0B/");
+        return (new FilterChain())
+            ->attach(strval(...))
+            ->attach(new StripTags())
+            ->attach(new StringTrim(" \t\n\r\0\x0B/"))
+            ->attach(function($value) {
+                return '/'.$value;
+            });
     }
 
-    public function addPathValidator(Validator $validator, string $name, $length = self::PATH_LENGTH)
+    public function getPathValidator(int $length = self::PATH_LENGTH): ValidatorInterface
     {
-        $validator->required($name)
-            ->lengthBetween(1, $length)
-            ->regex('#^[a-z0-9_/-]+$#uiD');
+        return (new ValidatorChain)
+            ->attach(new NotEmpty())
+            ->attach(new StringLength(['min' => 1, 'max' => $length]))
+            ->attach(new Regex('#^[a-z0-9_/-]+$#uiD'));
     }
 
-    public function addFileNameValidator(Validator $validator, string $name, $length = self::FILENAME_LENGTH)
+    public function getFileNameValidator(int $length = self::FILENAME_LENGTH)
     {
-        $validator->required($name)
-            ->lengthBetween(1, $length)
-            ->regex('#^[a-z0-9_/\.-]+$#uiD');
+        return (new ValidatorChain)
+            ->attach(new NotEmpty())
+            ->attach(new StringLength(['min' => 1, 'max' => $length]))
+            ->attach(new Regex('#^[a-z0-9_/\.-]+$#uiD'));
     }
 
-    public function addFullPathValidator(Validator $validator, string $name, $length = self::FULL_PATH_LENGTH)
+    public function getFullPathValidator(int $length = self::FULL_PATH_LENGTH)
     {
-        $validator->required($name)
-            ->lengthBetween(2, $length)
-            ->regex('#^[a-z0-9_/\.-]+$#uiD');
+        return (new ValidatorChain)
+            ->attach(new NotEmpty())
+            ->attach(new StringLength(['min' => 2, 'max' => $length]))
+            ->attach(new Regex('#^[a-z0-9_/\.-]+$#uiD'));
     }
 }

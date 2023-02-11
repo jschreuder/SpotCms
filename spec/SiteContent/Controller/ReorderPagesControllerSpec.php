@@ -1,21 +1,18 @@
 <?php
 
-namespace spec\Spot\SiteContent\Handler;
+namespace spec\Spot\SiteContent\Controller;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface as ServerHttpRequest;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\ReorderPagesController;
 use Spot\SiteContent\Repository\PageRepository;
 
 /** @mixin ReorderPagesController */
-class ReorderPagesHandlerSpec extends ObjectBehavior
+class ReorderPagesControllerSpec extends ObjectBehavior
 {
     /** @var  PageRepository */
     private $pageRepository;

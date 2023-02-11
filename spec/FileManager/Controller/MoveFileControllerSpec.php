@@ -1,24 +1,20 @@
 <?php
 
-namespace spec\Spot\FileManager\Handler;
+namespace spec\Spot\FileManager\Controller;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\Message\NotFoundResponse;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
-use Spot\FileManager\Controller\RenameFileController;
+use Spot\FileManager\Controller\MoveFileController;
 use Spot\FileManager\Repository\FileRepository;
-use Spot\FileManager\Value\FileNameValue;
+use Spot\FileManager\Value\FilePathValue;
 
-/** @mixin  RenameFileController */
-class RenameFileHandlerSpec extends ObjectBehavior
+/** @mixin  MoveFileController */
+class MoveFileControllerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
     private $fileRepository;
@@ -39,22 +35,22 @@ class RenameFileHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(RenameFileController::class);
+        $this->shouldHaveType(MoveFileController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
     {
         $path = '/path/to/a/file.ext';
-        $filename = 'path.deux';
+        $newPath = '/path/deux';
         $attributes = ['path' => $path];
         $httpRequest->getHeaderLine('Accept')->willReturn('*/*');
-        $httpRequest->getParsedBody()->willReturn(['filename' => $filename]);
+        $httpRequest->getParsedBody()->willReturn(['new_path' => $newPath]);
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(RenameFileController::MESSAGE);
+        $request->getRequestName()->shouldReturn(MoveFileController::MESSAGE);
         $request['path']->shouldBe($attributes['path']);
-        $request['filename']->shouldBe($filename);
+        $request['new_path']->shouldBe($newPath);
     }
 
     public function it_errors_on_invalid_path_when_parsing_request(ServerRequestInterface $httpRequest)
@@ -66,17 +62,17 @@ class RenameFileHandlerSpec extends ObjectBehavior
     public function it_can_execute_a_request(RequestInterface $request, File $file)
     {
         $path = '/path/to/a/file.ext';
-        $filename = 'path.deux';
+        $newPath = '/path/deux';
         $request->offsetGet('path')->willReturn($path);
-        $request->offsetGet('filename')->willReturn($filename);
+        $request->offsetGet('new_path')->willReturn($newPath);
         $request->getAcceptContentType()->willReturn('*/*');
-        $file->setName(FileNameValue::get($filename))->shouldBeCalled();
+        $file->setPath(FilePathValue::get($newPath))->shouldBeCalled();
         $this->fileRepository->getByFullPath($path)->willReturn($file);
         $this->fileRepository->updateMetaData($file)->shouldBeCalled();
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(RenameFileController::MESSAGE);
+        $response->getResponseName()->shouldReturn(MoveFileController::MESSAGE);
         $response['data']->shouldBe($file);
     }
 

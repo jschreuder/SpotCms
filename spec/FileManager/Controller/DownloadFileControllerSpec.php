@@ -1,14 +1,10 @@
 <?php
 
-namespace spec\Spot\FileManager\Handler;
+namespace spec\Spot\FileManager\Controller;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\Message\NotFoundResponse;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
@@ -19,7 +15,7 @@ use Spot\FileManager\Value\FileNameValue;
 use Spot\FileManager\Value\MimeTypeValue;
 
 /** @mixin  DownloadFileController */
-class DownloadFileHandlerSpec extends ObjectBehavior
+class DownloadFileControllerSpec extends ObjectBehavior
 {
     /** @var  FileRepository */
     private $fileRepository;

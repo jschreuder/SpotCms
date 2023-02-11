@@ -12,8 +12,7 @@ interface JsonApiViewInterface extends ViewInterface
 
     public function getIncludes() : array;
 
-    /** @return  mixed */
-    public function getData();
+    public function getData(): mixed;
 
     public function setMetaData(string $key, $value);
 

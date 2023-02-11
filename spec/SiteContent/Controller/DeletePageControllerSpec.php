@@ -1,23 +1,19 @@
 <?php
 
-namespace spec\Spot\SiteContent\Handler;
+namespace spec\Spot\SiteContent\Controller;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Api\Request\RequestInterface;
-use Spot\Api\Response\Message\NotFoundResponse;
-use Spot\Api\Response\ResponseException;
-use Spot\Api\Response\ResponseInterface;
 use Spot\Application\Request\ValidationFailedException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Entity\Page;
-use Spot\SiteContent\Controller\GetPageController;
+use Spot\SiteContent\Controller\DeletePageController;
 use Spot\SiteContent\Repository\PageRepository;
 
-/** @mixin  GetPageController */
-class GetPageHandlerSpec extends ObjectBehavior
+/** @mixin  DeletePageController */
+class DeletePageControllerSpec extends ObjectBehavior
 {
     /** @var  \Spot\SiteContent\Repository\PageRepository */
     private $pageRepository;
@@ -34,7 +30,7 @@ class GetPageHandlerSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(GetPageController::class);
+        $this->shouldHaveType(DeletePageController::class);
     }
 
     public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
@@ -44,7 +40,7 @@ class GetPageHandlerSpec extends ObjectBehavior
 
         $request = $this->parseHttpRequest($httpRequest, $attributes);
         $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(GetPageController::MESSAGE);
+        $request->getRequestName()->shouldReturn(DeletePageController::MESSAGE);
         $request['uuid']->shouldBe($attributes['uuid']);
     }
 
@@ -60,12 +56,12 @@ class GetPageHandlerSpec extends ObjectBehavior
         $request->offsetGet('uuid')->willReturn($uuid->toString());
         $request->getAcceptContentType()->willReturn('text/xml');
         $this->pageRepository->getByUuid($uuid)->willReturn($page);
+        $this->pageRepository->delete($page)->shouldBeCalled();
 
         $response = $this->executeRequest($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(GetPageController::MESSAGE);
+        $response->getResponseName()->shouldReturn(DeletePageController::MESSAGE);
         $response['data']->shouldBe($page);
-        $response['includes']->shouldBe(['pageBlocks']);
     }
 
     public function it_can_execute_a_not_found_request(RequestInterface $request)
@@ -80,7 +76,7 @@ class GetPageHandlerSpec extends ObjectBehavior
         $response->shouldHaveType(NotFoundResponse::class);
     }
 
-    public function it_can_handle_exception_during_request(RequestInterface  $request)
+    public function it_can_handle_exception_during_request(RequestInterface $request)
     {
         $uuid = Uuid::uuid4();
         $request->offsetGet('uuid')->willReturn($uuid->toString());
