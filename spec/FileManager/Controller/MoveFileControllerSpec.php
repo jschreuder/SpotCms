@@ -2,10 +2,15 @@
 
 namespace spec\Spot\FileManager\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\Http\JsonApiErrorResponse;
+use Spot\Application\View\JsonApiView;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
@@ -22,15 +27,15 @@ class MoveFileControllerSpec extends ObjectBehavior
     /** @var  FileManagerHelper */
     private $helper;
 
-    /** @var  LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(FileRepository $fileRepository, LoggerInterface $logger)
+    public function let(FileRepository $fileRepository, RendererInterface $renderer)
     {
         $this->fileRepository = $fileRepository;
         $this->helper = new FileManagerHelper();
-        $this->logger = $logger;
-        $this->beConstructedWith($fileRepository, $this->helper, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($fileRepository, $this->helper, $renderer);
     }
 
     public function it_is_initializable()
@@ -38,64 +43,50 @@ class MoveFileControllerSpec extends ObjectBehavior
         $this->shouldHaveType(MoveFileController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_filter_a_request(ServerRequestInterface $request, ServerRequestInterface $request2, ServerRequestInterface $request3)
     {
-        $path = '/path/to/a/file.ext';
-        $newPath = '/path/deux';
-        $attributes = ['path' => $path];
-        $httpRequest->getHeaderLine('Accept')->willReturn('*/*');
-        $httpRequest->getParsedBody()->willReturn(['new_path' => $newPath]);
+        $query = ['path' => '/path/to/a/file.ext'];
+        $request->getQueryParams()->willReturn($query);
+        $request->withQueryParams($query)->willReturn($request2);
 
-        $request = $this->parseHttpRequest($httpRequest, $attributes);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(MoveFileController::MESSAGE);
-        $request['path']->shouldBe($attributes['path']);
-        $request['new_path']->shouldBe($newPath);
+        $body = ['new_path' => '/path/deux'];
+        $request2->getParsedBody()->willReturn($body);
+        $request2->withParsedBody($body)->willReturn($request3);
+
+        $this->filterRequest($request)->shouldReturn($request3);
     }
 
-    public function it_errors_on_invalid_path_when_parsing_request(ServerRequestInterface $httpRequest)
+    public function it_errors_on_invalid_path_when_parsing_request(ServerRequestInterface $request)
     {
-        $attributes = ['path' => '/'];
-        $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
+        $query = ['path' => '/'];
+        $request->getQueryParams()->willReturn($query);
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, File $file)
+    public function it_can_execute_a_request(ServerRequestInterface $request, File $file, ResponseInterface $response)
     {
-        $path = '/path/to/a/file.ext';
-        $newPath = '/path/deux';
-        $request->offsetGet('path')->willReturn($path);
-        $request->offsetGet('new_path')->willReturn($newPath);
-        $request->getAcceptContentType()->willReturn('*/*');
-        $file->setPath(FilePathValue::get($newPath))->shouldBeCalled();
-        $this->fileRepository->getByFullPath($path)->willReturn($file);
+        $query = ['path' => '/path/to/a/file.ext'];
+        $request->getQueryParams()->willReturn($query);
+        $body = ['new_path' => '/path/deux'];
+        $request->getParsedBody()->willReturn($body);
+        
+        $file->setPath(FilePathValue::get($body['new_path']))->shouldBeCalled();
+        $this->fileRepository->getByFullPath($query['path'])->willReturn($file);
         $this->fileRepository->updateMetaData($file)->shouldBeCalled();
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(MoveFileController::MESSAGE);
-        $response['data']->shouldBe($file);
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+
+        $this->execute($request)->shouldReturn($response);
     }
 
-    public function it_can_execute_a_not_found_request(RequestInterface $request)
+    public function it_can_execute_a_not_found_request(ServerRequestInterface $request)
     {
-        $path = '/path/to/a/file.ext';
-        $request->offsetGet('path')->willReturn($path);
-        $request->getAcceptContentType()->willReturn('*/*');
+        $query = ['path' => '/path/to/a/file.ext'];
+        $request->getQueryParams()->willReturn($query);
 
-        $this->fileRepository->getByFullPath($path)->willThrow(new NoUniqueResultException());
+        $this->fileRepository->getByFullPath($query['path'])->willThrow(new NoUniqueResultException());
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(NotFoundResponse::class);
-    }
-
-    public function it_can_handle_exception_during_request(RequestInterface $request)
-    {
-        $path = '/path/to/a/file.ext';
-        $request->offsetGet('path')->willReturn($path);
-        $request->getAcceptContentType()->willReturn('*/*');
-
-        $this->fileRepository->getByFullPath($path)->willThrow(new \RuntimeException());
-
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
+        $response = $this->execute($request);
+        $response->shouldHaveType(JsonApiErrorResponse::class);
     }
 }
