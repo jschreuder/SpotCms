@@ -23,7 +23,7 @@ class FileManagerHelper
         return (new FilterChain())
             ->attach(strval(...))
             ->attach(new StripTags())
-            ->attach(new StringTrim(" \t\n\r\0\x0B/"))
+            ->attach(new StringTrim(" \t\n\r\x0B/"))
             ->attach(function($value) {
                 return '/'.$value;
             });
@@ -34,7 +34,7 @@ class FileManagerHelper
         return (new FilterChain())
             ->attach(strval(...))
             ->attach(new StripTags())
-            ->attach(new StringTrim(" \t\n\r\0\x0B/"))
+            ->attach(new StringTrim(" \t\n\r\x0B/"))
             ->attach(function($value) {
                 return '/'.$value;
             });

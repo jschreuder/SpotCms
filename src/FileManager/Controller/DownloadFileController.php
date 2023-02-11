@@ -5,17 +5,15 @@ namespace Spot\FileManager\Controller;
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestFilterInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\Diactoros\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Spot\Application\FilterService;
 use Spot\Application\Http\JsonApiErrorResponse;
+use Spot\Application\ValidationService;
 use Spot\DataModel\Repository\NoUniqueResultException;
-use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
-use Zend\Diactoros\Response;
 
 class DownloadFileController implements RequestFilterInterface, RequestValidatorInterface, ControllerInterface
 {
@@ -33,38 +31,29 @@ class DownloadFileController implements RequestFilterInterface, RequestValidator
 
     public function filterRequest(ServerRequestInterface $request) : ServerRequestInterface
     {
-        $filter = new Filter();
-        $this->helper->addPathFilter($filter, 'path');
-        $attributes = $filter->filter($request->getAttributes());
-        return $request->withAttribute('path', $attributes['path']);
+        return FilterService::filterQuery($request, [
+            'path' => $this->helper->getPathFilter(),
+        ]);
     }
 
-    public function validateRequest(ServerRequestInterface $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $this->helper->addFullPathValidator($validator, 'path');
-
-        $result = $validator->validate($request->getAttributes());
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validateQuery($request, [
+            'path' => $this->helper->getFullPathValidator(),
+        ]);
     }
 
     public function execute(ServerRequestInterface $request) : ResponseInterface
     {
         try {
-            $file = $this->fileRepository->getByFullPath($request['path']);
-            return $this->generateResponse($file);
+            $query = $request->getQueryParams();
+            $file = $this->fileRepository->getByFullPath($query['path']);
+            return new Response($file->getStream(), 200, [
+                'Content-Type' => $file->getMimeType()->toString(),
+                'Content-Disposition' => 'attachment; filename="' . $file->getName()->toString() . '"'
+            ]);
         } catch (NoUniqueResultException $e) {
             return new JsonApiErrorResponse(['FILE_NOT_FOUND' => 'File not found'], 404);
         }
-    }
-
-    private function generateResponse(File $file) : ResponseInterface
-    {
-        return new Response($file->getStream(), 200, [
-            'Content-Type' => $file->getMimeType()->toString(),
-            'Content-Disposition' => 'attachment; filename="' . $file->getName()->toString() . '"'
-        ]);
     }
 }

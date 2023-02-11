@@ -9,6 +9,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Application\View\JsonApiView;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
@@ -41,15 +42,13 @@ class DeleteFileControllerSpec extends ObjectBehavior
         $this->shouldHaveType(DeleteFileController::class);
     }
 
-    public function it_can_parse_a_request(ServerRequestInterface $request, File $file, ResponseInterface $response)
+    public function it_can_filter_a_request(ServerRequestInterface $request, ServerRequestInterface $request2)
     {
         $query = ['path' => '/path/to/a/file.ext'];
         $request->getQueryParams()->willReturn($query);
+        $request->withQueryParams($query)->willReturn($request2);
 
-        $this->fileRepository->getByFullPath($query['path'])->willReturn($file);
-        $this->fileRepository->delete($file)->shouldBeCalled();
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
-        $this->execute($request)->shouldReturn($response);
+        $this->filterRequest($request)->shouldReturn($request2);
     }
 
     public function it_errors_on_invalid_path_when_parsing_request(ServerRequestInterface $request)
@@ -60,40 +59,26 @@ class DeleteFileControllerSpec extends ObjectBehavior
         $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, File $file)
+    public function it_can_execute_a_request(ServerRequestInterface $request, File $file, ResponseInterface $response)
     {
-        $path = '/path/to/a/file.ext';
-        $request->offsetGet('path')->willReturn($path);
-        $request->getAcceptContentType()->willReturn('*/*');
-        $this->fileRepository->getByFullPath($path)->willReturn($file);
+        $query = ['path' => '/path/to/a/file.ext'];
+        $request->getQueryParams()->willReturn($query);
+
+        $this->fileRepository->getByFullPath($query['path'])->willReturn($file);
         $this->fileRepository->delete($file)->shouldBeCalled();
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(DeleteFileController::MESSAGE);
-        $response['data']->shouldBe($file);
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $response = $this->execute($request);
     }
 
-    public function it_can_execute_a_not_found_request(RequestInterface $request)
+    public function it_can_execute_a_not_found_request(ServerRequestInterface $request)
     {
-        $path = '/path/to/a/file.ext';
-        $request->offsetGet('path')->willReturn($path);
-        $request->getAcceptContentType()->willReturn('*/*');
+        $query = ['path' => '/path/to/a/file.ext'];
+        $request->getQueryParams()->willReturn($query);
 
-        $this->fileRepository->getByFullPath($path)->willThrow(new NoUniqueResultException());
+        $this->fileRepository->getByFullPath($query['path'])->willThrow(new NoUniqueResultException());
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(NotFoundResponse::class);
-    }
-
-    public function it_can_handle_exception_during_request(RequestInterface $request)
-    {
-        $path = '/path/to/a/file.ext';
-        $request->offsetGet('path')->willReturn($path);
-        $request->getAcceptContentType()->willReturn('*/*');
-
-        $this->fileRepository->getByFullPath($path)->willThrow(new \RuntimeException());
-
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
+        $response = $this->execute($request);
+        $response->shouldHaveType(JsonApiErrorResponse::class);
     }
 }

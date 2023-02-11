@@ -2,10 +2,12 @@
 
 namespace spec\Spot\FileManager\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
 use PhpSpec\ObjectBehavior;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
@@ -39,70 +41,53 @@ class DownloadFileControllerSpec extends ObjectBehavior
         $this->shouldHaveType(DownloadFileController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_filter_a_request(ServerRequestInterface $request, ServerRequestInterface $request2)
     {
-        $path = '/path/to/a/file.ext';
-        $attributes = ['path' => $path];
+        $query = ['path' => '/path/to/a/file.ext'];
+        $request->getQueryParams()->willReturn($query);
+        $request->withQueryParams($query)->willReturn($request2);
 
-        $request = $this->parseHttpRequest($httpRequest, $attributes);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(DownloadFileController::MESSAGE);
-        $request['path']->shouldBe($attributes['path']);
+        $this->filterRequest($request)->shouldReturn($request2);
     }
 
-    public function it_errors_on_invalid_path_when_parsing_request(ServerRequestInterface $httpRequest)
+    public function it_errors_on_invalid_path_when_validating_request(ServerRequestInterface $request)
     {
-        $attributes = ['path' => '/'];
-        $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
+        $query = ['path' => '/'];
+        $request->getQueryParams()->willReturn($query);
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, File $file)
+    public function it_can_execute_a_request(
+        ServerRequestInterface $request,
+        File $file,
+        MimeTypeValue $mimeType,
+        FileNameValue $fileName
+    )
     {
-        $path = '/path/to/a/file.ext';
-        $request->offsetGet('path')->willReturn($path);
-        $request->getAcceptContentType()->willReturn('*/*');
-        $this->fileRepository->getByFullPath($path)->willReturn($file);
+        $query = ['path' => '/path/to/a/file.ext'];
+        $request->getQueryParams()->willReturn($query);
+        $this->fileRepository->getByFullPath($query['path'])->willReturn($file);
 
-        $response = $this->executeRequest($request);
+        $fileStream = $fp = fopen('php://memory', 'r+');
+        $file->getStream()->willReturn($fileStream);
+        $file->getMimeType()->willReturn($mimeType);
+        $mimeType->toString()->willReturn('fake/mime-type');
+        $file->getName()->willReturn($fileName);
+        $fileName->toString()->willReturn('file.ext');
+
+        $response = $this->execute($request);
         $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(DownloadFileController::MESSAGE);
-        $response['data']->shouldBe($file);
+        $response->getStatusCode()->shouldBe(200);
     }
 
-    public function it_can_execute_a_not_found_request(RequestInterface $request)
+    public function it_can_execute_a_not_found_request(ServerRequestInterface $request)
     {
-        $path = '/path/to/a/file.ext';
-        $request->offsetGet('path')->willReturn($path);
-        $request->getAcceptContentType()->willReturn('*/*');
+        $query = ['path' => '/path/to/a/file.ext'];
+        $request->getQueryParams()->willReturn($query);
 
-        $this->fileRepository->getByFullPath($path)->willThrow(new NoUniqueResultException());
+        $this->fileRepository->getByFullPath($query['path'])->willThrow(new NoUniqueResultException());
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(NotFoundResponse::class);
-    }
-
-    public function it_can_handle_exception_during_request(RequestInterface $request)
-    {
-        $path = '/path/to/a/file.ext';
-        $request->offsetGet('path')->willReturn($path);
-        $request->getAcceptContentType()->willReturn('*/*');
-
-        $this->fileRepository->getByFullPath($path)->willThrow(new \RuntimeException());
-
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
-    }
-
-    public function it_can_generate_a_response(ResponseInterface $response, File $file)
-    {
-        $fileName = 'file.ext';
-        $mimeType = 'text/xml';
-        $file->getStream()->willReturn(tmpfile());
-        $file->getName()->willReturn(FileNameValue::get($fileName));
-        $file->getMimeType()->willReturn(MimeTypeValue::get($mimeType));
-        $response->offsetGet('data')->willReturn($file);
-
-        $httpResponse = $this->generateResponse($response);
-        $httpResponse->getHeaderLine('Content-Type')->shouldReturn($mimeType);
-        $httpResponse->getHeaderLine('Content-Disposition')->shouldReturn('attachment; filename="' . $fileName . '"');
+        $response = $this->execute($request);
+        $response->shouldHaveType(JsonApiErrorResponse::class);
     }
 }
