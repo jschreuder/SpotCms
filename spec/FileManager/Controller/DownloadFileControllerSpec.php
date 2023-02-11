@@ -3,10 +3,10 @@
 namespace spec\Spot\FileManager\Controller;
 
 use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerInterface;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
@@ -25,15 +25,15 @@ class DownloadFileControllerSpec extends ObjectBehavior
     /** @var  FileManagerHelper */
     private $helper;
 
-    /** @var  LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(FileRepository $fileRepository, LoggerInterface $logger)
+    public function let(FileRepository $fileRepository, RendererInterface $renderer)
     {
         $this->fileRepository = $fileRepository;
         $this->helper = new FileManagerHelper();
-        $this->logger = $logger;
-        $this->beConstructedWith($fileRepository, $this->helper, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($fileRepository, $this->helper, $renderer);
     }
 
     public function it_is_initializable()

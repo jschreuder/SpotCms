@@ -8,7 +8,6 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerInterface;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Application\View\JsonApiView;
 use Spot\DataModel\Repository\NoUniqueResultException;

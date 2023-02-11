@@ -9,7 +9,7 @@ use RuntimeException;
 
 final class ValidationService
 {
-    private static function runValidation(array $input, array $validators, array $optionalKeys)
+    private static function runValidation(array $input, array $validators, array $optionalKeys): void
     {
         $errors = [];
         foreach ($validators as $key => $validator) {
@@ -50,7 +50,7 @@ final class ValidationService
         ServerRequestInterface $request, 
         array $validators,
         array $optionalKeys = []
-    ) : void
+    ): void
     {
         self::runValidation((array) $request->getParsedBody(), $validators, $optionalKeys);
     }
@@ -59,8 +59,16 @@ final class ValidationService
         ServerRequestInterface $request, 
         array $validators,
         array $optionalKeys = []
-    ) : void
+    ): void
     {
         self::runValidation((array) $request->getQueryParams(), $validators, $optionalKeys);
+    }
+
+    public static function requireUploads(ServerRequestInterface $request): void
+    {
+        $files = $request->getUploadedFiles();
+        if (!is_array($files) || count($files) === 0) {
+            throw new ValidationFailedException(['_FILES' => 'No uploaded files in request']);
+        }
     }
 }

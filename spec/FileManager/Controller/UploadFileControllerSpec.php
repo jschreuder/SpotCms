@@ -2,11 +2,14 @@
 
 namespace spec\Spot\FileManager\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
-use Psr\Log\LoggerInterface;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\View\JsonApiView;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Controller\UploadFileController;
@@ -21,15 +24,15 @@ class UploadFileControllerSpec extends ObjectBehavior
     /** @var  FileManagerHelper */
     private $helper;
 
-    /** @var  LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(FileRepository $fileRepository, LoggerInterface $logger)
+    public function let(FileRepository $fileRepository, RendererInterface $renderer)
     {
         $this->fileRepository = $fileRepository;
         $this->helper = new FileManagerHelper();
-        $this->logger = $logger;
-        $this->beConstructedWith($fileRepository, $this->helper, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($fileRepository, $this->helper, $renderer);
     }
 
     public function it_is_initializable()
@@ -37,61 +40,47 @@ class UploadFileControllerSpec extends ObjectBehavior
         $this->shouldHaveType(UploadFileController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest, UploadedFileInterface $file)
+    public function it_can_filter_a_request(ServerRequestInterface $request, ServerRequestInterface $request2)
     {
-        $path = '/path/To/a';
-        $attributes = ['path' => $path];
+        $query = ['path' => '/path/To/a'];
+        $request->getQueryParams()->willReturn($query);
+        $request->withQueryParams($query)->willReturn($request2);
+
+        $this->filterRequest($request)->shouldReturn($request2);
+    }
+
+    public function it_errors_on_invalid_path_when_validating_request(ServerRequestInterface $request, UploadedFileInterface $file)
+    {
+        $request->getQueryParams()->willReturn(['path' => '']);
         $files = [$file];
+        $request->getUploadedFiles()->willReturn($files);
 
-        $httpRequest->getUploadedFiles()->willReturn($files);
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/json');
-
-        $request = $this->parseHttpRequest($httpRequest, $attributes);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(UploadFileController::MESSAGE);
-        $request['path']->shouldBe($attributes['path']);
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_errors_on_invalid_path_when_parsing_request(ServerRequestInterface $httpRequest)
+    public function it_errors_whithout_uploaded_files_when_validating_request(ServerRequestInterface $request)
     {
-        $attributes = ['path' => '/dir'];
-        $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
+        $request->getQueryParams()->willReturn(['path' => '/path/To/a']);
+        $request->getUploadedFiles()->willReturn([]);
+
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, UploadedFileInterface $file, File $fileEntity)
+    public function it_can_execute_a_request(ServerRequestInterface $request, UploadedFileInterface $file, File $fileEntity, ResponseInterface $response)
     {
-        $path = '/path/To/a';
+        $query = ['path' => '/path/To/a'];
         $file->getClientFilename()->willReturn($name = 'file.ext');
         $file->getClientMediaType()->willReturn($mime = 'text/xml');
         $file->getStream()->willReturn($stream = tmpfile());
         $files = [$file];
 
-        $request->offsetGet('path')->willReturn($path);
-        $request->offsetGet('files')->willReturn($files);
-        $request->getAcceptContentType()->willReturn('application/json');
-        $this->fileRepository->fromInput($name, $path, $mime, $stream)->willReturn($fileEntity);
+        $request->getQueryParams()->willReturn($query);
+        $request->getUploadedFiles()->willReturn($files);
+        $this->fileRepository->fromInput($name, $query['path'], $mime, $stream)->willReturn($fileEntity);
         $this->fileRepository->createFromUpload($fileEntity)->shouldBeCalled();
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(UploadFileController::MESSAGE);
-        $response['data'][0]->shouldHaveType(File::class);
-    }
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
 
-    public function it_can_handle_exception_during_request(RequestInterface $request, UploadedFileInterface $file)
-    {
-        $path = '/path/To/a';
-        $file->getClientFilename()->willReturn($name = 'file.ext');
-        $file->getClientMediaType()->willReturn($mime = 'text/xml');
-        $file->getStream()->willReturn($stream = tmpfile());
-        $files = [$file];
-
-        $request->offsetGet('path')->willReturn($path);
-        $request->offsetGet('files')->willReturn($files);
-        $request->getAcceptContentType()->willReturn('application/json');
-        $this->fileRepository->fromInput($name, $path, $mime, $stream)
-            ->willThrow(new \RuntimeException());
-
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
+        $this->execute($request)->shouldReturn($response);
     }
 }
