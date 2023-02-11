@@ -17,16 +17,11 @@ use Spot\FileManager\Repository\FileRepository;
 
 class DownloadFileController implements RequestFilterInterface, RequestValidatorInterface, ControllerInterface
 {
-    /** @var  FileRepository */
-    private $fileRepository;
-
-    /** @var  FileManagerHelper */
-    private $helper;
-
-    public function __construct(FileRepository $fileRepository, FileManagerHelper $helper)
+    public function __construct(
+        private FileRepository $fileRepository,
+        private FileManagerHelper $helper
+    )
     {
-        $this->fileRepository = $fileRepository;
-        $this->helper = $helper;
     }
 
     public function filterRequest(ServerRequestInterface $request) : ServerRequestInterface
