@@ -5,58 +5,48 @@ namespace Spot\FileManager\Controller;
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestFilterInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use jschreuder\Middle\View\RendererInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Spot\Application\FilterService;
+use Spot\Application\ValidationService;
+use Spot\Application\View\JsonApiView;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
 
 class GetDirectoryListingController implements RequestFilterInterface, RequestValidatorInterface, ControllerInterface
 {
-    /** @var  FileRepository */
-    private $fileRepository;
-
-    /** @var  FileManagerHelper */
-    private $helper;
-
-    public function __construct(FileRepository $fileRepository, FileManagerHelper $helper)
+    public function __construct(
+        private FileRepository $fileRepository,
+        private FileManagerHelper $helper,
+        private RendererInterface $renderer
+    )
     {
-        $this->fileRepository = $fileRepository;
-        $this->helper = $helper;
     }
 
-    public function filterRequest(ServerRequestInterface $request) : ServerRequestInterface
+    public function filterRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        $filter = new Filter();
-        $this->helper->addPathFilter($filter, 'path');
-        $attributes = $filter->filter($request->getAttributes());
-        return $request->withAttribute('path', $attributes['path']);
+        return FilterService::filterQuery($request, [
+            'path' => $this->helper->getPathFilter(),
+        ]);
     }
 
-    public function validateRequest(ServerRequestInterface $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $this->helper->addFullPathValidator($validator, 'path');
-
-        $result = $validator->validate($request->getAttributes());
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validateQuery($request, [
+            'path' => $this->helper->getPathValidator(),
+        ]);
     }
 
-    public function execute(ServerRequestInterface $request) : ResponseInterface
+    public function execute(ServerRequestInterface $request): ResponseInterface
     {
-        $path = $request['path'];
-        $directories = $this->fileRepository->getDirectoriesInPath($path);
-        $fileNames = $this->fileRepository->getFileNamesInPath($path);
-        return new Response(self::MESSAGE, [
-            'data' => [
-                'path' => $path,
-                'directories' => $directories,
-                'files' => $fileNames
-            ],
-        ], $request);
+        $query = $request->getQueryParams();
+        $directories = $this->fileRepository->getDirectoriesInPath($query['path']);
+        $fileNames = $this->fileRepository->getFileNamesInPath($query['path']);
+        return $this->renderer->render($request, new JsonApiView([
+            'path' => $query['path'],
+            'directories' => $directories,
+            'files' => $fileNames
+        ]));
     }
 }

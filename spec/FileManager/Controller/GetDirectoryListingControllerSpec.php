@@ -2,10 +2,14 @@
 
 namespace spec\Spot\FileManager\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\View\JsonApiView;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Controller\GetDirectoryListingController;
 use Spot\FileManager\Repository\FileRepository;
@@ -19,15 +23,15 @@ class GetDirectoryListingControllerSpec extends ObjectBehavior
     /** @var  FileManagerHelper */
     private $helper;
 
-    /** @var  LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(FileRepository $fileRepository, LoggerInterface $logger)
+    public function let(FileRepository $fileRepository, RendererInterface $renderer)
     {
         $this->fileRepository = $fileRepository;
         $this->helper = new FileManagerHelper();
-        $this->logger = $logger;
-        $this->beConstructedWith($fileRepository, $this->helper, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($fileRepository, $this->helper, $renderer);
     }
 
     public function it_is_initializable()
@@ -35,49 +39,33 @@ class GetDirectoryListingControllerSpec extends ObjectBehavior
         $this->shouldHaveType(GetDirectoryListingController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_filter_a_request(ServerRequestInterface $request, ServerRequestInterface $request2)
     {
-        $path = '/path/to/';
-        $attributes = ['path' => $path];
+        $query = ['path' => '/path/to'];
+        $request->getQueryParams()->willReturn($query);
+        $request->withQueryParams($query)->willReturn($request2);
 
-        $request = $this->parseHttpRequest($httpRequest, $attributes);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(GetDirectoryListingController::MESSAGE);
-        $request['path']->shouldBe(rtrim($attributes['path'], '/'));
+        $this->filterRequest($request)->shouldReturn($request2);
     }
 
-    public function it_errors_on_invalid_uuid_when_parsing_request(ServerRequestInterface $httpRequest)
+    public function it_errors_on_invalid_uuid_when_validating_request(ServerRequestInterface $request)
     {
-        $attributes = ['path' => str_repeat('a', 200)];
-        $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
+        $request->getQueryParams()->willReturn(['path' => str_repeat('a', 200)]);
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request)
+    public function it_can_execute_a_request(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $path = '/path/to';
+        $query = ['path' => '/path/to'];
         $directories = ['first', 'second'];
         $files = ['file.ext', 'about.txt'];
-        $request->offsetGet('path')->willReturn($path);
-        $request->getAcceptContentType()->willReturn('*/*');
-        $this->fileRepository->getDirectoriesInPath($path)->willReturn($directories);
-        $this->fileRepository->getFileNamesInPath($path)->willReturn($files);
+        $request->getQueryParams()->willReturn($query);
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(GetDirectoryListingController::MESSAGE);
-        $response['data']['path']->shouldBe($path);
-        $response['data']['directories']->shouldBe($directories);
-        $response['data']['files']->shouldBe($files);
-    }
+        $this->fileRepository->getDirectoriesInPath($query['path'])->willReturn($directories);
+        $this->fileRepository->getFileNamesInPath($query['path'])->willReturn($files);
 
-    public function it_can_handle_exception_during_request(RequestInterface $request)
-    {
-        $path = '/path/to/';
-        $request->offsetGet('path')->willReturn($path);
-        $request->getAcceptContentType()->willReturn('*/*');
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
 
-        $this->fileRepository->getDirectoriesInPath($path)->willThrow(new \RuntimeException());
-
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
+        $this->execute($request)->shouldReturn($response);
     }
 }

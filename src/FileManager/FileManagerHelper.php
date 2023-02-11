@@ -34,10 +34,7 @@ class FileManagerHelper
         return (new FilterChain())
             ->attach(strval(...))
             ->attach(new StripTags())
-            ->attach(new StringTrim(" \t\n\r\x0B/"))
-            ->attach(function($value) {
-                return '/'.$value;
-            });
+            ->attach(new StringTrim(" \t\n\r\x0B/"));
     }
 
     public function getPathValidator(int $length = self::PATH_LENGTH): ValidatorInterface
