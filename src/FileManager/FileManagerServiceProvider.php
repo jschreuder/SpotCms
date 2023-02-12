@@ -7,12 +7,14 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\Local\LocalFilesystemAdapter;
+use Neomerx\JsonApi\Encoder\Encoder;
 use PDO;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Spot\Application\View\JsonApiRenderer;
 use Spot\DataModel\Repository\ObjectRepository;
+use Spot\FileManager\Entity\File;
 use Spot\FileManager\Repository\FileRepository;
-use Spot\FileManager\Serializer\FileSerializer;
+use Spot\FileManager\Schema\FileSchema;
 
 trait FileManagerServiceProvider
 {
@@ -46,8 +48,11 @@ trait FileManagerServiceProvider
         return new FileRepository($this->getFileStorage(), $this->getDatabase(), $this->getObjectRepository());
     }
 
-    public function getFileRenderer(): RendererInterface
+    public function getFileManagerRenderer(): RendererInterface
     {
-        return new JsonApiRenderer($this->getHttpResponseFactory(), new FileSerializer());
+        return new JsonApiRenderer($this->getHttpResponseFactory(), Encoder::instance([
+                File::class => FileSchema::class,
+            ])->withUrlPrefix($this->config('site.url'))
+        );
     }
 }

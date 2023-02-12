@@ -3,16 +3,12 @@
 namespace Spot\FileManager;
 
 use jschreuder\Middle\View\RendererInterface;
-use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\Local\LocalFilesystemAdapter;
 use PDO;
 use Psr\Http\Message\ResponseFactoryInterface;
-use Spot\Application\View\JsonApiRenderer;
 use Spot\DataModel\Repository\ObjectRepository;
 use Spot\FileManager\Repository\FileRepository;
-use Spot\FileManager\Serializer\FileSerializer;
 
 interface FileManagerServiceProviderInterface
 {
@@ -32,5 +28,5 @@ interface FileManagerServiceProviderInterface
 
     public function getFileRepository(): FileRepository;
 
-    public function getFileRenderer(): RendererInterface;
+    public function getFileManagerRenderer(): RendererInterface;
 }

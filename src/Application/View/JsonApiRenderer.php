@@ -4,26 +4,18 @@ namespace Spot\Application\View;
 
 use jschreuder\Middle\View\RendererInterface;
 use jschreuder\Middle\View\ViewInterface;
+use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Tobscure\JsonApi\Collection;
-use Tobscure\JsonApi\Document;
-use Tobscure\JsonApi\Resource;
-use Tobscure\JsonApi\SerializerInterface;
 
 class JsonApiRenderer implements RendererInterface
 {
-    /** @var  ResponseFactoryInterface */
-    private $responseFactory;
-
-    /** @var  SerializerInterface */
-    private $serializer;
-
-    public function __construct(ResponseFactoryInterface $responseFactory, SerializerInterface $serializer)
+    public function __construct(
+        private ResponseFactoryInterface $responseFactory,
+        private EncoderInterface $encoder
+    )
     {
-        $this->responseFactory = $responseFactory;
-        $this->serializer = $serializer;
     }
 
     public function render(ServerRequestInterface $request, ViewInterface $view) : ResponseInterface
@@ -36,9 +28,12 @@ class JsonApiRenderer implements RendererInterface
         $response = $this->getResponse($view);
 
         // Generate body
+        $json = $this->encoder->withIncludedPaths($view->getIncludes())
+            ->withMeta($view->getMetaData())
+            ->encodeData($view->getData());
         $body = $response->getBody();
         $body->rewind();
-        $body->write(json_encode($this->getDocument($view)->toArray()));
+        $body->write($json);
 
         return $response;
     }
@@ -51,20 +46,5 @@ class JsonApiRenderer implements RendererInterface
             $response = $response->withHeader($header, $value);
         }
         return $response;
-    }
-
-    private function getDocument(JsonApiViewInterface $view) : Document
-    {
-        if ($view->isCollection()) {
-            $element = (new Collection($view->getData(), $this->serializer))->with($view->getIncludes());
-        } else {
-            $element = (new Resource($view->getData(), $this->serializer))->with($view->getIncludes());
-        }
-
-        foreach ($view->getMetaData() as $key => $value) {
-            $element->addMeta($key, $value);
-        }
-
-        return new Document($element);
     }
 }

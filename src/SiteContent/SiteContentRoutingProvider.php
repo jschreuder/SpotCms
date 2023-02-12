@@ -28,36 +28,36 @@ class SiteContentRoutingProvider implements RoutingProviderInterface
     public function registerRoutes(RouterInterface $router): void
     {
         $router->post('pages.create', $this->uriSegment, function () {
-            return new CreatePageController($this->container->getPageRepository(), $this->container->getPageRenderer());
+            return new CreatePageController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
         });
         $router->get('pages.list', $this->uriSegment, function () {
-            return new ListPagesController($this->container->getPageRepository(), $this->container->getPageRenderer());
+            return new ListPagesController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
         });
         $router->get('pages.get', $this->uriSegment . '/{page_uuid}', function () {
-            return new GetPageController($this->container->getPageRepository(), $this->container->getPageRenderer());
+            return new GetPageController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
         }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
         $router->patch('pages.update', $this->uriSegment . '/{page_uuid}', function () {
-            return new UpdatePageController($this->container->getPageRepository(), $this->container->getPageRenderer());
+            return new UpdatePageController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
         }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
         $router->patch('pages.reorder', $this->uriSegment . '/{parent_uuid}/reorder', function () {
-            return new ReorderPagesController($this->container->getPageRepository(), $this->container->getPageRenderer());
+            return new ReorderPagesController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
         }, [], ['parent_uuid' => Uuid::VALID_PATTERN]);
         $router->delete('pages.delete', $this->uriSegment . '/{page_uuid}', function () {
-            return new DeletePageController($this->container->getPageRepository(), $this->container->getPageRenderer());
+            return new DeletePageController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
         }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
 
         $router->post('pageBlocks.create', $this->uriSegment . '/{page_uuid}/blocks', function () {
             return new AddPageBlockController(
                 $this->container->getPageRepository(),
                 $this->container->config('siteContent.blockTypes'),
-                $this->container->getPageBlockRenderer()
+                $this->container->getSiteContentRenderer()
             );
         }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
         $router->get('pageBlocks.get', $this->uriSegment . '/{page_uuid}/blocks/{page_block_uuid}',
             function () {
                 return new GetPageBlockController(
                     $this->container->getPageRepository(),
-                    $this->container->getPageBlockRenderer()
+                    $this->container->getSiteContentRenderer()
                 );
             },
             [],
@@ -68,7 +68,7 @@ class SiteContentRoutingProvider implements RoutingProviderInterface
                 return new UpdatePageBlockController(
                     $this->container->getPageRepository(),
                     $this->container->config('siteContent.blockTypes'),
-                    $this->container->getPageBlockRenderer()
+                    $this->container->getSiteContentRenderer()
                 );
             },
             [],
@@ -78,7 +78,7 @@ class SiteContentRoutingProvider implements RoutingProviderInterface
             function () {
                 return new DeletePageBlockController(
                     $this->container->getPageRepository(),
-                    $this->container->getPageBlockRenderer()
+                    $this->container->getSiteContentRenderer()
                 );
             },
             [],

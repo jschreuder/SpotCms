@@ -20,7 +20,5 @@ interface SiteContentServiceProviderInterface
 
     public function getPageRepository(): PageRepository;
 
-    public function getPageRenderer(): RendererInterface;
-
-    public function getPageBlockRenderer(): RendererInterface;
+    public function getSiteContentRenderer(): RendererInterface;
 }
