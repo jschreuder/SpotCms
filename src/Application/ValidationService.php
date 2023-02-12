@@ -38,7 +38,7 @@ final class ValidationService
     {
         $keys = explode('.', $key);
         while ($sub = array_shift($keys)) {
-            if (!isset($array[$sub])) {
+            if (!is_array($array) || !isset($array[$sub])) {
                 return null;
             }
             $array = $array[$sub];
