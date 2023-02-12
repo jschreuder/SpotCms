@@ -35,8 +35,8 @@ class HtmlContentBlockType implements BlockTypeInterface
         $params = $block->getParameters();
 
         if (
-            !isset($params['content'])
-            || (isset($params['wysiwyg']) && !is_bool($params['wysiwyg']))
+            !array_key_exists('content', $params)
+            || (array_key_exists('wysiwyg', $params) && !is_bool($params['wysiwyg']))
         ) {
             throw new ValidationFailedException([]);
         }

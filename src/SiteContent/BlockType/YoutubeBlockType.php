@@ -34,7 +34,7 @@ class YoutubeBlockType implements BlockTypeInterface
     {
         $params = $block->getParameters();
         if (
-            !isset($params['youtubeUrl'])
+            !array_key_exists('youtubeUrl', $params)
             || preg_match('#^https:\/\/(www\.youtube\.com\/watch\?v=|youtu\.be\/)[a-z0-9_]+#uiD', $params['youtubeUrl']) < 1
         ) {
             throw new ValidationFailedException([]);

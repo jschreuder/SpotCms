@@ -34,7 +34,7 @@ class VimeoBlockType implements BlockTypeInterface
     {
         $params = $block->getParameters();
         if (
-            !isset($params['vimeoUrl'])
+            !array_key_exists('vimeoUrl', $params)
             || preg_match('#^https://vimeo\.com/[a-z0-9_]+$#uiD', $params['vimeoUrl']) < 1
         ) {
             throw new ValidationFailedException([]);

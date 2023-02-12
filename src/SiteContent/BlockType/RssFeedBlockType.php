@@ -35,7 +35,7 @@ class RssFeedBlockType implements BlockTypeInterface
         $params = $block->getParameters();
 
         if (
-            !isset($params['feedUrl'])
+            !array_key_exists('feedUrl', $params)
             || preg_match('#^https?://#uiD', $params['feedUrl']) < 1
         ) {
             throw new ValidationFailedException([]);
