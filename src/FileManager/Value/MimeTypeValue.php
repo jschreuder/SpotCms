@@ -6,21 +6,17 @@ use Spot\DataModel\Value\ValueInterface;
 
 class MimeTypeValue implements ValueInterface
 {
-    /** @var  string */
-    private $value;
-
-    public static function get(string $mimeType) : MimeTypeValue
+    public static function get(string $value): MimeTypeValue
     {
-        return new self($mimeType);
+        return new self($value);
     }
 
-    private function __construct(string $mimeType)
+    private function __construct(private string $value)
     {
-        $this->validateMimeType($mimeType);
-        $this->value = $mimeType;
+        $this->validateMimeType($value);
     }
 
-    public function toString() : string
+    public function toString(): string
     {
         return $this->value;
     }
@@ -28,13 +24,12 @@ class MimeTypeValue implements ValueInterface
     /**
      * A mime-type must match the expected regex pattern
      *
-     * @return  void
      * @throws  \InvalidArgumentException
      */
-    private function validateMimeType(string $mimeType)
+    private function validateMimeType(string $value): void
     {
-        if (preg_match('#^[a-z0-9_\-\.\+]+/[a-z0-9_\-\.\+]+$#iD', $mimeType) === 0) {
-            throw new \InvalidArgumentException('Invalid mime-type given: ' . $mimeType);
+        if (preg_match('#^[a-z0-9_\-\.\+]+/[a-z0-9_\-\.\+]+$#iD', $value) === 0) {
+            throw new \InvalidArgumentException('Invalid mime-type given: ' . $value);
         }
     }
 }

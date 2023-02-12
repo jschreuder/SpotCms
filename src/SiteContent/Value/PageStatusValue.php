@@ -10,30 +10,22 @@ class PageStatusValue implements ValueInterface
     const PUBLISHED = 'published';
     const DELETED = 'deleted';
 
-    /**
-     * @param   string $value
-     * @return  self
-     */
-    public static function get(string $value) : PageStatusValue
+    public static function get(string $value): self
     {
         return new self($value);
     }
 
-    public static function getValidStatuses() : array
+    public static function getValidStatuses(): array
     {
         return [self::CONCEPT, self::PUBLISHED, self::DELETED];
     }
 
-    /** @var  string */
-    private $value;
-
-    private function __construct(string $value)
+    private function __construct(private string $value)
     {
         $this->validateStatus($value);
-        $this->value = $value;
     }
 
-    public function toString() : string
+    public function toString(): string
     {
         return $this->value;
     }
@@ -41,10 +33,9 @@ class PageStatusValue implements ValueInterface
     /**
      * Status must be one of the expected values
      *
-     * @return  void
      * @throws  \InvalidArgumentException
      */
-    private function validateStatus(string $value)
+    private function validateStatus(string $value): void
     {
         if (!in_array($value, self::getValidStatuses(), true)) {
             throw new \InvalidArgumentException('Invalid PageStatus given: ' . $value);

@@ -6,40 +6,35 @@ use Spot\DataModel\Value\ValueInterface;
 
 class FileNameValue implements ValueInterface
 {
-    /** @var  string */
-    private $value;
-
-    public static function get(string $fileName) : FileNameValue
+    public static function get(string $value): FileNameValue
     {
-        return new self($fileName);
+        return new self($value);
     }
 
-    private function __construct(string $fileName)
+    private function __construct(private string $value)
     {
-        $this->validateFileName($fileName);
-        $this->value = $fileName;
+        $this->validateFileName($value);
+    }
+
+    public function toString(): string
+    {
+        return $this->value;
     }
 
     /**
      * FileName must not contain any illegal characters, be empty or have leading or
      * trailing spaces.
      *
-     * @return  void
      * @throws  \InvalidArgumentException
      */
-    private function validateFileName(string $fileName)
+    private function validateFileName(string $value): void
     {
         if (
-            preg_match('#(\.\.|[/\0\n\r\t<>])#', $fileName) !== 0
-            || strlen($fileName) === 0
-            || $fileName !== trim($fileName)
+            preg_match('#(\.\.|[/\0\n\r\t<>])#', $value) !== 0
+            || strlen($value) === 0
+            || $value !== trim($value)
         ) {
-            throw new \InvalidArgumentException('Invalid FileName given: "' . $fileName . '"');
+            throw new \InvalidArgumentException('Invalid FileName given: "' . $value . '"');
         }
-    }
-
-    public function toString() : string
-    {
-        return $this->value;
     }
 }

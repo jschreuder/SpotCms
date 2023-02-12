@@ -6,21 +6,17 @@ use Spot\DataModel\Value\ValueInterface;
 
 class EmailAddress implements ValueInterface
 {
-    public static function get(string $value) : EmailAddress
+    public static function get(string $value): EmailAddress
     {
         return new self($value);
     }
 
-    /** @var  string */
-    private $value;
-
-    private function __construct(string $value)
+    private function __construct(private string $value)
     {
         $this->validateEmailAddress($value);
-        $this->value = $value;
     }
 
-    public function toString() : string
+    public function toString(): string
     {
         return $this->value;
     }
@@ -28,10 +24,9 @@ class EmailAddress implements ValueInterface
     /**
      * Must be a valid email address
      *
-     * @return  void
      * @throws  \InvalidArgumentException
      */
-    private function validateEmailAddress(string $value)
+    private function validateEmailAddress(string $value): void
     {
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
             throw new \InvalidArgumentException('Invalid e-mail address given: ' . $value);
