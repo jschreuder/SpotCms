@@ -1,18 +1,22 @@
 <?php
 
-namespace spec\Spot\SiteContent\Serializer;
+namespace spec\Spot\SiteContent\Schema;
 
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use PhpSpec\ObjectBehavior;
 use Ramsey\Uuid\Uuid;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
-use Spot\SiteContent\Serializer\PageBlockSerializer;
+use Spot\SiteContent\Schema\PageBlockSchema;
 use Spot\SiteContent\Value\PageStatusValue;
-use Tobscure\JsonApi\Relationship;
 
-/** @mixin  PageBlockSerializer */
-class PageBlockSerializerSpec extends ObjectBehavior
+/** @mixin  PageBlockSchema */
+class PageBlockSchemaSpec extends ObjectBehavior
 {
+    /** @var  FactoryInterface */
+    private $factory;
+
     /** @var  PageBlock */
     private $block;
 
@@ -38,7 +42,7 @@ class PageBlockSerializerSpec extends ObjectBehavior
 
     public function it_can_give_its_entity_type()
     {
-        $this->getType($this->block)->shouldReturn(PageBlock::TYPE);
+        $this->getType()->shouldReturn(PageBlock::TYPE);
     }
 
     public function it_can_give_an_entities_id()
@@ -46,14 +50,14 @@ class PageBlockSerializerSpec extends ObjectBehavior
         $this->getId($this->block)->shouldReturn($this->block->getUuid()->toString());
     }
 
-    public function it_errors_when_get_id_given_non_page_entity()
+    public function it_errors_when_get_id_given_non_pageBlock_entity()
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringGetId(new \stdClass());
     }
 
-    public function it_can_transform_page_to_array()
+    public function it_can_transform_pageBlock_to_array(ContextInterface $context)
     {
-        $attributes = $this->getAttributes($this->block);
+        $attributes = $this->getAttributes($this->block, $context);
         $attributes['type']->shouldBe($this->block->getType());
         $attributes['parameters']->shouldBe($this->block->getParameters());
         $attributes['location']->shouldBe($this->block->getLocation());
@@ -65,34 +69,18 @@ class PageBlockSerializerSpec extends ObjectBehavior
         ]);
     }
 
-    public function it_errors_when_get_attributes_given_non_page_entity()
+    public function it_errors_when_get_attributes_given_non_pageBlock_entity(ContextInterface $context)
     {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass());
+        $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass(), $context);
     }
 
-    public function it_can_provide_blocks_relationship()
+    public function it_can_provide_pageBlock_relationship(ContextInterface $context)
     {
-        $this->getRelationship($this->block, Page::TYPE)
-            ->shouldHaveType(Relationship::class);
+        $this->getRelationships($this->block, $context)->shouldReturn([]);
     }
 
-    public function it_errors_when_get_relationship_asks_for_unknown_relation()
+    public function it_errors_when_get_relationship_given_non_pageBlock_entity(ContextInterface $context)
     {
-        $this->shouldThrow(\OutOfBoundsException::class)->duringGetRelationship($this->block, 'nope');
-    }
-
-    public function it_errors_when_get_relationship_given_non_page_entity()
-    {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationship(new \stdClass(), Page::TYPE);
-    }
-
-    public function it_can_get_links()
-    {
-        $this->getLinks(new \stdClass())->shouldReturn([]);
-    }
-
-    public function it_can_get_meta()
-    {
-        $this->getMeta(new \stdClass())->shouldReturn([]);
+        $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationships(new \stdClass(), $context);
     }
 }

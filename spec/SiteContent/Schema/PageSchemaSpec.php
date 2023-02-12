@@ -1,18 +1,22 @@
 <?php
 
-namespace spec\Spot\SiteContent\Serializer;
+namespace spec\Spot\SiteContent\Schema;
 
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use PhpSpec\ObjectBehavior;
 use Ramsey\Uuid\Uuid;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
-use Spot\SiteContent\Serializer\PageSerializer;
+use Spot\SiteContent\Schema\PageSchema;
 use Spot\SiteContent\Value\PageStatusValue;
-use Tobscure\JsonApi\Relationship;
 
-/** @mixin  PageSerializer */
-class PageSerializerSpec extends ObjectBehavior
+/** @mixin  PageSchema */
+class PageSchemaSpec extends ObjectBehavior
 {
+    /** @var  FactoryInterface */
+    private $factory;
+
     /** @var  Page */
     private $page;
 
@@ -38,7 +42,7 @@ class PageSerializerSpec extends ObjectBehavior
 
     public function it_can_give_its_entity_type()
     {
-        $this->getType($this->page)->shouldReturn(Page::TYPE);
+        $this->getType()->shouldReturn(Page::TYPE);
     }
 
     public function it_can_give_an_entities_id()
@@ -51,9 +55,9 @@ class PageSerializerSpec extends ObjectBehavior
         $this->shouldThrow(\InvalidArgumentException::class)->duringGetId(new \stdClass());
     }
 
-    public function it_can_transform_page_to_array()
+    public function it_can_transform_page_to_array(ContextInterface $context)
     {
-        $attributes = $this->getAttributes($this->page);
+        $attributes = $this->getAttributes($this->page, $context);
         $attributes['title']->shouldBe($this->page->getTitle());
         $attributes['slug']->shouldBe($this->page->getSlug());
         $attributes['short_title']->shouldBe($this->page->getShortTitle());
@@ -66,35 +70,19 @@ class PageSerializerSpec extends ObjectBehavior
         ]);
     }
 
-    public function it_errors_when_get_attributes_given_non_page_entity()
+    public function it_errors_when_get_attributes_given_non_page_entity(ContextInterface $context)
     {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass());
+        $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass(), $context);
     }
 
-    public function it_can_provide_blocks_relationship()
+    public function it_can_provide_blocks_relationship(ContextInterface $context)
     {
         $this->page->setBlocks([]);
-        $this->getRelationship($this->page, PageBlock::TYPE)
-            ->shouldHaveType(Relationship::class);
+        $this->getRelationships($this->page, $context)->shouldReturn([]);
     }
 
-    public function it_errors_when_get_relationship_asks_for_unknown_relation()
-    {
-        $this->shouldThrow(\OutOfBoundsException::class)->duringGetRelationship($this->page, 'nope');
-    }
-
-    public function it_errors_when_get_relationship_given_non_page_entity()
+    public function it_errors_when_get_relationship_given_non_page_entity(ContextInterface $context)
     {
         $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationship(new \stdClass(), PageBlock::TYPE);
-    }
-
-    public function it_can_get_links()
-    {
-        $this->getLinks(new \stdClass())->shouldReturn([]);
-    }
-
-    public function it_can_get_meta()
-    {
-        $this->getMeta(new \stdClass())->shouldReturn([]);
     }
 }

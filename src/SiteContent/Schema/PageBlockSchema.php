@@ -1,13 +1,13 @@
 <?php declare(strict_types = 1);
 
-namespace Spot\SiteContent\Serializer;
+namespace Spot\SiteContent\Schema;
 
 use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\JsonApi\Schema\BaseSchema;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 
-class PageBlockSerializer extends BaseSchema
+class PageBlockSchema extends BaseSchema
 {
     public function getType(): string
     {
@@ -17,7 +17,7 @@ class PageBlockSerializer extends BaseSchema
     public function getId($pageBlock): string
     {
         if (!$pageBlock instanceof PageBlock) {
-            throw new \InvalidArgumentException('PageBlockSerializer can only serialize pageBlocks.');
+            throw new \InvalidArgumentException('PageBlockSchema can only work on pageBlocks.');
         }
 
         return $pageBlock->getUuid()->toString();
@@ -26,7 +26,7 @@ class PageBlockSerializer extends BaseSchema
     public function getAttributes($pageBlock, ContextInterface $context): iterable
     {
         if (!$pageBlock instanceof PageBlock) {
-            throw new \InvalidArgumentException('PageBlockSerializer can only serialize pageBlocks.');
+            throw new \InvalidArgumentException('PageBlockSchema can only work on pageBlocks.');
         }
 
         return [
@@ -45,7 +45,7 @@ class PageBlockSerializer extends BaseSchema
     public function getRelationships($pageBlock, ContextInterface $context): iterable
     {
         if (!$pageBlock instanceof PageBlock) {
-            throw new \InvalidArgumentException('PageBlockSerializer can only serialize pageBlocks.');
+            throw new \InvalidArgumentException('PageBlockSchema can only work on pageBlocks.');
         }
 
         return [
