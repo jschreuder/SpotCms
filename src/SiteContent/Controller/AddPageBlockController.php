@@ -5,14 +5,23 @@ namespace Spot\SiteContent\Controller;
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestFilterInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
 use jschreuder\Middle\View\RendererInterface;
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\Filter\StringTrim;
+use Laminas\Filter\ToInt;
+use Laminas\I18n\Validator\IsInt;
+use Laminas\Validator\Identical;
+use Laminas\Validator\InArray;
+use Laminas\Validator\NotEmpty;
+use Laminas\Validator\Regex;
+use Laminas\Validator\StringLength;
+use Laminas\Validator\Uuid as ValidatorUuid;
+use Laminas\Validator\ValidatorChain;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
+use Spot\Application\FilterService;
 use Spot\Application\Http\JsonApiErrorResponse;
+use Spot\Application\ValidationService;
 use Spot\Application\View\JsonApiView;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\BlockType\BlockTypeContainerInterface;
@@ -23,54 +32,53 @@ use Spot\SiteContent\Value\PageStatusValue;
 
 class AddPageBlockController implements RequestFilterInterface, RequestValidatorInterface, ControllerInterface
 {
-    /** @var  PageRepository */
-    private $pageRepository;
-
-    /** @var  BlockTypeContainerInterface */
-    private $blockTypeContainer;
-
-    /** @var  RendererInterface */
-    private $renderer;
-
     public function __construct(
-        PageRepository $pageRepository,
-        BlockTypeContainerInterface $blockTypeContainer,
-        RendererInterface $renderer
+        private PageRepository $pageRepository,
+        private BlockTypeContainerInterface $blockTypeContainer,
+        private RendererInterface $renderer
     )
     {
-        $this->pageRepository = $pageRepository;
-        $this->blockTypeContainer = $blockTypeContainer;
-        $this->renderer = $renderer;
     }
 
-    public function filterRequest(ServerRequestInterface $request) : ServerRequestInterface
+    public function filterRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        $filter = new Filter();
-        $filter->values(['data.attributes.type', 'data.attributes.location'])->string()->trim();
-        $filter->value('data.attributes.sort_order')->int();
-        return $request->withParsedBody($filter->filter($request->getParsedBody()));
+        $request = FilterService::filterQuery($request, [
+            'page_uuid' => new StringTrim(),
+        ]);
+        return FilterService::filter($request, [
+            'data.attributes.type' => new StringTrim(),
+            'data.attributes.location' => new StringTrim(),
+            'data.attributes.sort_order' => new ToInt(),
+        ]);
     }
 
-    public function validateRequest(ServerRequestInterface $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $validator->required('data.type')->equals('pageBlocks');
-        $validator->required('data.attributes.type')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
-        $validator->optional('data.attributes.parameters');
-        $validator->required('data.attributes.location')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
-        $validator->required('data.attributes.sort_order')->integer();
-        $validator->required('data.attributes.status')->inArray(PageStatusValue::getValidStatuses(), true);
-
-        $result = $validator->validate($request->getParsedBody());
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validateQuery($request, [
+            'page_uuid' => new ValidatorUuid(),
+        ]);
+        ValidationService::validate($request, [
+            'data.type' => new Identical('pageBlocks'),
+            'data.attributes.type' => (new ValidatorChain())
+                ->attach(new NotEmpty())
+                ->attach(new StringLength(['min' => 1, 'max' => 48]))
+                ->attach(new Regex(['pattern' => '#^[a-z0-9\-]+$#'])),
+            'data.attributes.parameters' => new NotEmpty(),
+            'data.attributes.location' => (new ValidatorChain())
+                ->attach(new NotEmpty())
+                ->attach(new StringLength(['min' => 1, 'max' => 48]))
+                ->attach(new Regex(['pattern' => '#^[a-z0-9\-]+$#'])),
+            'data.attributes.sort_order' => new IsInt(),
+            'data.attributes.status' => new InArray(['haystack' => PageStatusValue::getValidStatuses()]),
+        ], [
+            'data.attributes.parameters',
+        ]);
     }
 
-    public function execute(ServerRequestInterface $request) : ResponseInterface
+    public function execute(ServerRequestInterface $request): ResponseInterface
     {
         try {
-            $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getAttribute('page_id')));
+            $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getQueryParams()['page_uuid']));
         } catch (NoResultException $exception) {
             return new JsonApiErrorResponse(['PAGE_NOT_FOUND' => 'Page not found'], 404);
         }
@@ -80,7 +88,7 @@ class AddPageBlockController implements RequestFilterInterface, RequestValidator
         return $this->renderer->render($request, new JsonApiView($pageBlock, false, ['pages'], [], 201));
     }
 
-    private function createBlock(array $requestBody, Page $page) : PageBlock
+    private function createBlock(array $requestBody, Page $page): PageBlock
     {
         $blockType = $this->blockTypeContainer->getType($requestBody['type']);
         $pageBlock = $blockType->newBlock(

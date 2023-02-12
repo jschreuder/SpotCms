@@ -2,11 +2,13 @@
 
 namespace spec\Spot\SiteContent\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerInterface;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\View\JsonApiView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\CreatePageController;
 use Spot\SiteContent\Repository\PageRepository;
@@ -14,17 +16,17 @@ use Spot\SiteContent\Repository\PageRepository;
 /** @mixin  CreatePageController */
 class CreatePageControllerSpec extends ObjectBehavior
 {
-    /** @var  \Spot\SiteContent\Repository\PageRepository */
+    /** @var  PageRepository */
     private $pageRepository;
 
-    /** @var  \Psr\Log\LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(PageRepository $pageRepository, LoggerInterface $logger)
+    public function let(PageRepository $pageRepository, RendererInterface $renderer)
     {
         $this->pageRepository = $pageRepository;
-        $this->logger = $logger;
-        $this->beConstructedWith($pageRepository, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($pageRepository, $renderer);
     }
 
     public function it_is_initializable()
@@ -32,7 +34,7 @@ class CreatePageControllerSpec extends ObjectBehavior
         $this->shouldHaveType(CreatePageController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_parse_a_HttpRequest(ServerRequestInterface $request, ServerRequestInterface $request2)
     {
         $post = [
             'data' => [
@@ -47,16 +49,13 @@ class CreatePageControllerSpec extends ObjectBehavior
                 ],
             ]
         ];
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/json');
-        $httpRequest->getParsedBody()->willReturn($post);
+        $request->getParsedBody()->willReturn($post);
+        $request->withParsedBody($post)->willReturn($request2);
 
-        $request = $this->parseHttpRequest($httpRequest, []);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(CreatePageController::MESSAGE);
-        $request->getAttributes()->shouldBe($post['data']['attributes']);
+        $this->filterRequest($request)->shouldReturn($request2);
     }
 
-    public function it_errors_on_invalid_data_in_request(ServerRequestInterface $httpRequest)
+    public function it_errors_on_invalid_data_in_request(ServerRequestInterface $request)
     {
         $post = [
             'data' => [
@@ -71,33 +70,31 @@ class CreatePageControllerSpec extends ObjectBehavior
                 ],
             ]
         ];
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/json');
-        $httpRequest->getParsedBody()->willReturn($post);
+        $request->getParsedBody()->willReturn($post);
 
-        $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, []);
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request)
+    public function it_can_execute_a_request(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $request->offsetGet('title')->willReturn('Long title');
-        $request->offsetGet('slug')->willReturn('long-title');
-        $request->offsetGet('short_title')->willReturn('Title');
-        $request->offsetGet('parent_uuid')->willReturn(null);
-        $request->offsetGet('sort_order')->willReturn(42);
-        $request->offsetGet('status')->willReturn('concept');
-        $request->getAcceptContentType()->willReturn('application/json');
+        $post = [
+            'data' => [
+                'type' => 'pages',
+                'attributes' => [
+                    'title' => 'Long title',
+                    'slug' => 'long-title',
+                    'short_title' => 'Title',
+                    'parent_uuid' => null,
+                    'sort_order' => 42,
+                    'status' => 'concept',
+                ],
+            ],
+        ];
+        $request->getParsedBody()->willReturn($post);
 
         $this->pageRepository->create(new Argument\Token\TypeToken(Page::class));
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(ResponseInterface::class);
-        $response['data']->shouldHaveType(Page::class);
-    }
-
-    public function it_will_throw_ResponseException_on_errors(RequestInterface $request)
-    {
-        $request->offsetGet('title')->willThrow(new \OutOfBoundsException());
-        $request->getAcceptContentType()->willReturn('application/json');
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
+        $this->execute($request)->shouldReturn($response);
     }
 }

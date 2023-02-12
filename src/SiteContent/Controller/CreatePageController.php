@@ -5,13 +5,23 @@ namespace Spot\SiteContent\Controller;
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestFilterInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
 use jschreuder\Middle\View\RendererInterface;
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\Filter\FilterChain;
+use Laminas\Filter\StringTrim;
+use Laminas\Filter\StripTags;
+use Laminas\Filter\ToInt;
+use Laminas\I18n\Validator\IsInt;
+use Laminas\Validator\Identical;
+use Laminas\Validator\InArray;
+use Laminas\Validator\Regex;
+use Laminas\Validator\StringLength;
+use Laminas\Validator\Uuid as ValidatorUuid;
+use Laminas\Validator\ValidatorChain;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
+use Spot\Application\FilterService;
+use Spot\Application\ValidationService;
 use Spot\Application\View\JsonApiView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Repository\PageRepository;
@@ -19,46 +29,45 @@ use Spot\SiteContent\Value\PageStatusValue;
 
 class CreatePageController implements RequestFilterInterface, RequestValidatorInterface, ControllerInterface
 {
-    /** @var  PageRepository */
-    private $pageRepository;
-
-    /** @var  RendererInterface */
-    private $renderer;
-
-    public function __construct(PageRepository $pageRepository, RendererInterface $renderer)
+    public function __construct(
+        private PageRepository $pageRepository,
+        private RendererInterface $renderer
+    )
     {
-        $this->pageRepository = $pageRepository;
-        $this->renderer = $renderer;
     }
 
-    public function filterRequest(ServerRequestInterface $request) : ServerRequestInterface
+    public function filterRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        $filter = new Filter();
-        $filter->values(['data.attributes.title', 'data.attributes.slug', 'data.attributes.short_title'])
-            ->trim()->stripHtml();
-        $filter->value('data.attributes.sort_order')->int();
-        return $request->withParsedBody($filter->filter($request->getParsedBody()));
+        return FilterService::filter($request, [
+            'data.attributes.title' => (new FilterChain())
+                ->attach(new StringTrim())
+                ->attach(new StripTags()),
+            'data.attributes.slug' => (new FilterChain())
+                ->attach(new StringTrim())
+                ->attach(new StripTags()),
+            'data.attributes.short_title' => (new FilterChain())
+                ->attach(new StringTrim())
+                ->attach(new StripTags()),
+            'data.attributes.sort_order' => new ToInt(),
+        ]);
     }
 
-    public function validateRequest(ServerRequestInterface $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $validator->required('data.type')->equals('pages');
-        $validator->required('data.attributes.title')->lengthBetween(1, 512);
-        $validator->required('data.attributes.slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
-        $validator->required('data.attributes.short_title')->lengthBetween(1, 48);
-        $validator->optional('data.attributes.parent_uuid')->uuid();
-        $validator->required('data.attributes.sort_order')->integer();
-        $validator->required('data.attributes.status')->inArray(PageStatusValue::getValidStatuses(), true);
-
-        $result = $validator->validate($request->getParsedBody());
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validate($request, [
+            'data.type' => new Identical('pages'),
+            'data.attributes.title' => new StringLength(['min' => 1, 'max' => 512]),
+            'data.attributes.slug' => (new ValidatorChain())
+                ->attach(new StringLength(['min' => 1, 'max' => 48]))
+                ->attach(new Regex(['pattern' => '#^[a-z0-9\-]+$#'])),
+            'data.attributes.short_title' => new StringLength(['min' => 1, 'max' => 48]),
+            'data.attributes.parent_uuid' => new ValidatorUuid(),
+            'data.attributes.sort_order' => new IsInt(),
+            'data.attributes.status' => new InArray(['haystack' => PageStatusValue::getValidStatuses()]),
+        ]);
     }
 
-    /** {@inheritdoc} */
-    public function execute(ServerRequestInterface $request) : ResponseInterface
+    public function execute(ServerRequestInterface $request): ResponseInterface
     {
         $data = $request->getParsedBody()['data']['attributes'];
         $page = new Page(
