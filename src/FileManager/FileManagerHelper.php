@@ -4,6 +4,7 @@ namespace Spot\FileManager;
 
 use Laminas\Filter\FilterChain;
 use Laminas\Filter\FilterInterface;
+use Laminas\Filter\StringPrefix;
 use Laminas\Filter\StringTrim;
 use Laminas\Filter\StripTags;
 use Laminas\Validator\NotEmpty;
@@ -24,9 +25,7 @@ class FileManagerHelper
             ->attach(strval(...))
             ->attach(new StripTags())
             ->attach(new StringTrim(" \t\n\r\x0B/"))
-            ->attach(function($value) {
-                return '/'.$value;
-            });
+            ->attach(new StringPrefix(['prefix' => '/']));
     }
 
     public function getFileNameFilter(): FilterInterface
