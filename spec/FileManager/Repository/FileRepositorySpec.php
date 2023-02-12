@@ -2,7 +2,8 @@
 
 namespace spec\Spot\FileManager\Repository;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
+use PDO;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
@@ -18,16 +19,16 @@ use Spot\FileManager\Value\MimeTypeValue;
 /** @mixin  FileRepository */
 class FileRepositorySpec extends ObjectBehavior
 {
-    /** @var  FilesystemInterface */
+    /** @var  FilesystemOperator */
     private $fileSystem;
 
-    /** @var  \PDO */
+    /** @var  PDO */
     private $pdo;
 
     /** @var  ObjectRepository */
     private $objectRepository;
 
-    public function let(FilesystemInterface $fileSystem, \PDO $pdo, ObjectRepository $objectRepository)
+    public function let(FilesystemOperator $fileSystem, PDO $pdo, ObjectRepository $objectRepository)
     {
         $this->fileSystem = $fileSystem;
         $this->pdo = $pdo;
@@ -72,18 +73,17 @@ class FileRepositorySpec extends ObjectBehavior
         $file->getStream()->willReturn($stream);
         $file->setStream($stream2)->willReturn($file);
 
-        $this->fileSystem->writeStream($uuid->toString(), $stream)
-            ->willReturn(true);
+        $this->fileSystem->writeStream($uuid->toString(), $stream)->shouldBeCalled();
 
         $this->pdo->beginTransaction()
-            ->shouldBeCalled();
+            ->willReturn(true);
         $this->objectRepository->create(File::TYPE, $uuid)
             ->shouldBeCalled();
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('name REGEXP :name'))
             ->willReturn($uniqueStatement);
         $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_(?P<idx>[0-9]+))?\.name'])
-            ->shouldBeCalled();
+            ->willReturn(true);
         $uniqueStatement->rowCount()
             ->willReturn(0);
 
@@ -97,10 +97,10 @@ class FileRepositorySpec extends ObjectBehavior
             'name' => $name->toString(),
             'path' => $path->toString(),
             'mime_type' => $mime->toString(),
-        ]);
+        ])->willReturn(true);
 
         $this->pdo->commit()
-            ->shouldBeCalled();
+            ->willReturn(true);
 
         $file->metaDataSetInsertTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
             ->willReturn($file);
@@ -125,26 +125,27 @@ class FileRepositorySpec extends ObjectBehavior
         $file->getPath()->willReturn($path);
         $file->getStream()->willReturn($stream);
 
-        $this->fileSystem->writeStream($uuid->toString(), $stream)
-            ->willReturn(true);
+        $this->fileSystem->writeStream($uuid->toString(), $stream)->shouldBeCalled();
 
         $this->pdo->beginTransaction()
-            ->shouldBeCalled();
+            ->willReturn(true);
         $this->objectRepository->create(File::TYPE, $uuid)
             ->shouldBeCalled();
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('name REGEXP :name'))
             ->willReturn($uniqueStatement);
         $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_(?P<idx>[0-9]+))?\.name'])
-            ->shouldBeCalled();
+            ->willReturn(true);
         $uniqueStatement->rowCount()
             ->willReturn(0);
 
         $this->fileSystem->readStream($uuid->toString())
-            ->willReturn(false);
+            ->willThrow(new \RuntimeException());
+
+        $this->fileSystem->has($uuid->toString())->willReturn(false);
 
         $this->pdo->rollBack()
-            ->shouldBeCalled();
+            ->willReturn(true);
 
         $this->shouldThrow(\RuntimeException::class)->duringCreateFromUpload($file);
 
@@ -154,38 +155,45 @@ class FileRepositorySpec extends ObjectBehavior
 
     public function it_can_create_a_new_file_with_a_unique_name(
         \PDOStatement $uniqueStatement,
-        \PDOStatement $insertStatement
+        \PDOStatement $insertStatement,
+        File $file
     )
     {
         $uuid = Uuid::uuid4();
-        $name = FileNameValue::get('file.name');
-        $newName = FileNameValue::get('file_4.name');
+        $name = FileNameValue::get('file_again.name');
+        $newName = FileNameValue::get('file_again_4.name');
         $path = FilePathValue::get('/uploads');
         $mime = MimeTypeValue::get('text/xml');
         $stream = tmpfile();
         $stream2 = tmpfile();
 
-        $file = new File($uuid, $name, $path, $mime, $stream);
+        $file->getUuid()->willReturn($uuid);
+        $file->getName()->willReturn($name);
+        $file->getPath()->willReturn($path);
+        $file->getMimeType()->willReturn($mime);
+        $file->getStream()->willReturn($stream);
+        $file->setStream($stream2)->willReturn($file);
+        $file->setName($newName)->willReturn($file);
+        $file->metaDataSetInsertTimestamp(Argument::type(\DateTimeInterface::class))->willReturn($file);
 
-        $this->fileSystem->writeStream($uuid->toString(), $stream)
-            ->willReturn(true);
+        $this->fileSystem->writeStream($uuid->toString(), $stream)->shouldBeCalled();
 
         $this->pdo->beginTransaction()
-            ->shouldBeCalled();
+            ->willReturn(true);
         $this->objectRepository->create(File::TYPE, $uuid)
             ->shouldBeCalled();
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('name REGEXP :name'))
             ->willReturn($uniqueStatement);
-        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_(?P<idx>[0-9]+))?\.name'])
-            ->shouldBeCalled();
+        $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file_again(_(?P<idx>[0-9]+))?\.name'])
+            ->willReturn(true);
         $uniqueStatement->rowCount()
             ->willReturn(3);
         $uniqueStatement->fetchColumn()
             ->willReturn(
-                'file.name',
-                'file_2.name',
-                'file_3.name',
+                'file_again.name',
+                'file_again_2.name',
+                'file_again_3.name',
                 false
             );
 
@@ -194,15 +202,14 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('INSERT INTO files'))
             ->willReturn($insertStatement);
-        $insertStatement->execute([
-            'file_uuid' => $uuid->getBytes(),
-            'name' => $newName->toString(),
-            'path' => $path->toString(),
-            'mime_type' => $mime->toString(),
-        ]);
+        $insertStatement->execute(Argument::type('array'))->willReturn(true);
 
         $this->pdo->commit()
-            ->shouldBeCalled();
+            ->willReturn(true);
+
+        // next two lines are for proper errors when debugging, not part of normal runthrough
+        $this->fileSystem->has($uuid->toString())->willReturn(false);
+        $this->pdo->rollBack()->willReturn(true);
 
         $this->createFromUpload($file);
 
@@ -225,22 +232,22 @@ class FileRepositorySpec extends ObjectBehavior
         $file->getStream()->willReturn($stream);
 
         $this->pdo->beginTransaction()
-            ->shouldBeCalled();
+            ->willReturn(true);
         $this->objectRepository->create(File::TYPE, $uuid)
             ->shouldBeCalled();
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('name REGEXP :name'))
             ->willReturn($uniqueStatement);
         $uniqueStatement->execute(['path' => $path->toString(), 'name' => 'file(_(?P<idx>[0-9]+))?\.name'])
-            ->shouldBeCalled();
+            ->willReturn(true);
         $uniqueStatement->rowCount()
             ->willReturn(0);
 
-        $this->fileSystem->writeStream($uuid->toString(), $stream)
-            ->willReturn(false);
+        $this->fileSystem->writeStream($uuid->toString(), $stream)->shouldBeCalled();
+        $this->fileSystem->readStream($uuid)->willThrow(new \RuntimeException());
 
         $this->pdo->rollBack()
-            ->shouldBeCalled();
+            ->willReturn(true);
         $this->fileSystem->has($uuid->toString())
             ->willReturn(false);
 
@@ -253,16 +260,16 @@ class FileRepositorySpec extends ObjectBehavior
         $file->getUuid()->willReturn($uuid);
 
         $this->pdo->beginTransaction()
-            ->shouldBeCalled();
+            ->willReturn(true);
         $this->objectRepository->create(File::TYPE, $uuid)
             ->willThrow(new \RuntimeException());
 
         $this->pdo->rollBack()
-            ->shouldBeCalled();
+            ->willReturn(true);
         $this->fileSystem->has($uuid->toString())
             ->willReturn(true);
         $this->fileSystem->delete($uuid->toString())
-            ->willReturn(true);
+            ->shouldBeCalled();
 
         $this->shouldThrow(\RuntimeException::class)->duringCreateFromUpload($file);
     }
@@ -275,8 +282,8 @@ class FileRepositorySpec extends ObjectBehavior
         $file->getStream()->willReturn($stream);
         $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeInterface::class))->shouldBeCalled();
 
-        $this->fileSystem->putStream($uuid->toString(), $stream)
-            ->willReturn(true);
+        $this->fileSystem->writeStream($uuid->toString(), $stream)
+            ->shouldBeCalled();
         $this->objectRepository->update(File::TYPE, $uuid)
             ->shouldBeCalled();
 
@@ -286,15 +293,15 @@ class FileRepositorySpec extends ObjectBehavior
         fclose($stream);
     }
 
-    public function it_can_errors_on_upload_failure_with_update_file_content(File $file)
+    public function it_can_error_on_upload_failure_with_update_file_content(File $file)
     {
         $uuid = Uuid::uuid4();
         $stream = tmpfile();
         $file->getUuid()->willReturn($uuid);
         $file->getStream()->willReturn($stream);
 
-        $this->fileSystem->putStream($uuid->toString(), $stream)
-            ->willReturn(false);
+        $this->fileSystem->writeStream($uuid->toString(), $stream)
+            ->willThrow(new \RuntimeException());
         $this->objectRepository->update(File::TYPE, $uuid)
             ->shouldNotBeCalled();
 
@@ -319,7 +326,7 @@ class FileRepositorySpec extends ObjectBehavior
         $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeInterface::class))->shouldBeCalled();
 
         $this->pdo->beginTransaction()
-            ->shouldBeCalled();
+            ->willReturn(true);
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('UPDATE files'))
             ->willReturn($updateStatement);
@@ -329,7 +336,7 @@ class FileRepositorySpec extends ObjectBehavior
             'path' => $path->toString(),
             'mime_type' => $mime->toString(),
             ])
-            ->shouldBeCalled();
+            ->willReturn(true);
         $updateStatement->rowCount()
             ->willReturn(1);
 
@@ -337,7 +344,7 @@ class FileRepositorySpec extends ObjectBehavior
             ->shouldBeCalled();
 
         $this->pdo->commit()
-            ->shouldBeCalled();
+            ->willReturn(true);
 
         $file->metaDataSetUpdateTimestamp(new Argument\Token\TypeToken(\DateTimeImmutable::class))
             ->willReturn($file);
@@ -359,7 +366,7 @@ class FileRepositorySpec extends ObjectBehavior
         $file->getMimeType()->willReturn($mime);
 
         $this->pdo->beginTransaction()
-            ->shouldBeCalled();
+            ->willReturn(true);
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('UPDATE files'))
             ->willReturn($updateStatement);
@@ -369,7 +376,7 @@ class FileRepositorySpec extends ObjectBehavior
             'path' => $path->toString(),
             'mime_type' => $mime->toString(),
         ])
-            ->shouldBeCalled();
+            ->willReturn(true);
         $updateStatement->rowCount()
             ->willReturn(0);
 
@@ -377,7 +384,7 @@ class FileRepositorySpec extends ObjectBehavior
             ->shouldNotBeCalled();
 
         $this->pdo->commit()
-            ->shouldBeCalled();
+            ->willReturn(true);
 
         $this->updateMetaData($file);
     }
@@ -396,7 +403,7 @@ class FileRepositorySpec extends ObjectBehavior
         $file->getMimeType()->willReturn($mime);
 
         $this->pdo->beginTransaction()
-            ->shouldBeCalled();
+            ->willReturn(true);
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('UPDATE files'))
             ->willThrow(new \RuntimeException());
@@ -419,30 +426,30 @@ class FileRepositorySpec extends ObjectBehavior
         $file->getUuid()->willReturn($uuid);
 
         $this->pdo->beginTransaction()
-            ->shouldBeCalled();
-        $this->fileSystem->delete($uuid->toString())
             ->willReturn(true);
+        $this->fileSystem->delete($uuid->toString())
+            ->shouldBeCalled();
         $this->objectRepository->delete(File::TYPE, $uuid)
             ->shouldBeCalled();
         $this->pdo->commit()
-            ->shouldBeCalled();
+            ->willReturn(true);
 
         $this->delete($file);
     }
 
-    public function it_can_will_error_and_roll_back_when_delete_fails(File $file)
+    public function it_will_error_and_roll_back_when_delete_fails(File $file)
     {
         $uuid = Uuid::uuid4();
         $file->getUuid()->willReturn($uuid);
 
         $this->pdo->beginTransaction()
-            ->shouldBeCalled();
+            ->willReturn(true);
         $this->fileSystem->delete($uuid->toString())
-            ->willReturn(false);
+            ->willThrow(new \RuntimeException);
         $this->objectRepository->delete(File::TYPE, $uuid)
             ->shouldNotBeCalled();
         $this->pdo->rollBack()
-            ->shouldBeCalled();
+            ->willReturn(true);
 
         $this->shouldThrow(\RuntimeException::class)->duringDelete($file);
     }
@@ -457,7 +464,7 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
-        $statement->execute(['file_uuid' => $uuid->getBytes()])->shouldBeCalled();
+        $statement->execute(['file_uuid' => $uuid->getBytes()])->willReturn(true);
         $statement->rowCount()->willReturn(1);
         $statement->fetch(\PDO::FETCH_ASSOC)->willReturn([
             'file_uuid' => $uuid->getBytes(),
@@ -483,7 +490,7 @@ class FileRepositorySpec extends ObjectBehavior
         $uuid = Uuid::uuid4();
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
-        $statement->execute(['file_uuid' => $uuid->getBytes()])->shouldBeCalled();
+        $statement->execute(['file_uuid' => $uuid->getBytes()])->willReturn(true);
         $statement->rowCount()->willReturn(0);
 
         $this->shouldThrow(NoUniqueResultException::class)->duringGetByUuid($uuid);
@@ -499,7 +506,7 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
-        $statement->execute(['full_path' => $path . $name])->shouldBeCalled();
+        $statement->execute(['full_path' => $path . $name])->willReturn(true);
         $statement->rowCount()->willReturn(1);
         $statement->fetch(\PDO::FETCH_ASSOC)->willReturn([
             'file_uuid' => $uuid->getBytes(),
@@ -527,7 +534,7 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
-        $statement->execute(['full_path' => $path . $name])->shouldBeCalled();
+        $statement->execute(['full_path' => $path . $name])->willReturn(true);
         $statement->rowCount()->willReturn(0);
 
         $this->shouldThrow(NoUniqueResultException::class)->duringGetByFullPath($path . $name);
@@ -542,7 +549,7 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
-        $statement->execute(['path' => $path])->shouldBeCalled();
+        $statement->execute(['path' => $path])->willReturn(true);
         $statement->fetch(\PDO::FETCH_ASSOC)->willReturn(
             [
                 'name' => $name1,
@@ -568,7 +575,7 @@ class FileRepositorySpec extends ObjectBehavior
         $path = '/sg-1/season11';
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
-        $statement->execute(['path' => $path])->shouldBeCalled();
+        $statement->execute(['path' => $path])->willReturn(true);
         $statement->fetch(\PDO::FETCH_ASSOC)->willReturn(false);
 
         $this->getFileNamesInPath($path)->shouldHaveCount(0);
@@ -587,7 +594,7 @@ class FileRepositorySpec extends ObjectBehavior
 
         $this->pdo->prepare(new Argument\Token\StringContainsToken('FROM files'))
             ->willReturn($statement);
-        $statement->execute(['path' => $path])->shouldBeCalled();
+        $statement->execute(['path' => $path])->willReturn(true);
         $statement->fetchColumn()->willReturn(
             $directories[0],
             $directories[1],

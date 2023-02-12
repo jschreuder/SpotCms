@@ -68,17 +68,13 @@ class FileRepository
     private function uploadFile(File $file)
     {
         $file->setName($this->getUniqueFileName($file->getPath(), $file->getName()));
-        if (!$this->fileSystem->writeStream($file->getUuid()->toString(), $file->getStream())) {
-            throw new \RuntimeException('Failed to process uploaded file.');
-        }
+        $this->fileSystem->writeStream($file->getUuid()->toString(), $file->getStream());
         $file->setStream($this->getFileStream($file->getUuid()));
     }
 
     public function updateContent(File $file)
     {
-        if (!$this->fileSystem->writeStream($file->getUuid()->toString(), $file->getStream())) {
-            throw new \RuntimeException('Failed to update file content.');
-        }
+        $this->fileSystem->writeStream($file->getUuid()->toString(), $file->getStream());
         $this->objectRepository->update(File::TYPE, $file->getUuid());
         $file->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
     }
@@ -117,9 +113,7 @@ class FileRepository
     {
         $this->pdo->beginTransaction();
         try {
-            if (!$this->fileSystem->delete($file->getUuid()->toString())) {
-                throw new \RuntimeException('Failed to delete file');
-            }
+            $this->fileSystem->delete($file->getUuid()->toString());
             $this->objectRepository->delete(File::TYPE, $file->getUuid());
             $this->pdo->commit();
         } catch (\Throwable $exception) {
@@ -204,11 +198,7 @@ class FileRepository
     /** @return  resource */
     private function getFileStream(UuidInterface $fileUuid)
     {
-        $stream = $this->fileSystem->readStream($fileUuid->toString());
-        if (!$stream) {
-            throw new \RuntimeException('Could not retrieve stream for file.');
-        }
-        return $stream;
+        return $this->fileSystem->readStream($fileUuid->toString());
     }
 
     private function getUniqueFileName(FilePathValue $path, FileNameValue $name) : FileNameValue
@@ -242,7 +232,7 @@ class FileRepository
                 continue;
             }
             preg_match('#' . $nameRegex . '#', $row, $match);
-            $max = max($max, intval($match['idx'], 1));
+            $max = max($max, intval($match['idx']), 1);
         }
         return $max + 1;
     }
