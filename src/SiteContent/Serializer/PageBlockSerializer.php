@@ -2,20 +2,19 @@
 
 namespace Spot\SiteContent\Serializer;
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
+use Neomerx\JsonApi\Schema\BaseSchema;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
-use Tobscure\JsonApi\Relationship;
-use Tobscure\JsonApi\Resource;
-use Tobscure\JsonApi\SerializerInterface;
 
-class PageBlockSerializer implements SerializerInterface
+class PageBlockSerializer extends BaseSchema
 {
-    public function getType($model) : string
+    public function getType(): string
     {
         return PageBlock::TYPE;
     }
 
-    public function getId($pageBlock) : string
+    public function getId($pageBlock): string
     {
         if (!$pageBlock instanceof PageBlock) {
             throw new \InvalidArgumentException('PageBlockSerializer can only serialize pageBlocks.');
@@ -24,7 +23,7 @@ class PageBlockSerializer implements SerializerInterface
         return $pageBlock->getUuid()->toString();
     }
 
-    public function getAttributes($pageBlock, array $fields = null) : array
+    public function getAttributes($pageBlock, ContextInterface $context): iterable
     {
         if (!$pageBlock instanceof PageBlock) {
             throw new \InvalidArgumentException('PageBlockSerializer can only serialize pageBlocks.');
@@ -43,26 +42,18 @@ class PageBlockSerializer implements SerializerInterface
         ];
     }
 
-    public function getRelationship($pageBlock, $name) : Relationship
+    public function getRelationships($pageBlock, ContextInterface $context): iterable
     {
         if (!$pageBlock instanceof PageBlock) {
             throw new \InvalidArgumentException('PageBlockSerializer can only serialize pageBlocks.');
         }
 
-        if ($name === Page::TYPE) {
-            return new Relationship(new Resource($pageBlock->getPage(), new PageSerializer()));
-        }
-
-        throw new \OutOfBoundsException('Unknown relationship ' . $name . ' for ' . $this->getType($pageBlock));
-    }
-
-    public function getLinks($model)
-    {
-        return [];
-    }
-
-    public function getMeta($model)
-    {
-        return [];
+        return [
+            Page::TYPE => [
+                self::RELATIONSHIP_LINKS_SELF    => true,
+                self::RELATIONSHIP_LINKS_RELATED => true,
+                self::RELATIONSHIP_DATA => $pageBlock->getPage(),
+            ],
+        ];
     }
 }

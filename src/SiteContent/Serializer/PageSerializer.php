@@ -2,20 +2,19 @@
 
 namespace Spot\SiteContent\Serializer;
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
+use Neomerx\JsonApi\Schema\BaseSchema;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
-use Tobscure\JsonApi\Collection;
-use Tobscure\JsonApi\Relationship;
-use Tobscure\JsonApi\SerializerInterface;
 
-class PageSerializer implements SerializerInterface
+class PageSerializer extends BaseSchema
 {
-    public function getType($model) : string
+    public function getType(): string
     {
         return Page::TYPE;
     }
 
-    public function getId($page) : string
+    public function getId($page): string
     {
         if (!$page instanceof Page) {
             throw new \InvalidArgumentException('PageSerializer can only serialize pages.');
@@ -24,7 +23,7 @@ class PageSerializer implements SerializerInterface
         return $page->getUuid()->toString();
     }
 
-    public function getAttributes($page, array $fields = null) : array
+    public function getAttributes($page, ContextInterface $context): iterable
     {
         if (!$page instanceof Page) {
             throw new \InvalidArgumentException('PageSerializer can only serialize pages.');
@@ -44,26 +43,18 @@ class PageSerializer implements SerializerInterface
         ];
     }
 
-    public function getRelationship($page, $name) : Relationship
+    public function getRelationships($page, ContextInterface $context): iterable
     {
         if (!$page instanceof Page) {
             throw new \InvalidArgumentException('PageSerializer can only serialize pages.');
         }
 
-        if ($name === PageBlock::TYPE) {
-            return new Relationship(new Collection($page->getBlocks(), new PageBlockSerializer()));
-        }
-
-        throw new \OutOfBoundsException('Unknown relationship ' . $name . ' for ' . $this->getType($page));
-    }
-
-    public function getLinks($model)
-    {
-        return [];
-    }
-
-    public function getMeta($model)
-    {
-        return [];
+        return [
+            PageBlock::TYPE => [
+                self::RELATIONSHIP_LINKS_SELF    => true,
+                self::RELATIONSHIP_LINKS_RELATED => true,
+                self::RELATIONSHIP_DATA => $page->getBlocks(),
+            ],
+        ];
     }
 }

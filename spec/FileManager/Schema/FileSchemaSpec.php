@@ -1,22 +1,27 @@
 <?php
 
-namespace spec\Spot\FileManager\Serializer;
+namespace spec\Spot\FileManager\Schema;
 
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use PhpSpec\ObjectBehavior;
 use Ramsey\Uuid\Uuid;
 use Spot\FileManager\Entity\File;
-use Spot\FileManager\Serializer\FileSerializer;
+use Spot\FileManager\Schema\FileSchema;
 use Spot\FileManager\Value\FileNameValue;
 use Spot\FileManager\Value\FilePathValue;
 use Spot\FileManager\Value\MimeTypeValue;
 
-/** @mixin  FileSerializer */
-class FileSerializerSpec extends ObjectBehavior
+/** @mixin  FileSchema */
+class FileSchemaSpec extends ObjectBehavior
 {
+    /** @var  FactoryInterface */
+    private $factory;
+
     /** @var  File */
     private $file;
 
-    public function let()
+    public function let(FactoryInterface $factory)
     {
         $this->file = (new File(
                 Uuid::uuid4(),
@@ -27,16 +32,18 @@ class FileSerializerSpec extends ObjectBehavior
             ))
             ->metaDataSetInsertTimestamp(new \DateTimeImmutable())
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
+        $this->factory = $factory;
+        $this->beConstructedWith($factory);
     }
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(FileSerializer::class);
+        $this->shouldHaveType(FileSchema::class);
     }
 
     public function it_can_give_its_entity_type()
     {
-        $this->getType($this->file)->shouldReturn(File::TYPE);
+        $this->getType()->shouldReturn(File::TYPE);
     }
 
     public function it_can_give_an_entities_id()
@@ -49,9 +56,9 @@ class FileSerializerSpec extends ObjectBehavior
         $this->shouldThrow(\InvalidArgumentException::class)->duringGetId(new \stdClass());
     }
 
-    public function it_can_transform_file_to_array()
+    public function it_can_transform_file_to_array(ContextInterface $context)
     {
-        $attributes = $this->getAttributes($this->file);
+        $attributes = $this->getAttributes($this->file, $context);
         $attributes['name']->shouldBe($this->file->getName()->toString());
         $attributes['path']->shouldBe($this->file->getPath()->toString());
         $attributes['mime_type']->shouldBe($this->file->getMimeType()->toString());
@@ -61,28 +68,18 @@ class FileSerializerSpec extends ObjectBehavior
         ]);
     }
 
-    public function it_errors_when_get_attributes_given_non_file_entity()
+    public function it_errors_when_get_attributes_given_non_file_entity(ContextInterface $context)
     {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass());
+        $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass(), $context);
     }
 
-    public function it_errors_when_get_relationship_asks_for_unknown_relation()
+    public function it_has_no_relationships(ContextInterface $context)
     {
-        $this->shouldThrow(\OutOfBoundsException::class)->duringGetRelationship($this->file, 'nope');
+        $this->getRelationships($this->file, $context)->shouldReturn([]);
     }
 
-    public function it_errors_when_get_relationship_given_non_page_entity()
+    public function it_errors_when_get_relationship_given_non_page_entity(ContextInterface $context)
     {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationship(new \stdClass(), File::TYPE);
-    }
-
-    public function it_can_get_links()
-    {
-        $this->getLinks(new \stdClass())->shouldReturn([]);
-    }
-
-    public function it_can_get_meta()
-    {
-        $this->getMeta(new \stdClass())->shouldReturn([]);
+        $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationships(new \stdClass(), $context);
     }
 }
