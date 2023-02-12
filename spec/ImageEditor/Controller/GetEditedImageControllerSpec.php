@@ -4,38 +4,51 @@ namespace spec\Spot\ImageEditor\Controller;
 
 use Imagine\Image\ImageInterface;
 use PhpSpec\ObjectBehavior;
-use Psr\Http\Message\ResponseInterface as HttpResponse;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
+use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Value\FileNameValue;
 use Spot\FileManager\Value\MimeTypeValue;
 use Spot\ImageEditor\Controller\GetEditedImageController;
+use Spot\ImageEditor\Controller\Operation\OperationInterface;
 use Spot\ImageEditor\ImageEditor;
 use Spot\ImageEditor\Repository\ImageRepository;
 
 /** @mixin  GetEditedImageController */
 class GetEditedImageControllerSpec extends ObjectBehavior
 {
+    /** @var  FileManagerHelper */
+    private $helper;
+
     /** @var  ImageRepository */
     private $imageRepository;
 
     /** @var  ImageEditor */
     private $imageEditor;
 
-    /** @var  LoggerInterface */
-    private $logger;
+    /** @var  OperationInterface */
+    private $operation1;
+
+    /** @var  OperationInterface */
+    private $operation2;
 
     public function let(
         ImageRepository $imageRepository,
         ImageEditor $imageEditor,
-        LoggerInterface $logger
+        OperationInterface $operation1,
+        OperationInterface $operation2
     )
     {
+        $this->helper = new FileManagerHelper();
         $this->imageRepository = $imageRepository;
         $this->imageEditor = $imageEditor;
-        $this->logger = $logger;
-        $this->beConstructedWith($imageRepository, $imageEditor, $logger);
+        $this->operation1 = $operation1;
+        $this->operation2 = $operation2;
+        $this->beConstructedWith($this->helper, $imageRepository, $imageEditor, [$operation1, $operation2]);
     }
 
     public function it_is_initializable()
@@ -43,59 +56,39 @@ class GetEditedImageControllerSpec extends ObjectBehavior
         $this->shouldHaveType(GetEditedImageController::class);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, File $file, ImageInterface $image)
+    public function it_can_execute_a_request(ServerRequestInterface $request, File $file, FileNameValue $fileName, MimeTypeValue $mimeType, ImageInterface $image)
     {
-        $fullPath = '/path/to/file.ext';
-        $operations = ['resize' => ['width' => 320, 'height' => 480]];
-        $request->offsetGet('path')->willReturn($fullPath);
-        $request->offsetGet('operations')->willReturn($operations);
-        $request->getAcceptContentType()->willReturn('*/*');
-        $this->imageRepository->getByFullPath($fullPath)->willReturn($file);
-        $this->imageEditor->process($file, $operations)->willReturn($image);
+        $query = [
+            'path' => '/path/to/file.ext',
+            'operations' => [
+                'resize' => ['width' => 320, 'height' => 480],
+            ],
+        ];
+        $request->getQueryParams()->willReturn($query);
+        $this->imageRepository->getByFullPath($query['path'])->willReturn($file);
+        $this->imageEditor->process($file, $query['operations'])->willReturn($image);
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn('images.getEdited');
-        $response->offsetGet('image')->shouldReturn($image);
-        $response->offsetGet('file')->shouldReturn($file);
-    }
+        $imageStream = 'i-am-not-an-image';
+        $this->imageEditor->output($file, $image)->willReturn($imageStream);
 
-    public function it_will_404_on_image_not_found(RequestInterface $request)
-    {
-        $fullPath = '/path/to/file.ext';
-        $request->offsetGet('path')->willReturn($fullPath);
-        $request->getAcceptContentType()->willReturn('*/*');
-        $this->imageRepository->getByFullPath($fullPath)->willThrow(new NoUniqueResultException());
-
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(NotFoundResponse::class);
-    }
-
-    public function it_will_error_on_error_during_request_execution(RequestInterface $request)
-    {
-        $fullPath = '/path/to/file.ext';
-        $request->offsetGet('path')->willReturn($fullPath);
-        $request->getAcceptContentType()->willReturn('*/*');
-        $this->imageRepository->getByFullPath($fullPath)->willThrow(new \RuntimeException());
-
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
-    }
-
-    public function it_can_generate_an_image_response(ResponseInterface $response, File $file, ImageInterface $image)
-    {
-        $responseMock = 'i-am-not-really-an-image';
-        $fileName = FileNameValue::get('image.png');
-        $fileMimeType = MimeTypeValue::get('image/png');
-        $response->offsetGet('image')->willReturn($image);
-        $response->offsetGet('file')->willReturn($file);
         $file->getName()->willReturn($fileName);
-        $file->getMimeType()->willReturn($fileMimeType);
-        $this->imageEditor->output($file, $image)->willReturn($responseMock);
+        $fileName->toString()->willReturn('file.ext');
+        $file->getMimeType()->willReturn($mimeType);
+        $mimeType->toString()->willReturn('fake/ext');
 
-        $httpResponse = $this->generateResponse($response);
-        $httpResponse->shouldHaveType(HttpResponse::class);
-        $httpResponse->getStatusCode()->shouldReturn(200);
-        $httpResponse->getHeaderLine('Content-Type')->shouldReturn($fileMimeType->toString());
-        $httpResponse->getBody()->getContents()->shouldReturn($responseMock);
+        $response = $this->execute($request);
+        $response->shouldHaveType(ResponseInterface::class);
+    }
+
+    public function it_will_404_on_image_not_found(ServerRequestInterface $request)
+    {
+        $query = [
+            'path' => '/path/to/file.ext',
+        ];
+        $request->getQueryParams()->willReturn($query);
+        $this->imageRepository->getByFullPath($query['path'])->willThrow(new NoUniqueResultException());
+
+        $response = $this->execute($request);
+        $response->shouldHaveType(JsonApiErrorResponse::class);
     }
 }

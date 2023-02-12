@@ -44,7 +44,7 @@ class StoreEditedImageController implements RequestFilterInterface, RequestValid
             fwrite($contents, $this->imageEditor->output($file, $image));
 
             $newImage = $this->imageRepository->createImage($file, $contents);
-            $this->renderer->render($request, new JsonApiView($newImage));
+            return $this->renderer->render($request, new JsonApiView($newImage));
         } catch (NoUniqueResultException $e) {
             return new JsonApiErrorResponse(['IMAGE_NOT_FOUND' => 'Image not found'], 404);
         }
