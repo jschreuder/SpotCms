@@ -2,9 +2,10 @@
 
 namespace spec\Spot\ImageEditor\Repository;
 
+use PDO;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\Repository\FileRepository;
 use Spot\FileManager\Value\FileNameValue;
@@ -15,13 +16,13 @@ use Spot\ImageEditor\Repository\ImageRepository;
 /** @mixin  ImageRepository */
 class ImageRepositorySpec extends ObjectBehavior
 {
-    /** @var  \PDO */
+    /** @var  PDO */
     private $pdo;
 
     /** @var  FileRepository */
     private $fileRepository;
 
-    public function let(\PDO $pdo, FileRepository $fileRepository)
+    public function let(PDO $pdo, FileRepository $fileRepository)
     {
         $this->pdo = $pdo;
         $this->fileRepository = $fileRepository;
@@ -51,7 +52,7 @@ class ImageRepositorySpec extends ObjectBehavior
         $imageContents = tmpfile();
         $this->fileRepository->createFromUpload(new Argument\Token\TypeToken(File::class));
         $newImage = $this->createImage($oldFile, $imageContents);
-        $newImage->getUuid()->shouldHaveType(Uuid::class);
+        $newImage->getUuid()->shouldHaveType(UuidInterface::class);
         $newImage->getName()->shouldReturn($name);
         $newImage->getPath()->shouldReturn($path);
         $newImage->getMimeType()->shouldReturn($mime);
