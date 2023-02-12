@@ -12,18 +12,17 @@ interface BlockTypeInterface
     /**
      * Returns the name for this BlockType to be used in storage
      */
-    public function getTypeName() : string;
+    public function getTypeName(): string;
 
     /**
      * Factory method for creating a new PageBlock with defaults for this type
      */
-    public function newBlock(Page $page, string $location, int $sortOrder, PageStatusValue $status) : PageBlock;
+    public function newBlock(Page $page, string $location, int $sortOrder, PageStatusValue $status): PageBlock;
 
     /**
      * Validates if the given PageBlock is correctly configured
      *
-     * @return  void
      * @throws  ValidationFailedException
      */
-    public function validate(PageBlock $block);
+    public function validate(PageBlock $block): void;
 }

@@ -2,9 +2,10 @@
 
 namespace spec\Spot\SiteContent\BlockType;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
 use PhpSpec\ObjectBehavior;
+use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\UuidInterface;
-use Spot\Application\Response\ValidationFailedException;
 use Spot\SiteContent\BlockType\HtmlContentBlockType;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
@@ -33,15 +34,14 @@ class HtmlContentBlockTypeSpec extends ObjectBehavior
         $block->getStatus()->shouldReturn($status);
     }
 
-    public function it_can_validate_a_block(PageBlock $block, RequestInterface $request)
+    public function it_can_validate_a_block(PageBlock $block, ServerRequestInterface $request)
     {
         $block->getParameters()->willReturn(['content' => 'bring a towel']);
         $this->validate($block, $request)->shouldReturn(null);
     }
 
-    public function it_can_invalidate_a_block(PageBlock $block, RequestInterface $request)
+    public function it_can_invalidate_a_block(PageBlock $block, ServerRequestInterface $request)
     {
-        $request->getAcceptContentType()->willReturn('*/*');
         $block->getParameters()->willReturn(['wrongKey' => 'don\'t bring a towel']);
         $this->shouldThrow(ValidationFailedException::class)->duringValidate($block, $request);
     }

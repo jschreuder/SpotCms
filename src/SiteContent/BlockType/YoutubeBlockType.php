@@ -2,8 +2,7 @@
 
 namespace Spot\SiteContent\BlockType;
 
-use jschreuder\Middle\Controller\ValidationFailedException;
-use Particle\Validator\Validator;
+use jschreuder\Middle\Exception\ValidationFailedException;
 use Ramsey\Uuid\Uuid;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
@@ -31,14 +30,14 @@ class YoutubeBlockType implements BlockTypeInterface
         );
     }
 
-    public function validate(PageBlock $block)
+    public function validate(PageBlock $block): void
     {
-        $validator = new Validator();
-        $validator->required('youtubeUrl')
-            ->regex('#^https:\/\/(www\.youtube\.com\/watch\?v=|youtu\.be\/)[a-z0-9_]+#uiD');
-        $result = $validator->validate($block->getParameters());
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
+        $params = $block->getParameters();
+        if (
+            !isset($params['youtubeUrl'])
+            || preg_match('#^https:\/\/(www\.youtube\.com\/watch\?v=|youtu\.be\/)[a-z0-9_]+#uiD', $params['youtubeUrl']) < 1
+        ) {
+            throw new ValidationFailedException([]);
         }
     }
 }

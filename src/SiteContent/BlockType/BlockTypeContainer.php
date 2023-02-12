@@ -4,23 +4,21 @@ namespace Spot\SiteContent\BlockType;
 
 class BlockTypeContainer implements BlockTypeContainerInterface
 {
-    /** @var  BlockTypeInterface[] */
-    private $types;
-
-    public function __construct(array $types)
+    /** @var  BlockTypeInterface[] $types */
+    public function __construct(private array $types)
     {
         foreach ($types as $type) {
             $this->addType($type);
         }
     }
 
-    public function addType(BlockTypeInterface $type) : self
+    public function addType(BlockTypeInterface $type): self
     {
         $this->types[$type->getTypeName()] = $type;
         return $this;
     }
     
-    public function getType(string $typeName) : BlockTypeInterface
+    public function getType(string $typeName): BlockTypeInterface
     {
         if (!isset($this->types[$typeName])) {
             throw new \OutOfBoundsException('No such type available: ' . $typeName);

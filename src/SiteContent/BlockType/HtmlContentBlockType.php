@@ -2,8 +2,7 @@
 
 namespace Spot\SiteContent\BlockType;
 
-use jschreuder\Middle\Controller\ValidationFailedException;
-use Particle\Validator\Validator;
+use jschreuder\Middle\Exception\ValidationFailedException;
 use Ramsey\Uuid\Uuid;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
@@ -31,14 +30,15 @@ class HtmlContentBlockType implements BlockTypeInterface
         );
     }
 
-    public function validate(PageBlock $block)
+    public function validate(PageBlock $block): void
     {
-        $validator = new Validator();
-        $validator->required('content');
-        $validator->optional('wysiwyg')->bool();
-        $result = $validator->validate($block->getParameters());
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
+        $params = $block->getParameters();
+
+        if (
+            !isset($params['content'])
+            || (isset($params['wysiwyg']) && !is_bool($params['wysiwyg']))
+        ) {
+            throw new ValidationFailedException([]);
         }
     }
 }

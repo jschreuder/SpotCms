@@ -4,5 +4,5 @@ namespace Spot\SiteContent\BlockType;
 
 interface BlockTypeContainerInterface
 {
-    public function getType(string $typeName) : BlockTypeInterface;
+    public function getType(string $typeName): BlockTypeInterface;
 }
