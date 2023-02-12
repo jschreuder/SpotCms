@@ -2,23 +2,25 @@
 
 namespace Spot\ImageEditor\Controller\Operation;
 
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\Filter\Callback as CallbackFilter;
+use Laminas\Filter\FilterInterface;
+use Laminas\Validator\Callback as CallbackValidator;
+use Laminas\Validator\ValidatorInterface;
 
 class NegativeOperation implements OperationInterface
 {
-    public function getName() : string
+    public function getName(): string
     {
         return 'negative';
     }
 
-    public function addFilters(Filter $filter)
+    public function getFilters(): FilterInterface
     {
-        $filter->value('operations.negative.apply')->bool();
+        return new CallbackFilter(boolval(...));
     }
 
-    public function addValidations(Validator $validator)
+    public function getValidators(): ValidatorInterface
     {
-        $validator->required('operations.negative.apply')->bool();
+        return new CallbackValidator(is_bool(...));
     }
 }

@@ -2,47 +2,36 @@
 
 namespace Spot\ImageEditor\Controller;
 
-use jschreuder\Middle\Controller\ValidationFailedException;
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
 use Psr\Http\Message\ServerRequestInterface;
+use Spot\Application\FilterService;
+use Spot\Application\ValidationService;
 use Spot\FileManager\FileManagerHelper;
 
 trait OperationsTrait
 {
-    /** @var  FileManagerHelper */
-    private $helper;
+    private FileManagerHelper $helper;
+    /** @var  OperationInterface[] */
+    private array $operations;
 
-    /** @var  Operation\OperationInterface[] */
-    private $operations;
-
-    public function filterRequest(ServerRequestInterface $request) : ServerRequestInterface
+    public function filterRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        $filter = new Filter();
-        $this->helper->addPathFilter($filter, 'path');
+        $filters = ['path' => $this->helper->getPathFilter()];
         foreach ($this->operations as $operation) {
-            if (isset($data[$operation->getName()])) {
-                $operation->addFilters($filter);
-            }
+            $filters['operations.' . $operation->getName()] = $operation->getFilters();
         }
 
-        $data = $filter->filter(array_merge($request->getQueryParams(), $request->getAttributes()));
-        return $request->withAttribute('path', $data['path'])->withQueryParams($data);
+        return FilterService::filterQuery($request, $filters);
     }
 
-    public function validateRequest(ServerRequestInterface $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $this->helper->addFullPathValidator($validator, 'path');
+        $validators = ['path' => $this->helper->getFullPathValidator()];
+        $operationNames = [];
         foreach ($this->operations as $operation) {
-            if (isset($data[$operation->getName()])) {
-                $operation->addValidations($validator);
-            }
+            $validators['operations.' . $operation->getName()] = $operation->getValidators();
+            $operationNames[] = 'operations.' . $operation->getName();
         }
 
-        $result = $validator->validate(array_merge($request->getQueryParams(), $request->getAttributes()));
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validateQuery($request, $validators, $operationNames);
     }
 }

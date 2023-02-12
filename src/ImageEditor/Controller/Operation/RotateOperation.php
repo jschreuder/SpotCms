@@ -2,8 +2,10 @@
 
 namespace Spot\ImageEditor\Controller\Operation;
 
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\Filter\Callback as CallbackFilter;
+use Laminas\Filter\FilterInterface;
+use Laminas\I18n\Validator\IsInt;
+use Laminas\Validator\ValidatorInterface;
 
 class RotateOperation implements OperationInterface
 {
@@ -12,13 +14,13 @@ class RotateOperation implements OperationInterface
         return 'rotate';
     }
 
-    public function addFilters(Filter $filter)
+    public function getFilters(): FilterInterface
     {
-        $filter->value('operations.rotate.degrees')->int();
+        return new CallbackFilter(intval(...));
     }
 
-    public function addValidations(Validator $validator)
+    public function getValidators(): ValidatorInterface
     {
-        $validator->required('operations.rotate.degrees')->integer();
+        return new IsInt();
     }
 }

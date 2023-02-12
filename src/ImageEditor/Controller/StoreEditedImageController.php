@@ -19,36 +19,25 @@ class StoreEditedImageController implements RequestFilterInterface, RequestValid
 {
     use OperationsTrait;
 
-    /** @var  ImageRepository */
-    private $imageRepository;
-
-    /** @var  ImageEditor */
-    private $imageEditor;
-
-    /** @var  RendererInterface */
-    private $renderer;
-
     public function __construct(
         FileManagerHelper $helper,
-        ImageRepository $imageRepository,
-        ImageEditor $imageEditor,
+        private ImageRepository $imageRepository,
+        private ImageEditor $imageEditor,
         array $operations,
-        RendererInterface $renderer
+        private RendererInterface $renderer
     )
     {
         $this->helper = $helper;
-        $this->imageRepository = $imageRepository;
-        $this->imageEditor = $imageEditor;
         $this->operations = $operations;
-        $this->renderer = $renderer;
     }
 
-    public function execute(ServerRequestInterface $request) : ResponseInterface
+    public function execute(ServerRequestInterface $request): ResponseInterface
     {
         try {
+            $query = $request->getQueryParams();
             // Fetch existing image and process operations on it
-            $file = $this->imageRepository->getByFullPath($request['path']);
-            $image = $this->imageEditor->process($file, $request['operations']);
+            $file = $this->imageRepository->getByFullPath($query['path']);
+            $image = $this->imageEditor->process($file, $query['operations']);
 
             // Get resulting image and store in stream
             $contents = tmpfile();

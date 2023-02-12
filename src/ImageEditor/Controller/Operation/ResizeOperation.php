@@ -2,24 +2,47 @@
 
 namespace Spot\ImageEditor\Controller\Operation;
 
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\Filter\Callback as CallbackFilter;
+use Laminas\Filter\FilterInterface;
+use Laminas\Validator\Callback as CallbackValidator;
+use Laminas\Validator\ValidatorInterface;
 
 class ResizeOperation implements OperationInterface
 {
-    public function getName() : string
+    public function getName(): string
     {
         return 'resize';
     }
 
-    public function addFilters(Filter $filter)
+    public function getFilters(): FilterInterface
     {
-        $filter->values(['operations.resize.width', 'operations.resize.height'])->int();
+        return new CallbackFilter(function ($value) {
+            if (!is_array($value)) {
+                return null;
+            }
+
+            if (isset($value['width'])) {
+                $value['width'] = intval($value['width']);
+            }
+            if (isset($value['height'])) {
+                $value['height'] = intval($value['height']);
+            }
+
+            return $value;
+        });
     }
 
-    public function addValidations(Validator $validator)
+    public function getValidators(): ValidatorInterface
     {
-        $validator->required('operations.resize.width')->integer();
-        $validator->required('operations.resize.height')->integer();
+        return new CallbackValidator(function ($value) {
+            if (
+                !is_array($value)
+                || !isset($value['width'])
+                || !isset($value['height'])
+            ) {
+                return false;
+            }
+            return true;
+        });
     }
 }

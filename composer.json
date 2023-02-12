@@ -30,6 +30,7 @@
         "dflydev/fig-cookies": "^3.0",
         "laminas/laminas-filter": "^2.31",
         "laminas/laminas-validator": "^2.30",
+        "laminas/laminas-i18n": "2.21",
         "ramsey/uuid": "^4.7",
         "league/flysystem": "^3.12",
         "imagine/imagine": "^1.3"

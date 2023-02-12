@@ -2,23 +2,25 @@
 
 namespace Spot\ImageEditor\Controller\Operation;
 
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\Filter\Callback as CallbackFilter;
+use Laminas\Filter\FilterInterface;
+use Laminas\I18n\Validator\IsFloat;
+use Laminas\Validator\ValidatorInterface;
 
 class BlurOperation implements OperationInterface
 {
-    public function getName() : string
+    public function getName(): string
     {
         return 'blur';
     }
 
-    public function addFilters(Filter $filter)
+    public function getFilters(): FilterInterface
     {
-        $filter->value('operations.blur.amount')->float();
+        return new CallbackFilter(floatval(...));
     }
 
-    public function addValidations(Validator $validator)
+    public function getValidators(): ValidatorInterface
     {
-        $validator->required('operations.blur.amount')->numeric();
+        return new IsFloat();
     }
 }

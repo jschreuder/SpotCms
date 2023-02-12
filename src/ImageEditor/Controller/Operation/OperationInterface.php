@@ -2,16 +2,14 @@
 
 namespace Spot\ImageEditor\Controller\Operation;
 
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\Filter\FilterInterface;
+use Laminas\Validator\ValidatorInterface;
 
 interface OperationInterface
 {
-    public function getName() : string;
+    public function getName(): string;
 
-    /** @return  void */
-    public function addFilters(Filter $filter);
+    public function getFilters(): FilterInterface;
 
-    /** @return  void */
-    public function addValidations(Validator $validator);
+    public function getValidators(): ValidatorInterface;
 }
