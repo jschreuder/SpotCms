@@ -4,51 +4,46 @@ namespace Spot\SiteContent\Controller;
 
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
 use jschreuder\Middle\View\RendererInterface;
-use Particle\Validator\Validator;
+use Laminas\Validator\Uuid as UuidValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Spot\Application\ValidationService;
+use Spot\Application\Validator\IsListOf;
 use Spot\Application\View\JsonApiView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Repository\PageRepository;
 
 class ReorderPagesController implements RequestValidatorInterface, ControllerInterface
 {
-    /** @var  PageRepository */
-    private $pageRepository;
-
-    /** @var  RendererInterface */
-    private $renderer;
-
-    public function __construct(PageRepository $pageRepository, RendererInterface $renderer)
+    public function __construct(
+        private PageRepository $pageRepository,
+        private RendererInterface $renderer
+    )
     {
-        $this->pageRepository = $pageRepository;
-        $this->renderer = $renderer;
     }
 
-    public function validateRequest(ServerRequestInterface $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $validator->required('data.ordered_pages')->isArray()
-            ->each(function (Validator $validator) {
-                $validator->required('page_uuid')->uuid();
-            });
-
-        $result = $validator->validate((array) $request->getParsedBody());
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validateQuery($request, [
+            'parent_uuid' => new UuidValidator(),
+        ], ['parent_uuid']);
+        ValidationService::validate($request, [
+            'data.ordered_pages' => new IsListOf(function ($value) {
+                return is_string($value) && Uuid::isValid($value);
+            }),
+        ]);
     }
 
-    public function execute(ServerRequestInterface $request) : ResponseInterface
+    public function execute(ServerRequestInterface $request): ResponseInterface
     {
-        $data = $request->getParsedBody()['data'];
+        $parentUuid = $request->getQueryParams()['parent_uuid'] ?: Uuid::NIL;
+        $orderedPages = $request->getParsedBody()['data']['ordered_pages'];
         $pages = $this->getPages(
-            $data['ordered_pages'],
-            Uuid::fromString($request->getAttribute('parent_uuid') ?: Uuid::NIL)
+            $orderedPages,
+            Uuid::fromString($parentUuid)
         );
         $pageSortOrders = $this->getPageSortOrders($pages);
         foreach ($pages as $idx => $page) {
@@ -60,15 +55,14 @@ class ReorderPagesController implements RequestValidatorInterface, ControllerInt
     }
 
     /**
-     * @param   array[] $pageArrays
-     * @param   UuidInterface $parentUuid
+     * @param   string[] $pageArrays
      * @return  Page[]
      */
-    private function getPages(array $pageArrays, UuidInterface $parentUuid) : array
+    private function getPages(array $pageUuids, UuidInterface $parentUuid) : array
     {
         $pages = [];
-        foreach ($pageArrays as $pageArray) {
-            $pages[] = $page = $this->pageRepository->getByUuid(Uuid::fromString($pageArray['page_uuid']));
+        foreach ($pageUuids as $pageUuid) {
+            $pages[] = $page = $this->pageRepository->getByUuid(Uuid::fromString($pageUuid));
             if (!$parentUuid->equals($page->getParentUuid() ?: Uuid::fromString(Uuid::NIL))) {
                 throw new \OutOfBoundsException('All reordered pages must be children of the given parent page.');
             }
