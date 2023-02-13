@@ -2,11 +2,16 @@
 
 namespace spec\Spot\SiteContent\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\Http\JsonApiErrorResponse;
+use Spot\Application\View\JsonApiView;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\DeletePageController;
@@ -15,17 +20,17 @@ use Spot\SiteContent\Repository\PageRepository;
 /** @mixin  DeletePageController */
 class DeletePageControllerSpec extends ObjectBehavior
 {
-    /** @var  \Spot\SiteContent\Repository\PageRepository */
+    /** @var  PageRepository */
     private $pageRepository;
 
-    /** @var  \Psr\Log\LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(PageRepository $pageRepository, LoggerInterface $logger)
+    public function let(PageRepository $pageRepository, RendererInterface $renderer)
     {
         $this->pageRepository = $pageRepository;
-        $this->logger = $logger;
-        $this->beConstructedWith($pageRepository, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($pageRepository, $renderer);
     }
 
     public function it_is_initializable()
@@ -33,57 +38,45 @@ class DeletePageControllerSpec extends ObjectBehavior
         $this->shouldHaveType(DeletePageController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_validate_a_request(ServerRequestInterface $request)
     {
         $uuid = Uuid::uuid4();
-        $attributes = ['uuid' => $uuid->toString()];
+        $query = ['page_uuid' => $uuid->toString()];
+        $request->getQueryParams()->willReturn($query);
 
-        $request = $this->parseHttpRequest($httpRequest, $attributes);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(DeletePageController::MESSAGE);
-        $request['uuid']->shouldBe($attributes['uuid']);
+        $this->validateRequest($request);
     }
 
-    public function it_errors_on_invalid_uuid_when_parsing_request(ServerRequestInterface $httpRequest)
+    public function it_errors_on_invalid_uuid_when_validating_request(ServerRequestInterface $request)
     {
-        $attributes = ['uuid' => 'nope'];
-        $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
+        $query = ['page_uuid' => 'nope'];
+        $request->getQueryParams()->willReturn($query);
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, Page $page)
+    public function it_can_execute_a_request(ServerRequestInterface $request, Page $page, ResponseInterface $response)
     {
         $uuid = Uuid::uuid4();
-        $request->offsetGet('uuid')->willReturn($uuid->toString());
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $query = ['page_uuid' => $uuid->toString()];
+        $request->getQueryParams()->willReturn($query);
+
         $this->pageRepository->getByUuid($uuid)->willReturn($page);
         $this->pageRepository->delete($page)->shouldBeCalled();
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(DeletePageController::MESSAGE);
-        $response['data']->shouldBe($page);
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+
+        $this->execute($request)->shouldReturn($response);
     }
 
-    public function it_can_execute_a_not_found_request(RequestInterface $request)
+    public function it_can_execute_a_not_found_request(ServerRequestInterface $request)
     {
         $uuid = Uuid::uuid4();
-        $request->offsetGet('uuid')->willReturn($uuid->toString());
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $query = ['page_uuid' => $uuid->toString()];
+        $request->getQueryParams()->willReturn($query);
 
         $this->pageRepository->getByUuid($uuid)->willThrow(new NoUniqueResultException());
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(NotFoundResponse::class);
-    }
-
-    public function it_can_handle_exception_during_request(RequestInterface $request)
-    {
-        $uuid = Uuid::uuid4();
-        $request->offsetGet('uuid')->willReturn($uuid->toString());
-        $request->getAcceptContentType()->willReturn('text/xml');
-
-        $this->pageRepository->getByUuid($uuid)->willThrow(new \RuntimeException());
-
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
+        $response = $this->execute($request);
+        $response->shouldHaveType(JsonApiErrorResponse::class);
     }
 }
