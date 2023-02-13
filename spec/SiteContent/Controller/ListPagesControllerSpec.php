@@ -2,12 +2,15 @@
 
 namespace spec\Spot\SiteContent\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\View\JsonApiView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\ListPagesController;
 use Spot\SiteContent\Repository\PageRepository;
@@ -15,17 +18,17 @@ use Spot\SiteContent\Repository\PageRepository;
 /** @mixin  ListPagesController */
 class ListPagesControllerSpec extends ObjectBehavior
 {
-    /** @var  \Spot\SiteContent\Repository\PageRepository */
+    /** @var  PageRepository */
     private $pageRepository;
 
-    /** @var  \Psr\Log\LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(PageRepository $pageRepository, LoggerInterface $logger)
+    public function let(PageRepository $pageRepository, RendererInterface $renderer)
     {
         $this->pageRepository = $pageRepository;
-        $this->logger = $logger;
-        $this->beConstructedWith($pageRepository, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($pageRepository, $renderer);
     }
 
     public function it_is_initializable()
@@ -33,51 +36,32 @@ class ListPagesControllerSpec extends ObjectBehavior
         $this->shouldHaveType(ListPagesController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_validate_a_request(ServerRequestInterface $request)
     {
-        $uuid = Uuid::uuid4();
-        $httpRequest->getQueryParams()->willReturn(['parent_uuid' => $uuid->toString()]);
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/json');
+        $parentUuid = Uuid::uuid4();
+        $query = ['parent_uuid' => $parentUuid->toString()];
+        $request->getQueryParams()->willReturn($query);
 
-        $request = $this->parseHttpRequest($httpRequest, []);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(ListPagesController::MESSAGE);
-        $request['parent_uuid']->shouldBe($uuid->toString());
+        $this->validateRequest($request);
     }
 
-    public function it_errors_on_invalid_uuid_when_parsing_request(ServerRequestInterface $httpRequest)
+    public function it_errors_on_invalid_uuid_when_validating_request(ServerRequestInterface $request)
     {
-        $httpRequest->getQueryParams()->willReturn(['parent_uuid' => 'nope']);
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/json');
-        $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, []);
+        $query = ['parent_uuid' => 'nope'];
+        $request->getQueryParams()->willReturn($query);
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, Page $page)
+    public function it_can_execute_a_request(ServerRequestInterface $request, Page $page, ResponseInterface $response)
     {
-        $uuid = Uuid::uuid4();
-        $request->offsetExists('parent_uuid')->willReturn(true);
-        $request->offsetGet('parent_uuid')->willReturn($uuid->toString());
-        $request->getAcceptContentType()->willReturn('text/xml');
-        $this->pageRepository->getAllByParentUuid(new Argument\Token\TypeToken(Uuid::class))
-            ->willReturn([$page]);
+        $parentUuid = Uuid::uuid4();
+        $query = ['parent_uuid' => $parentUuid->toString()];
+        $request->getQueryParams()->willReturn($query);
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(ListPagesController::MESSAGE);
-        $response['data']->shouldBe([$page]);
-        $response['parent_uuid']->toString()->shouldBe($uuid->toString());
-        $response['includes']->shouldBe(['pageBlocks']);
-    }
+        $this->pageRepository->getAllByParentUuid($parentUuid)->willReturn([$page]);
 
-    public function it_can_handle_exception_during_request(RequestInterface $request)
-    {
-        $uuid = Uuid::uuid4();
-        $request->offsetExists('parent_uuid')->willReturn(true);
-        $request->offsetGet('parent_uuid')->willReturn($uuid->toString());
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
 
-        $this->pageRepository->getAllByParentUuid($uuid)->willThrow(new \RuntimeException());
-
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
+        $this->execute($request)->shouldReturn($response);
     }
 }

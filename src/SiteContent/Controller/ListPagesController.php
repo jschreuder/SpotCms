@@ -4,44 +4,36 @@ namespace Spot\SiteContent\Controller;
 
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
 use jschreuder\Middle\View\RendererInterface;
-use Particle\Validator\Validator;
+use Laminas\Validator\Uuid as UuidValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
+use Spot\Application\ValidationService;
 use Spot\Application\View\JsonApiView;
 use Spot\SiteContent\Repository\PageRepository;
 
 class ListPagesController implements RequestValidatorInterface, ControllerInterface
 {
-    /** @var  PageRepository */
-    private $pageRepository;
-
-    /** @var  RendererInterface */
-    private $renderer;
-
-    public function __construct(PageRepository $pageRepository, RendererInterface $renderer)
+    public function __construct(
+        private PageRepository $pageRepository,
+        private RendererInterface $renderer
+    )
     {
-        $this->pageRepository = $pageRepository;
-        $this->renderer = $renderer;
     }
 
-    public function validateRequest(ServerRequestInterface $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $validator->optional('parent_uuid')->uuid();
-
-        $result = $validator->validate($request->getQueryParams());
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validateQuery($request, [
+            'parent_uuid' => new UuidValidator(),
+        ], ['parent_uuid']);
     }
 
-    public function execute(ServerRequestInterface $request) : ResponseInterface
+    public function execute(ServerRequestInterface $request): ResponseInterface
     {
-        $parentUuid = !empty($request->getAttribute('parent_uuid'))
-            ? Uuid::fromString($request->getAttribute('parent_uuid')) : null;
+        $query = $request->getQueryParams();
+        $parentUuid = !empty($query['parent_uuid'])
+            ? Uuid::fromString($query['parent_uuid']) : null;
 
         return $this->renderer->render($request, new JsonApiView(
             $this->pageRepository->getAllByParentUuid($parentUuid),
