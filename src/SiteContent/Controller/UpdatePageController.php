@@ -5,13 +5,22 @@ namespace Spot\SiteContent\Controller;
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestFilterInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
 use jschreuder\Middle\View\RendererInterface;
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\Filter\FilterChain;
+use Laminas\Filter\StringTrim;
+use Laminas\Filter\StripTags;
+use Laminas\I18n\Validator\IsInt;
+use Laminas\Validator\Identical;
+use Laminas\Validator\InArray;
+use Laminas\Validator\Regex;
+use Laminas\Validator\StringLength;
+use Laminas\Validator\Uuid as UuidValidator;
+use Laminas\Validator\ValidatorChain;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
+use Spot\Application\FilterService;
+use Spot\Application\ValidationService;
 use Spot\Application\View\JsonApiView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Repository\PageRepository;
@@ -19,58 +28,60 @@ use Spot\SiteContent\Value\PageStatusValue;
 
 class UpdatePageController implements RequestFilterInterface, RequestValidatorInterface, ControllerInterface
 {
-    /** @var  PageRepository */
-    private $pageRepository;
-
-    /** @var  RendererInterface */
-    private $renderer;
-
-    public function __construct(PageRepository $pageRepository, RendererInterface $renderer)
+    public function __construct(
+        private PageRepository $pageRepository,
+        private RendererInterface $renderer
+    )
     {
-        $this->pageRepository = $pageRepository;
     }
 
-    public function filterRequest(ServerRequestInterface $request) : ServerRequestInterface
+    public function filterRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        $filter = new Filter();
-        $filter->values(['data.attributes.title', 'data.attributes.slug', 'data.attributes.short_title'])
-            ->trim()->stripHtml();
-        $filter->value('data.attributes.sort_order')->int();
-        return $request->withParsedBody($filter->filter($request->getParsedBody()));
+        return FilterService::filter($request, [
+            'data.attributes.title' => (new FilterChain())->attach(new StringTrim())->attach(new StripTags()),
+            'data.attributes.slug' => (new FilterChain())->attach(new StringTrim())->attach(new StripTags()),
+            'data.attributes.short_title' => (new FilterChain())->attach(new StringTrim())->attach(new StripTags()),
+            'data.attributes.sort_order' => intval(...),
+        ]);
 
     }
 
-    public function validateRequest(ServerRequestInterface $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $validator->required('page_uuid')->uuid();
-        $validator->required('data.type')->equals('pages');
-        $validator->optional('data.attributes.title')->lengthBetween(1, 512);
-        $validator->optional('data.attributes.slug')->lengthBetween(1, 48)->regex('#^[a-z0-9\-]+$#');
-        $validator->optional('data.attributes.short_title')->lengthBetween(1, 48);
-        $validator->optional('data.attributes.sort_order')->integer();
-        $validator->optional('data.attributes.status')
-            ->inArray([PageStatusValue::CONCEPT, PageStatusValue::PUBLISHED], true);
-
-        $data = $request->getParsedBody();
-        $data['page_uuid'] = $request->getAttribute('page_uuid');
-
-        $result = $validator->validate($data);
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validateQuery($request, [
+            'page_uuid' => new UuidValidator(),
+        ]);
+        ValidationService::validate($request, [
+            'data.type' => new Identical('pages'),
+            'data.attributes.title' => new StringLength(['min' => 1, 'max' => 512]),
+            'data.attributes.title' => (new ValidatorChain())
+                ->attach(new StringLength(['min' => 1, 'max' => 48]))
+                ->attach(new Regex(['pattern' => '#^[a-z0-9\-]+$#'])),
+            'data.attributes.title' => new StringLength(['min' => 1, 'max' => 48]),
+            'data.attributes.sort_order' => new IsInt(),
+            'data.attributes.status' => new InArray(['haystack' => [PageStatusValue::CONCEPT, PageStatusValue::PUBLISHED]]),
+        ], [
+            'data.attributes.title',
+            'data.attributes.slug',
+            'data.attributes.short_title',
+            'data.attributes.sort_order',
+            'data.attributes.status',
+        ]);
     }
 
-    public function execute(ServerRequestInterface $request) : ResponseInterface
+    public function execute(ServerRequestInterface $request): ResponseInterface
     {
-        $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getAttribute('page_uuid')));
-        $this->applyRequestToPage($request->getParsedBody()['data']['attributes'], $page);
+        $pageUuid = $request->getQueryParams()['page_uuid'];
+        $pageUpdates = $request->getParsedBody()['data']['attributes'];
+        $page = $this->pageRepository->getByUuid(Uuid::fromString($pageUuid));
+        
+        $this->applyRequestToPage($pageUpdates, $page);
         $this->pageRepository->update($page);
 
         return $this->renderer->render($request, new JsonApiView($page));
     }
 
-    private function applyRequestToPage(array $requestBody, Page $page)
+    private function applyRequestToPage(array $requestBody, Page $page): void
     {
         $this->setPageTitle($page, $requestBody);
         $this->setPageSlug($page, $requestBody);
@@ -79,35 +90,35 @@ class UpdatePageController implements RequestFilterInterface, RequestValidatorIn
         $this->setPageStatus($page, $requestBody);
     }
 
-    private function setPageTitle(Page $page, array $requestBody)
+    private function setPageTitle(Page $page, array $requestBody): void
     {
         if (isset($requestBody['title'])) {
             $page->setTitle($requestBody['title']);
         }
     }
 
-    private function setPageSlug(Page $page, array $requestBody)
+    private function setPageSlug(Page $page, array $requestBody): void
     {
         if (isset($requestBody['slug'])) {
             $page->setSlug($requestBody['slug']);
         }
     }
 
-    private function setPageShortTitle(Page $page, array $requestBody)
+    private function setPageShortTitle(Page $page, array $requestBody): void
     {
         if (isset($requestBody['short_title'])) {
             $page->setShortTitle($requestBody['short_title']);
         }
     }
 
-    private function setPageSortOrder(Page $page, array $requestBody)
+    private function setPageSortOrder(Page $page, array $requestBody): void
     {
         if (isset($requestBody['sort_order'])) {
             $page->setSortOrder($requestBody['sort_order']);
         }
     }
 
-    private function setPageStatus(Page $page, array $requestBody)
+    private function setPageStatus(Page $page, array $requestBody): void
     {
         if (isset($requestBody['status'])) {
             $page->setStatus(PageStatusValue::get($requestBody['status']));

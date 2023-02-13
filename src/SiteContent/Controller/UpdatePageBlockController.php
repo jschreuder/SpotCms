@@ -5,13 +5,17 @@ namespace Spot\SiteContent\Controller;
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestFilterInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
 use jschreuder\Middle\View\RendererInterface;
-use Particle\Filter\Filter;
-use Particle\Validator\Validator;
+use Laminas\I18n\Validator\IsInt;
+use Laminas\Validator\Identical;
+use Laminas\Validator\InArray;
+use Laminas\Validator\NotEmpty;
+use Laminas\Validator\Uuid as UuidValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
+use Spot\Application\FilterService;
+use Spot\Application\ValidationService;
 use Spot\Application\View\JsonApiView;
 use Spot\SiteContent\BlockType\BlockTypeContainerInterface;
 use Spot\SiteContent\Entity\PageBlock;
@@ -20,66 +24,55 @@ use Spot\SiteContent\Value\PageStatusValue;
 
 class UpdatePageBlockController implements RequestFilterInterface, RequestValidatorInterface, ControllerInterface
 {
-    /** @var  PageRepository */
-    private $pageRepository;
-
-    /** @var  BlockTypeContainerInterface */
-    private $blockTypeContainer;
-
-    /** @var  RendererInterface */
-    private $renderer;
-
     public function __construct(
-        PageRepository $pageRepository,
-        BlockTypeContainerInterface $blockTypeContainer,
-        RendererInterface $renderer
+        private PageRepository $pageRepository,
+        private BlockTypeContainerInterface $blockTypeContainer,
+        private RendererInterface $renderer
     )
     {
-        $this->pageRepository = $pageRepository;
-        $this->blockTypeContainer = $blockTypeContainer;
-        $this->renderer = $renderer;
     }
 
-    public function filterRequest(ServerRequestInterface $request) : ServerRequestInterface
+    public function filterRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        $filter = new Filter();
-        $filter->value('data.attributes.sort_order')->int();
-        return $request->withParsedBody($filter->filter($request->getParsedBody()));
+        return FilterService::filter($request, [
+            'data.attributes.sort_order' => intval(...),
+        ]);
 
     }
 
-    public function validateRequest(ServerRequestInterface $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $validator->required('page_block_uuid')->uuid();
-        $validator->required('page_uuid')->uuid();
-        $validator->required('data.type')->equals('pageBlocks');
-        $validator->optional('data.attributes.parameters');
-        $validator->optional('data.attributes.sort_order')->integer();
-        $validator->optional('data.attributes.status')
-            ->inArray([PageStatusValue::CONCEPT, PageStatusValue::PUBLISHED], true);
-
-        $data = $request->getParsedBody();
-        $data['page_block_uuid'] = $request->getAttribute('page_block_uuid');
-        $data['page_uuid'] = $request->getAttribute('page_uuid');
-
-        $result = $validator->validate($data);
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validateQuery($request, [
+            'page_block_uuid' => new UuidValidator(),
+            'page_uuid' => new UuidValidator(),
+        ]);
+        ValidationService::validate($request, [
+            'data.type' => new Identical('pageBlocks'),
+            'data.attributes.parameters' => new NotEmpty(),
+            'data.attributes.sort_order' => new IsInt(),
+            'data.attributes.status' => new InArray(['haystack' => [PageStatusValue::CONCEPT, PageStatusValue::PUBLISHED]])
+        ], [
+            'data.attributes.parameters',
+            'data.attributes.sort_order',
+            'data.attributes.status',
+        ]);
     }
 
-    public function execute(ServerRequestInterface $request) : ResponseInterface
+    public function execute(ServerRequestInterface $request): ResponseInterface
     {
-        $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getAttribute('page_uuid')));
-        $block = $page->getBlockByUuid(Uuid::fromString($request->getAttribute('page_block_uuid')));
-        $this->applyRequestToBlock($request->getParsedBody()['data']['attributes'], $block);
+        $pageUuid = $request->getQueryParams()['page_uuid'];
+        $page = $this->pageRepository->getByUuid(Uuid::fromString($pageUuid));
+        $pageBlockUuid = $request->getQueryParams()['page_block_uuid'];
+        $block = $page->getBlockByUuid(Uuid::fromString($pageBlockUuid));
+        $pageBlockUpdates = $request->getParsedBody()['data']['attributes'];
+
+        $this->applyRequestToBlock($pageBlockUpdates, $block);
         $this->pageRepository->updateBlockForPage($block, $page);
 
         return $this->renderer->render($request, new JsonApiView($block));
     }
 
-    private function applyRequestToBlock(array $requestBody, PageBlock $block)
+    private function applyRequestToBlock(array $requestBody, PageBlock $block): void
     {
         $this->setBlockParameters($block, $requestBody);
         $this->setBlockSortOrder($block, $requestBody);
@@ -89,7 +82,7 @@ class UpdatePageBlockController implements RequestFilterInterface, RequestValida
         $blockType->validate($block);
     }
 
-    private function setBlockParameters(PageBlock $block, array $requestBody)
+    private function setBlockParameters(PageBlock $block, array $requestBody): void
     {
         if (isset($requestBody['parameters'])) {
             foreach ($requestBody['parameters'] as $key => $value) {
@@ -98,14 +91,14 @@ class UpdatePageBlockController implements RequestFilterInterface, RequestValida
         }
     }
 
-    private function setBlockSortOrder(PageBlock $block, array $requestBody)
+    private function setBlockSortOrder(PageBlock $block, array $requestBody): void
     {
         if (isset($requestBody['sort_order'])) {
             $block->setSortOrder($requestBody['sort_order']);
         }
     }
 
-    private function setBlockStatus(PageBlock $block, array $requestBody)
+    private function setBlockStatus(PageBlock $block, array $requestBody): void
     {
         if (isset($requestBody['status'])) {
             $block->setStatus(PageStatusValue::get($requestBody['status']));
