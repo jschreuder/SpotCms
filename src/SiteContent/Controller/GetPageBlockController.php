@@ -4,53 +4,45 @@ namespace Spot\SiteContent\Controller;
 
 use jschreuder\Middle\Controller\ControllerInterface;
 use jschreuder\Middle\Controller\RequestValidatorInterface;
-use jschreuder\Middle\Controller\ValidationFailedException;
 use jschreuder\Middle\View\RendererInterface;
-use Particle\Validator\Validator;
+use Laminas\Validator\Uuid as UuidValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\Http\JsonApiErrorResponse;
+use Spot\Application\ValidationService;
 use Spot\Application\View\JsonApiView;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
 class GetPageBlockController implements RequestValidatorInterface, ControllerInterface
 {
-    /** @var  PageRepository */
-    private $pageRepository;
-
-    /** @var  RendererInterface */
-    private $renderer;
-
-    public function __construct(PageRepository $pageRepository, RendererInterface $renderer)
+    public function __construct(
+        private PageRepository $pageRepository,
+        private RendererInterface $renderer
+    )
     {
-        $this->pageRepository = $pageRepository;
-        $this->renderer = $renderer;
     }
 
-    public function validateRequest(ServerRequestInterface $request)
+    public function validateRequest(ServerRequestInterface $request): void
     {
-        $validator = new Validator();
-        $validator->required('page_uuid')->uuid();
-        $validator->required('page_block_uuid')->uuid();
-
-        $result = $validator->validate($request->getAttributes());
-        if (!$result->isValid()) {
-            throw new ValidationFailedException($result->getMessages());
-        }
+        ValidationService::validateQuery($request, [
+            'page_block_uuid' => new UuidValidator(),
+            'page_uuid' => new UuidValidator(),
+        ]);
     }
 
-    public function execute(ServerRequestInterface $request) : ResponseInterface
+    public function execute(ServerRequestInterface $request): ResponseInterface
     {
+        $query = $request->getQueryParams();
         try {
-            $page = $this->pageRepository->getByUuid(Uuid::fromString($request->getAttribute('page_uuid')));
+            $page = $this->pageRepository->getByUuid(Uuid::fromString($query['page_uuid']));
         } catch (NoResultException $e) {
             return new JsonApiErrorResponse(['PAGE_NOT_FOUND' => 'Page not found'], 404);
         }
 
         try {
-            $block = $page->getBlockByUuid(Uuid::fromString($request->getAttribute('page_block_uuid')));
+            $block = $page->getBlockByUuid(Uuid::fromString($query['page_block_uuid']));
         } catch (NoResultException $e) {
             return new JsonApiErrorResponse(['PAGE_BLOCK_NOT_FOUND' => 'PageBlock not found'], 404);
         }

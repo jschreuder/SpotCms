@@ -2,11 +2,15 @@
 
 namespace spec\Spot\SiteContent\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\Http\JsonApiErrorResponse;
+use Spot\Application\View\JsonApiView;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Entity\Page;
@@ -17,17 +21,17 @@ use Spot\SiteContent\Repository\PageRepository;
 /** @mixin  GetPageBlockController */
 class GetPageBlockControllerSpec extends ObjectBehavior
 {
-    /** @var  \Spot\SiteContent\Repository\PageRepository */
+    /** @var  PageRepository */
     private $pageRepository;
 
-    /** @var  \Psr\Log\LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(PageRepository $pageRepository, LoggerInterface $logger)
+    public function let(PageRepository $pageRepository, RendererInterface $renderer)
     {
         $this->pageRepository = $pageRepository;
-        $this->logger = $logger;
-        $this->beConstructedWith($pageRepository, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($pageRepository, $renderer);
     }
 
     public function it_is_initializable()
@@ -35,84 +39,61 @@ class GetPageBlockControllerSpec extends ObjectBehavior
         $this->shouldHaveType(GetPageBlockController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_validate_a_request(ServerRequestInterface $request)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();
-        $attributes = ['uuid' => $blockUuid->toString(), 'page_uuid' => $pageUuid->toString()];
+        $query = ['page_block_uuid' => $blockUuid->toString(), 'page_uuid' => $pageUuid->toString()];
+        $request->getQueryParams()->willReturn($query);
 
-        $request = $this->parseHttpRequest($httpRequest, $attributes);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(GetPageBlockController::MESSAGE);
-        $request['uuid']->shouldBe($attributes['uuid']);
-        $request['page_uuid']->shouldBe($attributes['page_uuid']);
+        $this->validateRequest($request);
     }
 
-    public function it_errors_on_invalid_uuid_when_parsing_request(ServerRequestInterface $httpRequest)
+    public function it_errors_on_invalid_uuid_when_validating_request(ServerRequestInterface $request)
     {
         $blockUuid = Uuid::uuid4();
-        $attributes = ['uuid' => $blockUuid->toString(), 'page_uuid' => 'nope'];
-        $this->shouldThrow(ValidationFailedException::class)->duringParseHttpRequest($httpRequest, $attributes);
+        $query = ['page_block_uuid' => $blockUuid->toString(), 'page_uuid' => 'nope'];
+        $request->getQueryParams()->willReturn($query);
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, Page $page, PageBlock $block)
+    public function it_can_execute_a_request(ServerRequestInterface $request, Page $page, PageBlock $block, ResponseInterface $response)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();
-
-        $request->offsetGet('uuid')->willReturn($blockUuid->toString());
-        $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $query = ['page_block_uuid' => $blockUuid->toString(), 'page_uuid' => $pageUuid->toString()];
+        $request->getQueryParams()->willReturn($query);
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
         $page->getBlockByUuid($blockUuid)->willReturn($block);
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(ResponseInterface::class);
-        $response->getResponseName()->shouldReturn(GetPageBlockController::MESSAGE);
-        $response['data']->shouldBe($block);
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+
+        $this->execute($request)->shouldReturn($response);
     }
 
-    public function it_can_execute_a_page_not_found_request(RequestInterface $request)
+    public function it_can_execute_a_page_not_found_request(ServerRequestInterface $request)
     {
-        $uuid = Uuid::uuid4();
-        $request->offsetGet('page_uuid')->willReturn($uuid->toString());
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $pageUuid = Uuid::uuid4();
+        $query = ['page_uuid' => $pageUuid->toString()];
+        $request->getQueryParams()->willReturn($query);
 
-        $this->pageRepository->getByUuid($uuid)
+        $this->pageRepository->getByUuid($pageUuid)
             ->willThrow(new NoUniqueResultException());
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(NotFoundResponse::class);
+        $this->execute($request)->shouldHaveType(JsonApiErrorResponse::class);
     }
 
-    public function it_can_execute_a_block_not_found_request(RequestInterface $request, Page $page)
+    public function it_can_execute_a_block_not_found_request(ServerRequestInterface $request, Page $page)
     {
         $pageUuid = Uuid::uuid4();
         $blockUuid = Uuid::uuid4();
-
-        $request->offsetGet('uuid')->willReturn($blockUuid->toString());
-        $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $query = ['page_block_uuid' => $blockUuid->toString(), 'page_uuid' => $pageUuid->toString()];
+        $request->getQueryParams()->willReturn($query);
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
         $page->getBlockByUuid($blockUuid)->willThrow(new NoResultException());
 
-        $response = $this->executeRequest($request);
-        $response->shouldHaveType(NotFoundResponse::class);
-    }
-
-    public function it_can_handle_exception_during_request(RequestInterface $request)
-    {
-        $pageUuid = Uuid::uuid4();
-        $blockUuid = Uuid::uuid4();
-
-        $request->offsetGet('uuid')->willReturn($blockUuid->toString());
-        $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
-        $request->getAcceptContentType()->willReturn('text/xml');
-
-        $this->pageRepository->getByUuid($pageUuid)->willThrow(new \RuntimeException());
-
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
+        $this->execute($request)->shouldHaveType(JsonApiErrorResponse::class);
     }
 }
