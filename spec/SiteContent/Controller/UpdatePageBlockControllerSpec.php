@@ -2,11 +2,14 @@
 
 namespace spec\Spot\SiteContent\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\View\JsonApiView;
 use Spot\SiteContent\BlockType\BlockTypeContainer;
 use Spot\SiteContent\BlockType\HtmlContentBlockType;
 use Spot\SiteContent\Entity\Page;
@@ -18,21 +21,21 @@ use Spot\SiteContent\Value\PageStatusValue;
 /** @mixin  UpdatePageBlockController */
 class UpdatePageBlockControllerSpec extends ObjectBehavior
 {
-    /** @var  \Spot\SiteContent\Repository\PageRepository */
+    /** @var  PageRepository */
     private $pageRepository;
 
     /** @var  BlockTypeContainer */
     private $blockTypeContainer;
 
-    /** @var  \Psr\Log\LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(PageRepository $pageRepository, BlockTypeContainer $container, LoggerInterface $logger)
+    public function let(PageRepository $pageRepository, BlockTypeContainer $container, RendererInterface $renderer)
     {
         $this->pageRepository = $pageRepository;
         $this->blockTypeContainer = $container;
-        $this->logger = $logger;
-        $this->beConstructedWith($pageRepository, $container, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($pageRepository, $container, $renderer);
     }
 
     public function it_is_initializable()
@@ -40,10 +43,15 @@ class UpdatePageBlockControllerSpec extends ObjectBehavior
         $this->shouldHaveType(UpdatePageBlockController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_validate_a_request(ServerRequestInterface $request)
     {
         $uuid = Uuid::uuid4();
         $pageUuid = Uuid::uuid4();
+        $query = [
+            'page_block_uuid' => $uuid->toString(),
+            'page_uuid' => $pageUuid->toString(),
+        ];
+        $request->getQueryParams()->willReturn($query);
         $post = [
             'data' => [
                 'type' => 'pageBlocks',
@@ -53,122 +61,111 @@ class UpdatePageBlockControllerSpec extends ObjectBehavior
                     'sort_order' => 42,
                     'status' => 'published',
                 ],
-            ]
+            ],
         ];
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/json');
-        $httpRequest->getParsedBody()->willReturn($post);
+        $request->getParsedBody()->willReturn($post);
 
-        $request = $this->parseHttpRequest($httpRequest, [
-            'uuid' => $uuid->toString(),
-            'page_uuid' => $pageUuid->toString(),
-        ]);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(UpdatePageBlockController::MESSAGE);
-        $request->getAttributes()->shouldBe([
-            'page_uuid' => $pageUuid->toString(),
-            'parameters' => ['thx' => 1138],
-            'sort_order' => 42,
-            'status' => 'published',
-            'uuid' => $uuid->toString(),
-        ]);
+        $this->validateRequest($request);
     }
 
-    public function it_will_error_on_invalid_request_data(ServerRequestInterface $httpRequest)
+    public function it_will_error_on_invalid_request_data(ServerRequestInterface $request)
     {
-        $uuid = Uuid::uuid4();
+        $pageBlockUuid = Uuid::uuid4();
         $pageUuid = Uuid::uuid4();
+        $query = [
+            'page_block_uuid' => $pageBlockUuid->toString(),
+            'page_uuid' => $pageUuid->toString(),
+        ];
+        $request->getQueryParams()->willReturn($query);
         $post = [
             'data' => [
                 'type' => 'pageBlocks',
-                'id' => $uuid->toString(),
                 'attributes' => [
                     'parameters' => [],
                     'sort_order' => '42',
                     'status' => 'nope',
                 ],
-            ]
+            ],
         ];
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/json');
-        $httpRequest->getParsedBody()->willReturn($post);
+        $request->getParsedBody()->willReturn($post);
 
-        $this->shouldThrow(ValidationFailedException::class)
-            ->duringParseHttpRequest($httpRequest, [
-                'uuid' => $uuid->toString(),
-                'page_uuid' => $pageUuid->toString(),
-            ]);
+        $this->shouldThrow(ValidationFailedException::class)->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, Page $page, PageBlock $pageBlock)
+    public function it_can_execute_a_request(ServerRequestInterface $request, Page $page, PageBlock $pageBlock, ResponseInterface $response)
     {
         $pageUuid = Uuid::uuid4();
         $pageBlockUuid = Uuid::uuid4();
-        $parameters = ['content' => 42, 'new_gods' => 7];
-        $sortOrder = 2;
-        $request->offsetExists('page_uuid')->willReturn(true);
-        $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
-        $request->offsetExists('uuid')->willReturn(true);
-        $request->offsetGet('uuid')->willReturn($pageBlockUuid->toString());
-        $request->offsetExists('parameters')->willReturn(true);
-        $request->offsetGet('parameters')->willReturn($parameters);
-        $request->offsetExists('sort_order')->willReturn(true);
-        $request->offsetGet('sort_order')->willReturn($sortOrder);
-        $request->offsetExists('status')->willReturn(false);
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $query = [
+            'page_block_uuid' => $pageBlockUuid->toString(),
+            'page_uuid' => $pageUuid->toString(),
+        ];
+        $request->getQueryParams()->willReturn($query);
 
-        $pageBlock->offsetSet('content', $parameters['content'])->shouldBeCalled();
-        $pageBlock->offsetSet('new_gods', $parameters['new_gods'])->shouldBeCalled();
-        $pageBlock->getType()->willReturn('type');
-        $pageBlock->getParameters()->willReturn($parameters);
-        $pageBlock->setSortOrder($sortOrder)->shouldBeCalled();
+        $post = [
+            'data' => [
+                'type' => 'pageBlocks',
+                'attributes' => [
+                    'parameters' => ['content' => 42, 'new_gods' => 7],
+                    'sort_order' => 2,
+                ],
+            ],
+        ];
+        $request->getParsedBody()->willReturn($post);
+
+        $pageBlock->offsetSet('content', $post['data']['attributes']['parameters']['content'])->shouldBeCalled();
+        $pageBlock->offsetSet('new_gods', $post['data']['attributes']['parameters']['new_gods'])->shouldBeCalled();
+        $pageBlock->getType()->willReturn($post['data']['type']);
+        $pageBlock->getParameters()->willReturn($post['data']['attributes']['parameters']);
+        $pageBlock->setSortOrder($post['data']['attributes']['sort_order'])->shouldBeCalled();
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
         $page->getBlockByUuid($pageBlockUuid)->willReturn($pageBlock);
 
-        $this->blockTypeContainer->getType('type')
+        $this->blockTypeContainer->getType($post['data']['type'])
             ->willReturn(new HtmlContentBlockType());
 
         $this->pageRepository->updateBlockForPage($pageBlock, $page)->shouldBeCalled();
-        $response = $this->executeRequest($request);
-        $response['data']->shouldBe($pageBlock);
+
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+
+        $this->execute($request)->shouldReturn($response);
     }
 
-    public function it_can_execute_a_request_part_deux(RequestInterface $request, Page $page, PageBlock $pageBlock)
+    public function it_can_execute_a_request_part_deux(ServerRequestInterface $request, Page $page, PageBlock $pageBlock, ResponseInterface $response)
     {
         $pageUuid = Uuid::uuid4();
         $pageBlockUuid = Uuid::uuid4();
-        $newStatus = PageStatusValue::get(PageStatusValue::DELETED);
-        $request->offsetExists('page_uuid')->willReturn(true);
-        $request->offsetGet('page_uuid')->willReturn($pageUuid->toString());
-        $request->offsetExists('uuid')->willReturn(true);
-        $request->offsetGet('uuid')->willReturn($pageBlockUuid->toString());
-        $request->offsetExists('parameters')->willReturn(false);
-        $request->offsetExists('sort_order')->willReturn(false);
-        $request->offsetExists('status')->willReturn(true);
-        $request->offsetGet('status')->willReturn($newStatus->toString());
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $query = [
+            'page_block_uuid' => $pageBlockUuid->toString(),
+            'page_uuid' => $pageUuid->toString(),
+        ];
+        $request->getQueryParams()->willReturn($query);
 
-        $pageBlock->getType()->willReturn('type');
-        $pageBlock->setStatus($newStatus)->shouldBeCalled();
+        $post = [
+            'data' => [
+                'type' => 'pageBlocks',
+                'attributes' => [
+                    'status' => PageStatusValue::DELETED,
+                ],
+            ],
+        ];
+        $request->getParsedBody()->willReturn($post);
+
+        $pageBlock->getType()->willReturn($post['data']['type']);
+        $pageBlock->setStatus(PageStatusValue::get($post['data']['attributes']['status']))->shouldBeCalled();
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
         $page->getBlockByUuid($pageBlockUuid)->willReturn($pageBlock);
         $pageBlock->getParameters()->willReturn(['content' => 'test']);
 
-        $this->blockTypeContainer->getType('type')
+        $this->blockTypeContainer->getType($post['data']['type'])
             ->willReturn(new HtmlContentBlockType());
 
         $this->pageRepository->updateBlockForPage($pageBlock, $page)->shouldBeCalled();
-        $response = $this->executeRequest($request);
-        $response['data']->shouldBe($pageBlock);
-    }
 
-    public function it_can_handle_exception_during_request(RequestInterface $request)
-    {
-        $pageUuid = Uuid::uuid4();
-        $request->offsetGet('page_uuid')->willReturn($pageUuid);
-        $request->getAcceptContentType()->willReturn('text/xml');
-
-        $this->pageRepository->getByUuid($pageUuid)->willThrow(new \RuntimeException());
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        
+        $this->execute($request)->shouldReturn($response);
     }
 }

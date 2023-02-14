@@ -2,11 +2,14 @@
 
 namespace spec\Spot\SiteContent\Controller;
 
+use jschreuder\Middle\Exception\ValidationFailedException;
+use jschreuder\Middle\View\RendererInterface;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Application\Request\ValidationFailedException;
+use Spot\Application\View\JsonApiView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\UpdatePageController;
 use Spot\SiteContent\Repository\PageRepository;
@@ -15,17 +18,17 @@ use Spot\SiteContent\Value\PageStatusValue;
 /** @mixin  UpdatePageController */
 class UpdatePageControllerSpec extends ObjectBehavior
 {
-    /** @var  \Spot\SiteContent\Repository\PageRepository */
+    /** @var  PageRepository */
     private $pageRepository;
 
-    /** @var  \Psr\Log\LoggerInterface */
-    private $logger;
+    /** @var  RendererInterface */
+    private $renderer;
 
-    public function let(PageRepository $pageRepository, LoggerInterface $logger)
+    public function let(PageRepository $pageRepository, RendererInterface $renderer)
     {
         $this->pageRepository = $pageRepository;
-        $this->logger = $logger;
-        $this->beConstructedWith($pageRepository, $logger);
+        $this->renderer = $renderer;
+        $this->beConstructedWith($pageRepository, $renderer);
     }
 
     public function it_is_initializable()
@@ -33,13 +36,14 @@ class UpdatePageControllerSpec extends ObjectBehavior
         $this->shouldHaveType(UpdatePageController::class);
     }
 
-    public function it_can_parse_a_HttpRequest(ServerRequestInterface $httpRequest)
+    public function it_can_validate_a_request(ServerRequestInterface $request)
     {
-        $uuid = Uuid::uuid4();
+        $pageUuid = Uuid::uuid4();
+        $query = ['page_uuid' => $pageUuid->toString()];
+        $request->getQueryParams()->willReturn($query);
         $post = [
             'data' => [
                 'type' => 'pages',
-                'id' => $uuid->toString(),
                 'attributes' => [
                     'title' => 'Long title ',
                     'slug' => 'long-title',
@@ -49,32 +53,19 @@ class UpdatePageControllerSpec extends ObjectBehavior
                 ],
             ]
         ];
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/json');
-        $httpRequest->getParsedBody()->willReturn($post);
+        $request->getParsedBody()->willReturn($post);
 
-        $request = $this->parseHttpRequest($httpRequest, ['uuid' => $uuid->toString()]);
-        $request->shouldHaveType(RequestInterface::class);
-        $request->getRequestName()->shouldReturn(UpdatePageController::MESSAGE);
-        $request->getAttributes()->shouldBe([
-            'type' => 'pages',
-            'id' => $uuid->toString(),
-            'attributes' => [
-                'title' => 'Long title',
-                'slug' => 'long-title',
-                'short_title' => 'Title',
-                'sort_order' => 42,
-                'status' => 'published',
-            ],
-        ]);
+        $request = $this->validateRequest($request);
     }
 
-    public function it_will_error_on_invalid_request_data(ServerRequestInterface $httpRequest)
+    public function it_will_error_on_invalid_request_data(ServerRequestInterface $request)
     {
-        $uuid = Uuid::uuid4();
+        $pageUuid = Uuid::uuid4();
+        $query = ['page_uuid' => $pageUuid->toString()];
+        $request->getQueryParams()->willReturn($query);
         $post = [
             'data' => [
                 'type' => 'pages',
-                'id' => $uuid->toString(),
                 'attributes' => [
                     'title' => 'Long title ',
                     'slug' => 'long-title',
@@ -84,24 +75,27 @@ class UpdatePageControllerSpec extends ObjectBehavior
                 ],
             ]
         ];
-        $httpRequest->getHeaderLine('Accept')->willReturn('application/json');
-        $httpRequest->getParsedBody()->willReturn($post);
+        $request->getParsedBody()->willReturn($post);
 
         $this->shouldThrow(ValidationFailedException::class)
-            ->duringParseHttpRequest($httpRequest, ['uuid' => $uuid->toString()]);
+            ->duringValidateRequest($request);
     }
 
-    public function it_can_execute_a_request(RequestInterface $request, Page $page)
+    public function it_can_execute_a_request(ServerRequestInterface $request, Page $page, ResponseInterface $response)
     {
         $pageUuid = Uuid::uuid4();
-        $attributes = [
-            'title' => $title = 'New Title',
-            'slug' => $slug = 'new-title',
-            'short_title' => $shortTitle = 'Title',
+        $query = ['page_uuid' => $pageUuid->toString()];
+        $request->getQueryParams()->willReturn($query);
+        $post = [
+            'data' => [
+                'attributes' => [
+                    'title' => $title = 'New Title',
+                    'slug' => $slug = 'new-title',
+                    'short_title' => $shortTitle = 'Title',
+                ],
+            ],
         ];
-        $request->offsetGet('id')->willReturn($pageUuid->toString());
-        $request->offsetGet('attributes')->willReturn($attributes);
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $request->getParsedBody()->willReturn($post);
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
         $page->setTitle($title)->shouldBeCalled();
@@ -109,37 +103,36 @@ class UpdatePageControllerSpec extends ObjectBehavior
         $page->setShortTitle($shortTitle)->shouldBeCalled();
 
         $this->pageRepository->update($page)->shouldBeCalled();
-        $response = $this->executeRequest($request);
-        $response['data']->shouldBe($page);
+
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+
+        $this->execute($request)->shouldReturn($response);
     }
 
-    public function it_can_execute_a_request_part_deux(RequestInterface $request, Page $page)
+    public function it_can_execute_a_request_part_deux(ServerRequestInterface $request, Page $page, ResponseInterface $response)
     {
         $pageUuid = Uuid::uuid4();
-        $attributes = [
-            'sort_order' => $sortOrder = 3,
-            'status' => PageStatusValue::CONCEPT,
+        $query = ['page_uuid' => $pageUuid->toString()];
+        $request->getQueryParams()->willReturn($query);
+
+        $post = [
+            'data' => [
+                'attributes' => [
+                    'sort_order' => $sortOrder = 3,
+                    'status' => PageStatusValue::CONCEPT,
+                ],
+            ],
         ];
-        $request->offsetGet('id')->willReturn($pageUuid->toString());
-        $request->offsetGet('attributes')->willReturn($attributes);
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $request->getParsedBody()->willReturn($post);
 
         $this->pageRepository->getByUuid($pageUuid)->willReturn($page);
         $page->setSortOrder($sortOrder)->shouldBeCalled();
-        $page->setStatus(PageStatusValue::get($attributes['status']))->shouldBeCalled();
+        $page->setStatus(PageStatusValue::get($post['data']['attributes']['status']))->shouldBeCalled();
 
         $this->pageRepository->update($page)->shouldBeCalled();
-        $response = $this->executeRequest($request);
-        $response['data']->shouldBe($page);
-    }
 
-    public function it_can_handle_exception_during_request(RequestInterface $request)
-    {
-        $pageUuid = Uuid::uuid4();
-        $request->offsetGet('uuid')->willReturn($pageUuid);
-        $request->getAcceptContentType()->willReturn('text/xml');
+        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
 
-        $this->pageRepository->getByUuid($pageUuid)->willThrow(new \RuntimeException());
-        $this->shouldThrow(ResponseException::class)->duringExecuteRequest($request);
+        $this->execute($request)->shouldReturn($response);
     }
 }
