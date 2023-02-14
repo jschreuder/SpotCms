@@ -98,13 +98,12 @@ class PageBlockSpec extends ObjectBehavior
 
     public function it_can_modify_parameters_using_ArrayAccess()
     {
-        $this->offsetExists('answer')->shouldReturn(true);
-        $this->offsetExists('thx')->shouldReturn(false);
+        $this->shouldHaveKey('answer');
+        $this->shouldNotHaveKey('thx');
         $this['thx'] = 1138;
-        $this->offsetExists('thx')->shouldReturn(true);
-        $this->offsetGet('thx')->shouldReturn(1138);
+        $this->shouldHaveKeyWithValue('thx', 1138);
         unset($this['thx']);
-        $this->offsetExists('thx')->shouldReturn(false);
+        $this->shouldNotHaveKey('thx');
 
         $this->shouldThrow(\OutOfBoundsException::class)->duringOffsetGet('thx');
     }
