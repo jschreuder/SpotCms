@@ -13,115 +13,94 @@ class Page
 
     const TYPE = 'pages';
 
-    /** @var  UuidInterface */
-    private $pageUuid;
-
-    /** @var  string */
-    private $title;
-
-    /** @var  string */
-    private $slug;
-
-    /** @var  string */
-    private $shortTitle;
-
-    /** @var  UuidInterface */
-    private $parentUuid;
-
-    /** @var  int */
-    private $sortOrder;
-
-    /** @var  PageStatusValue */
-    private $status;
-
+    private string $title;
+    private string $slug;
+    private string $shortTitle;
     /** @var  PageBlock[] */
-    private $relatedBlocks;
+    private array $relatedBlocks;
 
     public function __construct(
-        UuidInterface $pageUuid,
+        private UuidInterface $pageUuid,
         string $title,
         string $slug,
         string $shortTitle = null,
-        UuidInterface $parentUuid = null,
-        int $sortOrder = 0,
-        PageStatusValue $status = null
-    ) {
-        $this->pageUuid = $pageUuid;
+        private ?UuidInterface $parentUuid = null,
+        private int $sortOrder = 0,
+        private ?PageStatusValue $status = null
+    )
+    {
         $this->setTitle($title);
         $this->setSlug($slug);
         $this->setShortTitle($shortTitle ?: $title);
-        $this->parentUuid = $parentUuid;
-        $this->sortOrder = $sortOrder;
         $this->status = $status ?: PageStatusValue::get(PageStatusValue::CONCEPT);
     }
 
-    public function getUuid() : UuidInterface
+    public function getUuid(): UuidInterface
     {
         return $this->pageUuid;
     }
 
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title) : Page
+    public function setTitle(string $title): Page
     {
         $this->title = $title;
         return $this;
     }
 
-    public function getSlug() : string
+    public function getSlug(): string
     {
         return $this->slug;
     }
 
-    public function setSlug(string $slug) : Page
+    public function setSlug(string $slug): Page
     {
         $this->slug = $slug;
         return $this;
     }
 
-    public function getShortTitle() : string
+    public function getShortTitle(): string
     {
         return $this->shortTitle;
     }
 
-    public function setShortTitle(string $shortTitle) : Page
+    public function setShortTitle(string $shortTitle): Page
     {
         $this->shortTitle = $shortTitle;
         return $this;
     }
 
-    /** @return  UuidInterface|null */
-    public function getParentUuid()
+    public function getParentUuid(): ?UuidInterface
     {
         return $this->parentUuid;
     }
 
-    public function getSortOrder() : int
+    public function getSortOrder(): int
     {
         return $this->sortOrder;
     }
 
-    public function setSortOrder(int $sortOrder) : Page
+    public function setSortOrder(int $sortOrder): Page
     {
         $this->sortOrder = $sortOrder;
         return $this;
     }
 
-    public function getStatus() : PageStatusValue
+    public function getStatus(): PageStatusValue
     {
         return $this->status;
     }
 
-    public function setStatus(PageStatusValue $status)
+    public function setStatus(PageStatusValue $status): Page
     {
         $this->status = $status;
         return $this;
     }
 
-    private function sortBlocks()
+    private function sortBlocks(): void
     {
         usort($this->relatedBlocks, function (PageBlock $a, PageBlock $b) : int {
             if ($a->getSortOrder() === $b->getSortOrder()) {
@@ -132,15 +111,15 @@ class Page
     }
 
     /** @return  PageBlock[] */
-    public function getBlocks() : array
+    public function getBlocks(): array
     {
-        if (is_null($this->relatedBlocks)) {
+        if (!isset($this->relatedBlocks)) {
             throw new \RuntimeException('Page block were not yet loaded.');
         }
         return $this->relatedBlocks;
     }
 
-    public function setBlocks(array $blocks) : Page
+    public function setBlocks(array $blocks): Page
     {
         $this->relatedBlocks = [];
         foreach ($blocks as $block) {
@@ -149,9 +128,9 @@ class Page
         return $this;
     }
 
-    public function addBlock(PageBlock $block) : Page
+    public function addBlock(PageBlock $block): Page
     {
-        if (is_null($this->relatedBlocks)) {
+        if (!isset($this->relatedBlocks)) {
             throw new \RuntimeException('Page block were not yet loaded.');
         }
         $this->relatedBlocks[] = $block;
@@ -159,7 +138,7 @@ class Page
         return $this;
     }
 
-    public function removeBlock(PageBlock $block) : Page
+    public function removeBlock(PageBlock $block): Page
     {
         foreach ($this->getBlocks() as $idx => $relBlock) {
             if ($relBlock->getUuid()->equals($block->getUuid())) {
@@ -171,7 +150,7 @@ class Page
         throw new NoResultException('Block not found in Page\'s blocks: ' . $block->getUuid()->toString());
     }
 
-    public function getBlockByUuid(UuidInterface $uuid) : PageBlock
+    public function getBlockByUuid(UuidInterface $uuid): PageBlock
     {
         foreach ($this->getBlocks() as $block) {
             if ($block->getUuid()->equals($uuid)) {
