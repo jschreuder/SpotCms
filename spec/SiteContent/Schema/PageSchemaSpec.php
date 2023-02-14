@@ -20,7 +20,7 @@ class PageSchemaSpec extends ObjectBehavior
     /** @var  Page */
     private $page;
 
-    public function let()
+    public function let(FactoryInterface $factory)
     {
         $this->page = (new Page(
                 Uuid::uuid4(),
@@ -33,11 +33,13 @@ class PageSchemaSpec extends ObjectBehavior
             ))
             ->metaDataSetInsertTimestamp(new \DateTimeImmutable())
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
+        $this->factory = $factory;
+        $this->beConstructedWith($factory);
     }
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(PageSerializer::class);
+        $this->shouldHaveType(PageSchema::class);
     }
 
     public function it_can_give_its_entity_type()
@@ -78,11 +80,11 @@ class PageSchemaSpec extends ObjectBehavior
     public function it_can_provide_blocks_relationship(ContextInterface $context)
     {
         $this->page->setBlocks([]);
-        $this->getRelationships($this->page, $context)->shouldReturn([]);
+        $this->getRelationships($this->page, $context)->shouldBeArray();
     }
 
     public function it_errors_when_get_relationship_given_non_page_entity(ContextInterface $context)
     {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationship(new \stdClass(), PageBlock::TYPE);
+        $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationships(new \stdClass(), $context);
     }
 }

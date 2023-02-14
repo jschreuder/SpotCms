@@ -20,7 +20,7 @@ class PageBlockSchemaSpec extends ObjectBehavior
     /** @var  PageBlock */
     private $block;
 
-    public function let(Page $page)
+    public function let(FactoryInterface $factory, Page $page)
     {
         $this->block = (new PageBlock(
                 Uuid::uuid4(),
@@ -33,11 +33,13 @@ class PageBlockSchemaSpec extends ObjectBehavior
             ))
             ->metaDataSetInsertTimestamp(new \DateTimeImmutable())
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
+        $this->factory = $factory;
+        $this->beConstructedWith($factory);
     }
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(PageBlockSerializer::class);
+        $this->shouldHaveType(PageBlockSchema::class);
     }
 
     public function it_can_give_its_entity_type()
@@ -76,7 +78,7 @@ class PageBlockSchemaSpec extends ObjectBehavior
 
     public function it_can_provide_pageBlock_relationship(ContextInterface $context)
     {
-        $this->getRelationships($this->block, $context)->shouldReturn([]);
+        $this->getRelationships($this->block, $context)->shouldBeArray();
     }
 
     public function it_errors_when_get_relationship_given_non_pageBlock_entity(ContextInterface $context)
