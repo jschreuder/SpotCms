@@ -6,7 +6,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 final class FilterService
 {
-    private static function runFilters(array $input, array $filters) : array
+    private static function runFilters(array $input, array $filters): array
     {
         foreach ($filters as $key => $filter) {
             $value = self::dotnotatedFromArray($key, $input);

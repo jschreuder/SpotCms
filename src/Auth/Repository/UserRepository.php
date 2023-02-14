@@ -14,12 +14,14 @@ class UserRepository
 {
     use SqlRepositoryTrait;
 
-    public function __construct(PDO $pdo, private ObjectRepository $objectRepository)
+    public function __construct(
+        private PDO $pdo,
+        private ObjectRepository $objectRepository
+    )
     {
-        $this->pdo = $pdo;
     }
 
-    public function create(User $user)
+    public function create(User $user): void
     {
         $this->pdo->beginTransaction();
         try {
@@ -41,13 +43,13 @@ class UserRepository
         }
     }
 
-    public function delete(User $user)
+    public function delete(User $user): void
     {
         // The database constraint should cascade the delete to the page
         $this->objectRepository->delete(User::TYPE, $user->getUuid());
     }
 
-    public function update(User $user)
+    public function update(User $user): void
     {
         $this->pdo->beginTransaction();
         try {
@@ -77,7 +79,7 @@ class UserRepository
         }
     }
 
-    private function getUserFromRow(array $row) : User
+    private function getUserFromRow(array $row): User
     {
         return (new User(
             Uuid::fromBytes($row['user_uuid']),
@@ -89,7 +91,7 @@ class UserRepository
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable($row['updated']));
     }
 
-    public function getByUuid(UuidInterface $uuid) : User
+    public function getByUuid(UuidInterface $uuid): User
     {
         return $this->getUserFromRow($this->getRow('
                 SELECT user_uuid, email_address, password, display_name, created, updated
@@ -101,7 +103,7 @@ class UserRepository
         ]));
     }
 
-    public function getByEmailAddress(EmailAddress $emailAddress) : User
+    public function getByEmailAddress(EmailAddress $emailAddress): User
     {
         return $this->getUserFromRow($this->getRow('
                 SELECT user_uuid, email_address, password, display_name, created, updated

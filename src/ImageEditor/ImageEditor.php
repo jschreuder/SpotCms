@@ -13,20 +13,17 @@ class ImageEditor
 {
     const MIME_PATTERN = '#^image/(jpeg|jpg|jpe|gif|png)$#ui';
 
-    /** @var  AbstractImagine */
-    private $imagine;
-
     /** @var  \Closure[]  indexed by operation name */
-    private $operations;
+    private array $operations;
 
-    public function __construct(AbstractImagine $imagine)
+    public function __construct(private AbstractImagine $imagine)
     {
         $this->imagine = $imagine;
         $this->operations = $this->availableOperations();
     }
 
     /** @return  \Closure[]  indexed by operation name */
-    protected function availableOperations() : array
+    protected function availableOperations(): array
     {
         return [
             'resize' => (new \ReflectionMethod($this, 'operationResize'))->getClosure($this),
@@ -39,7 +36,7 @@ class ImageEditor
         ];
     }
 
-    protected function getOperation(string $operation) : \Closure
+    protected function getOperation(string $operation): \Closure
     {
         if (!isset($this->operations[$operation])) {
             throw new \RuntimeException('Unsupported image operation: ' . $operation);
@@ -47,12 +44,12 @@ class ImageEditor
         return $this->operations[$operation];
     }
 
-    public function isImage(File $file) : bool
+    public function isImage(File $file): bool
     {
         return preg_match(self::MIME_PATTERN, $file->getMimeType()->toString()) !== 0;
     }
 
-    public function determineImageFormat(File $file) : string
+    public function determineImageFormat(File $file): string
     {
         preg_match(self::MIME_PATTERN, $file->getMimeType()->toString(), $matches);
         $imageMimeType = $matches[1] ?? 'none';
@@ -66,7 +63,7 @@ class ImageEditor
         throw new RuntimeException('Invalid image type, cannot edit: ' . $file->getMimeType()->toString());
     }
 
-    public function process(File $file, array $operations) : ImageInterface
+    public function process(File $file, array $operations): ImageInterface
     {
         $image = $this->imagine->read($file->getStream());
         foreach ($operations as $operation => $args) {
@@ -75,12 +72,12 @@ class ImageEditor
         return $image;
     }
 
-    public function output(File $file, ImageInterface $image) : string
+    public function output(File $file, ImageInterface $image): string
     {
         return $image->get($this->determineImageFormat($file));
     }
 
-    private function executeOperation(ImageInterface $image, string $operationName, array $args)
+    private function executeOperation(ImageInterface $image, string $operationName, array $args): void
     {
         $operation = new \ReflectionFunction($this->getOperation($operationName));
         $callArgs = [];
@@ -95,44 +92,44 @@ class ImageEditor
                 );
             }
         }
-        return $operation->invokeArgs($callArgs);
+        $operation->invokeArgs($callArgs);
     }
 
-    protected function operationResize(ImageInterface $image, int $width, int $height)
+    protected function operationResize(ImageInterface $image, int $width, int $height): void
     {
         $image->resize(new Box($width, $height));
     }
 
-    protected function operationCrop(ImageInterface $image, int $x, int $y, int $width, int $height)
+    protected function operationCrop(ImageInterface $image, int $x, int $y, int $width, int $height): void
     {
         $image->crop(new Point($x, $y), new Box($width, $height));
     }
 
-    protected function operationRotate(ImageInterface $image, int $degrees)
+    protected function operationRotate(ImageInterface $image, int $degrees): void
     {
         $image->rotate($degrees);
     }
 
-    protected function operationNegative(ImageInterface $image, bool $apply)
+    protected function operationNegative(ImageInterface $image, bool $apply): void
     {
         if ($apply) {
             $image->effects()->negative();
         }
     }
 
-    protected function operationGamma(ImageInterface $image, float $correction)
+    protected function operationGamma(ImageInterface $image, float $correction): void
     {
         $image->effects()->gamma($correction);
     }
 
-    protected function operationGreyscale(ImageInterface $image, bool $apply)
+    protected function operationGreyscale(ImageInterface $image, bool $apply): void
     {
         if ($apply) {
             $image->effects()->grayscale();
         }
     }
 
-    protected function operationBlur(ImageInterface $image, float $amount)
+    protected function operationBlur(ImageInterface $image, float $amount): void
     {
         $image->effects()->blur($amount);
     }

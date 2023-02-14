@@ -6,7 +6,7 @@ use Spot\DataModel\Value\ValueInterface;
 
 class MimeTypeValue implements ValueInterface
 {
-    public static function get(string $value): MimeTypeValue
+    public static function get(string $value): self
     {
         return new self($value);
     }

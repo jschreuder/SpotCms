@@ -11,16 +11,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateUserCommand extends Command
 {
-    /** @var  AuthenticationService */
-    private $authenticationService;
-
-    public function __construct(AuthenticationService $authenticationService)
+    public function __construct(private AuthenticationService $authenticationService)
     {
         parent::__construct();
-        $this->authenticationService = $authenticationService;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('auth:create-user')
@@ -30,7 +26,7 @@ class CreateUserCommand extends Command
             ->addArgument('display-name', InputArgument::OPTIONAL, 'The name with which the user is displayed', '');
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): void
     {
         $this->authenticationService->createUser(
             EmailAddress::get($input->getArgument('email-address')),
@@ -39,7 +35,7 @@ class CreateUserCommand extends Command
         );
     }
 
-    private function getDisplayName(string $displayName, string $emailAddress) : string
+    private function getDisplayName(string $displayName, string $emailAddress): string
     {
         if ($displayName) {
             return $displayName;

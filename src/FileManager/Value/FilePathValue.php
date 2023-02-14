@@ -6,7 +6,7 @@ use Spot\DataModel\Value\ValueInterface;
 
 class FilePathValue implements ValueInterface
 {
-    public static function get(string $value): FilePathValue
+    public static function get(string $value): self
     {
         return new self($value);
     }

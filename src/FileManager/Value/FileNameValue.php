@@ -6,7 +6,7 @@ use Spot\DataModel\Value\ValueInterface;
 
 class FileNameValue implements ValueInterface
 {
-    public static function get(string $value): FileNameValue
+    public static function get(string $value): self
     {
         return new self($value);
     }

@@ -15,7 +15,7 @@ class ConfigRepository
     use SqlRepositoryTrait;
 
     public function __construct(
-        PDO $pdo,
+        private PDO $pdo,
         private ConfigTypeContainerInterface $typeContainer,
         private ObjectRepository $objectRepository
     )
@@ -23,7 +23,7 @@ class ConfigRepository
         $this->pdo = $pdo;
     }
 
-    public function create(ConfigCollection $collection)
+    public function create(ConfigCollection $collection): void
     {
         $this->pdo->beginTransaction();
         try {
@@ -45,7 +45,7 @@ class ConfigRepository
         }
     }
 
-    private function createItems(ConfigCollection $collection)
+    private function createItems(ConfigCollection $collection): void
     {
         foreach ($collection->getItems() as $item => $value) {
             $this->executeSql('
@@ -73,7 +73,7 @@ class ConfigRepository
         }
     }
 
-    private function updateItems(ConfigCollection $collection)
+    private function updateItems(ConfigCollection $collection): void
     {
         foreach ($collection->getItems() as $item => $value) {
             $this->executeSql('
@@ -88,13 +88,13 @@ class ConfigRepository
         }
     }
 
-    public function delete(ConfigCollection $collection)
+    public function delete(ConfigCollection $collection): void
     {
         // The database constraint should cascade the delete to the collection and its items
         $this->objectRepository->delete(ConfigCollection::TYPE, $collection->getUuid());
     }
 
-    private function getCollectionFromRow(array $row) : ConfigCollection
+    private function getCollectionFromRow(array $row): ConfigCollection
     {
         return (new ConfigCollection(
             Uuid::fromBytes($row['config_collection_uuid']),
@@ -105,7 +105,7 @@ class ConfigRepository
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable($row['updated']));
     }
 
-    public function getCollectionsByType(ConfigTypeInterface $type) : array
+    public function getCollectionsByType(ConfigTypeInterface $type): array
     {
         $query = $this->executeSql('
                 SELECT config_collection_uuid, type, name, created, updated
@@ -124,7 +124,7 @@ class ConfigRepository
         return $collections;
     }
 
-    public function getCollectionByTypeAndName(ConfigTypeInterface $type, string $name) : ConfigCollection
+    public function getCollectionByTypeAndName(ConfigTypeInterface $type, string $name): ConfigCollection
     {
         $query = $this->executeSql('
                 SELECT config_collection_uuid, type, name, created, updated
@@ -144,9 +144,8 @@ class ConfigRepository
 
     /**
      * @param   ConfigCollection[] $collections
-     * @return  void
      */
-    private function getItemsForCollections(array $collections)
+    private function getItemsForCollections(array $collections): void
     {
         $uuids = [];
         /** @var  ConfigCollection[] $collectionsByUuid */

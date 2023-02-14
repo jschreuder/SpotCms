@@ -2,6 +2,7 @@
 
 namespace Spot\Auth\Repository;
 
+use PDO;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\Auth\Entity\Token;
@@ -11,12 +12,11 @@ class TokenRepository
 {
     use SqlRepositoryTrait;
 
-    public function __construct(\PDO $pdo)
+    public function __construct(private PDO $pdo)
     {
-        $this->pdo = $pdo;
     }
 
-    public function create(Token $token)
+    public function create(Token $token): void
     {
         $this->executeSql('
             INSERT INTO tokens (token_uuid, pass_code, user_uuid, expires)
@@ -29,7 +29,7 @@ class TokenRepository
         ]);
     }
 
-    public function delete(Token $token)
+    public function delete(Token $token): void
     {
         $this->executeSql('
             DELETE FROM tokens WHERE token_uuid = :token_uuid
@@ -38,12 +38,12 @@ class TokenRepository
         ]);
     }
 
-    public function deleteExpired()
+    public function deleteExpired(): void
     {
         $this->executeSql('DELETE FROM tokens WHERE expires < NOW()');
     }
 
-    private function getTokenFromRow(array $row) : Token
+    private function getTokenFromRow(array $row): Token
     {
         return new Token(
             Uuid::fromBytes($row['token_uuid']),
@@ -53,7 +53,7 @@ class TokenRepository
         );
     }
 
-    public function getByUuid(UuidInterface $uuid) : Token
+    public function getByUuid(UuidInterface $uuid): Token
     {
         return $this->getTokenFromRow($this->getRow('
             SELECT token_uuid, pass_code, user_uuid, expires

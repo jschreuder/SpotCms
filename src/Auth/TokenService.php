@@ -2,6 +2,7 @@
 
 namespace Spot\Auth;
 
+use DateTimeInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\Auth\Entity\Token;
@@ -12,36 +13,31 @@ use Spot\DataModel\Repository\NoUniqueResultException;
 
 class TokenService
 {
-    /** @var  TokenRepository */
-    private $tokenRepository;
-
-    /** @var  int */
-    private $tokenMaxAge;
-
-    public function __construct(TokenRepository $tokenRepository, int $tokenMaxAge)
+    public function __construct(
+        private TokenRepository $tokenRepository,
+        private int $tokenMaxAge
+    )
     {
-        $this->tokenRepository = $tokenRepository;
-        $this->tokenMaxAge = $tokenMaxAge;
     }
 
-    public function createTokenForUser(User $user)
+    public function createTokenForUser(User $user): Token
     {
         $token = new Token(Uuid::uuid4(), $this->generatePassCode(), $user->getUuid(), $this->generateExpires());
         $this->tokenRepository->create($token);
         return $token;
     }
 
-    private function generateExpires() : \DateTimeInterface
+    private function generateExpires(): DateTimeInterface
     {
         return new \DateTimeImmutable('+' . $this->tokenMaxAge . ' seconds');
     }
 
-    private function generatePassCode() : string
+    private function generatePassCode(): string
     {
         return bin2hex(random_bytes(20));
     }
 
-    public function getToken(UuidInterface $uuid, string $passCode) : Token
+    public function getToken(UuidInterface $uuid, string $passCode): Token
     {
         try {
             $token = $this->tokenRepository->getByUuid($uuid);
@@ -58,7 +54,7 @@ class TokenService
         return $token;
     }
 
-    public function refresh(Token $token) : Token
+    public function refresh(Token $token): Token
     {
         $newToken = new Token(
             Uuid::uuid4(),
@@ -72,12 +68,12 @@ class TokenService
         return $newToken;
     }
 
-    public function remove(Token $token)
+    public function remove(Token $token): void
     {
         $this->tokenRepository->delete($token);
     }
 
-    public function invalidateExpiredTokens()
+    public function invalidateExpiredTokens(): void
     {
         $this->tokenRepository->deleteExpired();
     }

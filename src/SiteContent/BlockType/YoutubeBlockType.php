@@ -12,12 +12,12 @@ class YoutubeBlockType implements BlockTypeInterface
 {
     const TYPE = 'youtube';
 
-    public function getTypeName() : string
+    public function getTypeName(): string
     {
         return self::TYPE;
     }
 
-    public function newBlock(Page $page, string $location, int $sortOrder, PageStatusValue $status) : PageBlock
+    public function newBlock(Page $page, string $location, int $sortOrder, PageStatusValue $status): PageBlock
     {
         return new PageBlock(
             Uuid::uuid4(),

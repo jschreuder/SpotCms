@@ -11,16 +11,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DeleteUserCommand extends Command
 {
-    /** @var  UserRepository */
-    private $userRepository;
-
-    public function __construct(UserRepository $userRepository)
+    public function __construct(private UserRepository $userRepository)
     {
         parent::__construct();
-        $this->userRepository = $userRepository;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('auth:delete-user')
@@ -28,7 +24,7 @@ class DeleteUserCommand extends Command
             ->addArgument('email-address', InputArgument::REQUIRED, 'User e-mail address is their username');
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): void
     {
         $user = $this->userRepository->getByEmailAddress(EmailAddress::get($input->getArgument('email-address')));
         $this->userRepository->delete($user);

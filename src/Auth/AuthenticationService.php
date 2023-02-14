@@ -15,31 +15,23 @@ use Spot\DataModel\Repository\NoUniqueResultException;
 
 class AuthenticationService
 {
-    /** @var  UserRepository */
-    private $userRepository;
-
-    /** @var  TokenService */
-    private $tokenService;
-
-    /** @var  int */
-    private $algorithm = PASSWORD_BCRYPT;
-
-    /** @var  LoggerInterface */
-    private $logger;
-
-    /** @var  array */
-    private $passwordOptions = [
+    private string $algorithm = PASSWORD_BCRYPT;
+    private array $passwordOptions = [
         'cost' => 10,
     ];
 
-    public function __construct(UserRepository $userRepository, TokenService $tokenService, LoggerInterface $logger)
+    public function __construct(
+        private UserRepository $userRepository,
+        private TokenService $tokenService,
+        private LoggerInterface $logger
+    )
     {
         $this->userRepository = $userRepository;
         $this->tokenService = $tokenService;
         $this->logger = $logger;
     }
 
-    public function createUser(EmailAddress $emailAddress, string $password, string $displayName) : User
+    public function createUser(EmailAddress $emailAddress, string $password, string $displayName): User
     {
         $user = new User(
             Uuid::uuid4(),
@@ -51,7 +43,7 @@ class AuthenticationService
         return $user;
     }
 
-    public function login(string $email, string $password) : Token
+    public function login(string $email, string $password): Token
     {
         try {
             $user = $this->getUserByEmail($email);
@@ -70,7 +62,7 @@ class AuthenticationService
         }
     }
 
-    private function getUserByEmail(string $email) : User
+    private function getUserByEmail(string $email): User
     {
         try {
             $emailAddress = EmailAddress::get($email);
@@ -82,7 +74,7 @@ class AuthenticationService
         }
     }
 
-    private function verifyPassword(User $user, string $password)
+    private function verifyPassword(User $user, string $password): void
     {
         if (!password_verify($password, $user->getPassword())) {
             throw LoginFailedException::invalidCredentials();
@@ -94,7 +86,7 @@ class AuthenticationService
         }
     }
 
-    public function getUserForToken(UuidInterface $tokenUuid, string $passCode) : User
+    public function getUserForToken(UuidInterface $tokenUuid, string $passCode): User
     {
         try {
             try {
@@ -115,7 +107,7 @@ class AuthenticationService
         }
     }
 
-    public function logout(Token $token)
+    public function logout(Token $token): void
     {
         $this->tokenService->remove($token);
     }

@@ -15,12 +15,14 @@ class PageRepository
 {
     use SqlRepositoryTrait;
 
-    public function __construct(PDO $pdo, private ObjectRepository $objectRepository)
+    public function __construct(
+        private PDO $pdo,
+        private ObjectRepository $objectRepository
+    )
     {
-        $this->pdo = $pdo;
     }
 
-    public function create(Page $page)
+    public function create(Page $page): void
     {
         $this->pdo->beginTransaction();
         try {
@@ -45,7 +47,7 @@ class PageRepository
         }
     }
 
-    public function update(Page $page)
+    public function update(Page $page): void
     {
         $this->pdo->beginTransaction();
         try {
@@ -79,14 +81,14 @@ class PageRepository
         }
     }
 
-    public function delete(Page $page)
+    public function delete(Page $page): void
     {
         // The database constraint should cascade the delete to the page
         $this->objectRepository->delete(Page::TYPE, $page->getUuid());
         $page->setStatus(PageStatusValue::get(PageStatusValue::DELETED));
     }
 
-    private function getPageFromRow(array $row) : Page
+    private function getPageFromRow(array $row): Page
     {
         return (new Page(
                 Uuid::fromBytes($row['page_uuid']),
@@ -101,7 +103,7 @@ class PageRepository
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable($row['updated']));
     }
 
-    public function getByUuid(UuidInterface $uuid) : Page
+    public function getByUuid(UuidInterface $uuid): Page
     {
         $page = $this->getPageFromRow($this->getRow('
                 SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status, created, updated
@@ -113,7 +115,7 @@ class PageRepository
         return $page;
     }
 
-    public function getBySlug(string $slug) : Page
+    public function getBySlug(string $slug): Page
     {
         $page = $this->getPageFromRow($this->getRow('
                 SELECT page_uuid, title, slug, short_title, parent_uuid, sort_order, status, created, updated
@@ -126,7 +128,7 @@ class PageRepository
     }
 
     /** @return  Page[] */
-    public function getAllByParentUuid(UuidInterface $uuid = null) : array
+    public function getAllByParentUuid(UuidInterface $uuid = null): array
     {
         if (is_null($uuid)) {
             $sql = '
@@ -157,7 +159,7 @@ class PageRepository
         return $pages;
     }
 
-    public function addBlockToPage(PageBlock $block, Page $page)
+    public function addBlockToPage(PageBlock $block, Page $page): void
     {
         if (!$page->getUuid()->equals($block->getPage()->getUuid())) {
             throw new \OutOfBoundsException('PageBlock must belong to page to be added to it.');
@@ -188,7 +190,7 @@ class PageRepository
         }
     }
 
-    public function updateBlockForPage(PageBlock $block, Page $page)
+    public function updateBlockForPage(PageBlock $block, Page $page): void
     {
         if (!$page->getUuid()->equals($block->getPage()->getUuid())) {
             throw new \OutOfBoundsException('PageBlock must belong to page to be added to it.');
@@ -224,7 +226,7 @@ class PageRepository
         }
     }
 
-    public function deleteBlockFromPage(PageBlock $block, Page $page)
+    public function deleteBlockFromPage(PageBlock $block, Page $page): void
     {
         if (!$page->getUuid()->equals($block->getPage()->getUuid())) {
             throw new \OutOfBoundsException('PageBlock must belong to page to be added to it.');
@@ -238,7 +240,7 @@ class PageRepository
         $block->setStatus(PageStatusValue::get(PageStatusValue::DELETED));
     }
 
-    private function getPageBlockFromRow(Page $page, array $row) : PageBlock
+    private function getPageBlockFromRow(Page $page, array $row): PageBlock
     {
         return (new PageBlock(
                 Uuid::fromBytes($row['page_block_uuid']),
@@ -255,9 +257,8 @@ class PageRepository
 
     /**
      * @param   Page[] $pages
-     * @return  void
      */
-    private function getBlocksForPages(array $pages)
+    private function getBlocksForPages(array $pages): void
     {
         $uuids = [];
         /** @var  Page[] $pagesByUuid */
