@@ -2,6 +2,7 @@
 
 namespace spec\Spot\SiteContent\Repository;
 
+use PDO;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Ramsey\Uuid\Uuid;
@@ -14,13 +15,13 @@ use Spot\SiteContent\Value\PageStatusValue;
 /** @mixin  PageRepository */
 class PageRepositorySpec extends ObjectBehavior
 {
-    /** @var  \PDO */
+    /** @var  PDO */
     private $pdo;
 
-    /** @var  \Spot\DataModel\Repository\ObjectRepository */
+    /** @var  ObjectRepository */
     private $objectRepository;
 
-    public function let(\PDO $pdo, ObjectRepository $objectRepository)
+    public function let(PDO $pdo, ObjectRepository $objectRepository)
     {
         $this->pdo = $pdo;
         $this->objectRepository = $objectRepository;
@@ -554,6 +555,9 @@ class PageRepositorySpec extends ObjectBehavior
         $blockUuid = Uuid::uuid4();
         $block->getUuid()->willReturn($blockUuid);
         $block->getPage()->willReturn($page);
+        $block->getParameters()->willReturn([]);
+        $block->getSortOrder()->willReturn(2);
+        $block->getStatus()->willReturn(PageStatusValue::get(PageStatusValue::CONCEPT));
 
         $this->pdo->beginTransaction()
             ->shouldBeCalled();
