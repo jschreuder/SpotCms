@@ -14,13 +14,13 @@ use jschreuder\Middle\Router\UrlGeneratorInterface;
 use jschreuder\Middle\ServerMiddleware\ErrorHandlerMiddleware;
 use jschreuder\Middle\ServerMiddleware\RequestFilterMiddleware;
 use jschreuder\Middle\ServerMiddleware\RequestValidatorMiddleware;
-use jschreuder\Middle\ServerMiddleware\RoutingMiddleware;
 use PDO;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Application\Http\JsonRequestBodyParser;
+use Spot\Application\Middleware\RoutingMiddleware;
 use Spot\Auth\Middleware\AuthMiddleware;
 use Spot\DataModel\Repository\ObjectRepository;
 
