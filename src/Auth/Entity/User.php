@@ -12,24 +12,13 @@ class User
 
     const TYPE = 'users';
 
-    /** @var  UuidInterface */
-    private $userUuid;
-
-    /** @var  EmailAddress */
-    private $emailAddress;
-
-    /** @var  string */
-    private $password;
-
-    /** @var  string */
-    private $displayName;
-
-    public function __construct(UuidInterface $userUuid, EmailAddress $email, string $password, string $displayName)
+    public function __construct(
+        private UuidInterface $userUuid,
+        private EmailAddress $emailAddress,
+        private string $password,
+        private string $displayName
+    )
     {
-        $this->userUuid = $userUuid;
-        $this->setEmailAddress($email);
-        $this->setPassword($password);
-        $this->setDisplayName($displayName);
     }
 
     public function getUuid(): UuidInterface
@@ -37,7 +26,7 @@ class User
         return $this->userUuid;
     }
 
-    public function setEmailAddress(EmailAddress $emailAddress) : self
+    public function setEmailAddress(EmailAddress $emailAddress): self
     {
         $this->emailAddress = $emailAddress;
         return $this;
@@ -48,7 +37,7 @@ class User
         return $this->emailAddress;
     }
 
-    public function setPassword(string $password) : self
+    public function setPassword(string $password): self
     {
         $this->password = $password;
         return $this;
@@ -59,7 +48,7 @@ class User
         return $this->password;
     }
 
-    public function setDisplayName(string $displayName) : self
+    public function setDisplayName(string $displayName): self
     {
         $this->displayName = $displayName;
         return $this;

@@ -14,69 +14,53 @@ class File
 
     const TYPE = 'files';
 
-    /** @var  UuidInterface */
-    private $fileUuid;
-
-    /** @var  FileNameValue */
-    private $name;
-
-    /** @var  FilePathValue */
-    private $path;
-
-    /** @var  MimeTypeValue */
-    private $mimeType;
-
     /** @var  resource */
     private $stream;
 
     public function __construct(
-        UuidInterface $fileUuid,
-        FileNameValue $name,
-        FilePathValue $path,
-        MimeTypeValue $mimeType,
+        private UuidInterface $fileUuid,
+        private FileNameValue $name,
+        private FilePathValue $path,
+        private MimeTypeValue $mimeType,
         $stream
-    ) {
-        $this->fileUuid = $fileUuid;
-        $this
-            ->setName($name)
-            ->setPath($path)
-            ->setMimeType($mimeType)
-            ->setStream($stream);
+    )
+    {
+        $this->setStream($stream);
     }
 
-    public function getUuid() : UuidInterface
+    public function getUuid(): UuidInterface
     {
         return $this->fileUuid;
     }
 
-    public function getName() : FileNameValue
+    public function getName(): FileNameValue
     {
         return $this->name;
     }
 
-    public function setName(FileNameValue $name) : File
+    public function setName(FileNameValue $name): self
     {
         $this->name = $name;
         return $this;
     }
 
-    public function getPath() : FilePathValue
+    public function getPath(): FilePathValue
     {
         return $this->path;
     }
 
-    public function setPath(FilePathValue $path) : File
+    public function setPath(FilePathValue $path): self
     {
         $this->path = $path;
         return $this;
     }
 
-    public function getMimeType() : MimeTypeValue
+    public function getMimeType(): MimeTypeValue
     {
         return $this->mimeType;
     }
 
-    public function setMimeType(MimeTypeValue $mimeType) : File
+    public function setMimeType(MimeTypeValue $mimeType): self
     {
         $this->mimeType = $mimeType;
         return $this;
@@ -88,10 +72,8 @@ class File
         return $this->stream;
     }
 
-    /**
-     * @param  resource $stream
-     */
-    public function setStream($stream) : File
+    /** @param  resource $stream */
+    public function setStream($stream): self
     {
         if (!is_resource($stream)) {
             throw new \InvalidArgumentException('Invalid Stream given to File entity.');

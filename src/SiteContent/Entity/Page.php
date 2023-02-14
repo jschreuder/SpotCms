@@ -45,7 +45,7 @@ class Page
         return $this->title;
     }
 
-    public function setTitle(string $title): Page
+    public function setTitle(string $title): self
     {
         $this->title = $title;
         return $this;
@@ -56,7 +56,7 @@ class Page
         return $this->slug;
     }
 
-    public function setSlug(string $slug): Page
+    public function setSlug(string $slug): self
     {
         $this->slug = $slug;
         return $this;
@@ -67,7 +67,7 @@ class Page
         return $this->shortTitle;
     }
 
-    public function setShortTitle(string $shortTitle): Page
+    public function setShortTitle(string $shortTitle): self
     {
         $this->shortTitle = $shortTitle;
         return $this;
@@ -83,7 +83,7 @@ class Page
         return $this->sortOrder;
     }
 
-    public function setSortOrder(int $sortOrder): Page
+    public function setSortOrder(int $sortOrder): self
     {
         $this->sortOrder = $sortOrder;
         return $this;
@@ -94,7 +94,7 @@ class Page
         return $this->status;
     }
 
-    public function setStatus(PageStatusValue $status): Page
+    public function setStatus(PageStatusValue $status): self
     {
         $this->status = $status;
         return $this;
@@ -119,7 +119,7 @@ class Page
         return $this->relatedBlocks;
     }
 
-    public function setBlocks(array $blocks): Page
+    public function setBlocks(array $blocks): self
     {
         $this->relatedBlocks = [];
         foreach ($blocks as $block) {
@@ -128,7 +128,7 @@ class Page
         return $this;
     }
 
-    public function addBlock(PageBlock $block): Page
+    public function addBlock(PageBlock $block): self
     {
         if (!isset($this->relatedBlocks)) {
             throw new \RuntimeException('Page block were not yet loaded.');
@@ -138,7 +138,7 @@ class Page
         return $this;
     }
 
-    public function removeBlock(PageBlock $block): Page
+    public function removeBlock(PageBlock $block): self
     {
         foreach ($this->getBlocks() as $idx => $relBlock) {
             if ($relBlock->getUuid()->equals($block->getUuid())) {

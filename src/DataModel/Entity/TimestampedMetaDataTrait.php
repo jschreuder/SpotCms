@@ -2,35 +2,32 @@
 
 namespace Spot\DataModel\Entity;
 
+use DateTimeInterface;
+
 trait TimestampedMetaDataTrait
 {
-    /** @var  \DateTimeInterface */
-    private $metaCreatedTimestamp;
+    private DateTimeInterface $metaCreatedTimestamp;
+    private DateTimeInterface $metaUpdatedTimestamp;
 
-    /** @var  \DateTimeInterface */
-    private $metaUpdatedTimestamp;
-
-    /** @return  self */
-    public function metaDataSetInsertTimestamp(\DateTimeInterface $created)
+    public function metaDataSetInsertTimestamp(\DateTimeInterface $created): self
     {
         $this->metaCreatedTimestamp = $created;
         $this->metaUpdatedTimestamp = $created;
         return $this;
     }
 
-    /** @return  self */
-    public function metaDataSetUpdateTimestamp(\DateTimeInterface $updated)
+    public function metaDataSetUpdateTimestamp(\DateTimeInterface $updated): self
     {
         $this->metaUpdatedTimestamp = $updated;
         return $this;
     }
 
-    public function metaDataGetCreatedTimestamp() : \DateTimeInterface
+    public function metaDataGetCreatedTimestamp(): DateTimeInterface
     {
         return $this->metaCreatedTimestamp;
     }
 
-    public function metaDataGetUpdatedTimestamp() : \DateTimeInterface
+    public function metaDataGetUpdatedTimestamp(): DateTimeInterface
     {
         return $this->metaUpdatedTimestamp;
     }

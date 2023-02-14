@@ -13,16 +13,14 @@ class ConfigCollection implements ArrayAccess
 
     const TYPE = 'configCollections';
 
-    private UuidInterface $configCollectionUuid;
-    private ConfigTypeInterface $type;
-    private string $name;
     private array $items;
 
-    public function __construct(UuidInterface $uuid, ConfigTypeInterface $type, string $name)
+    public function __construct(
+        private UuidInterface $configCollectionUuid,
+        private ConfigTypeInterface $type,
+        private string $name
+    )
     {
-        $this->configCollectionUuid = $uuid;
-        $this->type = $type;
-        $this->name = $name;
         $this->items = $type->getDefaultItems();
     }
 

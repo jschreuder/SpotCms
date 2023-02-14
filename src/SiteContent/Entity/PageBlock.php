@@ -55,7 +55,7 @@ class PageBlock implements \ArrayAccess
         return $this->sortOrder;
     }
 
-    public function setSortOrder(int $sortOrder): PageBlock
+    public function setSortOrder(int $sortOrder): self
     {
         $this->sortOrder = $sortOrder;
         return $this;
@@ -66,7 +66,7 @@ class PageBlock implements \ArrayAccess
         return $this->status;
     }
 
-    public function setStatus(PageStatusValue $status): PageBlock
+    public function setStatus(PageStatusValue $status): self
     {
         $this->status = $status;
         return $this;
