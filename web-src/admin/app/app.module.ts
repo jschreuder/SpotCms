@@ -13,6 +13,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MenuComponent } from './menu/menu.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { SiteContentComponent } from './site-content/site-content.component';
+import { FileManagerComponent } from './file-manager/file-manager.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
@@ -23,6 +24,7 @@ import { MatMenuModule } from '@angular/material/menu';
         MenuComponent,
         DashboardComponent,
         SiteContentComponent,
+        FileManagerComponent,
     ],
     imports: [
         BrowserModule,

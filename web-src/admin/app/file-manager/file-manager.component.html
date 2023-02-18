@@ -1,0 +1,21 @@
+<div class="content-container">
+    <h1 class="mat-h1">Site Content</h1>
+
+    <mat-nav-list>
+        <div mat-subheader *ngIf="folders">Folders</div>
+        <a mat-list-item *ngFor="let folder of folders">
+            <mat-icon matListItemIcon>folder</mat-icon>
+            <div matListItemTitle>{{ folder.name }}</div>
+            <div matListItemLine>{{ folder.updated | date }}</div>
+        </a>
+
+        <mat-divider></mat-divider>
+
+        <div mat-subheader *ngIf="files">Files</div>
+        <a mat-list-item *ngFor="let file of files">
+            <mat-icon matListItemIcon>note</mat-icon>
+            <div matListItemTitle>{{ file.name }}</div>
+            <div matListItemLine>{{ file.updated | date }}</div>
+        </a>
+    </mat-nav-list>
+</div>
