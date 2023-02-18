@@ -2,13 +2,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./out-tsc/app",
+    "outDir": "./web/admin/out-tsc/app",
     "types": []
   },
   "files": [
-    "web/admin/main.ts"
+    "web-src/admin/main.ts"
   ],
   "include": [
-    "web/admin/**/*.d.ts"
+    "web-src/admin/**/*.d.ts"
   ]
 }

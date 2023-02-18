@@ -3,7 +3,8 @@
 /npm-debug.log
 
 # Compiled output
-/web/admin/dist
+/web/admin/*
+!/web/admin/.gitkeep
 /tmp
 /out-tsc
 /bazel-out

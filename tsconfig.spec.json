@@ -2,13 +2,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./out-tsc/spec",
+    "outDir": "./web/admin/out-tsc/spec",
     "types": [
       "jasmine"
     ]
   },
   "include": [
-    "web/admin/**/*.spec.ts",
-    "web/admin/**/*.d.ts"
+    "web-src/admin/**/*.spec.ts",
+    "web-src/admin/**/*.d.ts"
   ]
 }
