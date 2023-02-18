@@ -19,6 +19,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { CreatePageComponent } from './create-page/create-page.component';
 import { MatInputModule } from '@angular/material/input';
+import { EditorModule } from '@tinymce/tinymce-angular';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -47,6 +48,7 @@ import { ReactiveFormsModule } from '@angular/forms';
         MatCardModule,
         MatMenuModule,
         MatInputModule,
+        EditorModule,
         MatSelectModule,
         MatRadioModule,
         ReactiveFormsModule,

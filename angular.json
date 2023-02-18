@@ -22,20 +22,23 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "web-src/admin/favicon.ico",
-              "web-src/admin/assets"
+              "web-src/admin/assets",
+              { "glob": "**/*", "input": "node_modules/tinymce", "output": "/tinymce/" }
             ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "web-src/admin/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/tinymce/tinymce.min.js"
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "1mb",
+                  "maximumWarning": "1.5mb",
                   "maximumError": "2mb"
                 },
                 {
