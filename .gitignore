@@ -1,9 +1,35 @@
-/.idea/
+# Node
+/node_modules
+/npm-debug.log
+
+# Compiled output
+/web/admin/dist
+/tmp
+/out-tsc
+/bazel-out
+/.angular/cache
+/coverage
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Composer
 /bin/
-/config/env.php
-/config/dev.php
-/var/logs/*.log
-/web/components
 /vendor/
 composer.phar
+
+# SpotCms config & logs
+/config/*
+!/config/app_init.php
+!/config/env.php.dist
+!/config/dev.php.dist
+/var/logs/*
+!/var/logs/.gitkeep
+
+# Code coverage output
 coverage.xml
