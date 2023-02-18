@@ -7,9 +7,11 @@
     </h1>
 
     <mat-card *ngIf="path.length > 0">
-        <mat-card-content>
+        <mat-card-content class="breadcrumbs">
             <a href="#"><mat-icon class="path-icon">home</mat-icon></a>
-            <span *ngFor="let segment of path"> / {{ segment }}</span>
+            <span *ngFor="let segment of path"> / 
+                <a color="primary" *ngIf="!segment.current" href="#">{{ segment.value }}</a>
+                <strong color="muted" *ngIf="segment.current">{{ segment.value }}</strong></span>
         </mat-card-content>
     </mat-card>
 

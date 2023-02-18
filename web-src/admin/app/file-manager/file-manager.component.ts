@@ -7,8 +7,8 @@ import { Component } from '@angular/core';
 })
 export class FileManagerComponent {
     path = [
-        'Home',
-        'User',
+        { value: 'Home', current: false },
+        { value: 'User', current: true },
     ];
     folders = [
         {
