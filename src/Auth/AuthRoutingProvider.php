@@ -20,22 +20,13 @@ class AuthRoutingProvider implements RoutingProviderInterface
     public function registerRoutes(RouterInterface $router): void
     {
         $router->post('login', $this->uriSegment . '/login', function () {
-            return new LoginController(
-                $this->container->getAuthenticationService(), 
-                $this->container->getLogger()
-            );
+            return new LoginController($this->container->getAuthenticationService());
         });
         $router->post('refreshToken', $this->uriSegment . '/token/refresh', function () {
-            return new RefreshTokenController(
-                $this->container->getTokenService(), 
-                $this->container->getLogger()
-            );
+            return new RefreshTokenController($this->container->getTokenService());
         });
         $router->delete('logout', $this->uriSegment . '/logout', function () {
-            return new LogoutController(
-                $this->container->getTokenService(), 
-                $this->container->getLogger()
-            );
+            return new LogoutController($this->container->getTokenService());
         });
     }
 }
