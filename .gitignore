@@ -4,7 +4,6 @@
 
 # Compiled output
 /web/admin/*
-!/web/admin/.gitkeep
 /tmp
 /out-tsc
 /bazel-out
