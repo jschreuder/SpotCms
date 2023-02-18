@@ -1,1 +1,14 @@
-<h1>Site Content</h1>
+<div class="content-container">
+    <h1 class="mat-h1">Site Content</h1>
+
+    <mat-selection-list>
+        <mat-list-option *ngFor="let page of pages">
+            <span matListItemTitle>
+                <mat-icon class="menu-icon">note</mat-icon>
+                {{ page.title }}
+                <span *ngIf="page.children > 0">({{ page.children }})</span>
+            </span>
+            <span matListItemLine>/{{ page.slug }}</span>
+        </mat-list-option>
+    </mat-selection-list>
+</div>
