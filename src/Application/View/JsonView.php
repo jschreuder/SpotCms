@@ -5,17 +5,13 @@ namespace Spot\Application\View;
 use jschreuder\Middle\View\View;
 use jschreuder\Middle\View\ViewInterface;
 
-class JsonApiView implements JsonApiViewInterface
+class JsonView implements JsonViewInterface
 {
     private ViewInterface $view;
-    private bool $isCollection;
-    /** @var  string[] */
-    private array $includes;
 
     public function __construct(
         mixed $data,
-        bool $isCollection = false,
-        array $includes = [],
+        private bool $isCollection,
         array $metaData = [],
         int $statusCode = 200,
         array $headers = []
@@ -25,9 +21,7 @@ class JsonApiView implements JsonApiViewInterface
             'data' => $data,
             'meta' => $metaData,
         ];
-        $this->view = new View('json-api', $parameters, $statusCode, self::CONTENT_TYPE_JSON_API, $headers);
-        $this->isCollection = $isCollection;
-        $this->includes = $includes;
+        $this->view = new View('json', $parameters, $statusCode, 'application/json', $headers);
     }
 
     public function getStatusCode(): int
@@ -52,7 +46,7 @@ class JsonApiView implements JsonApiViewInterface
 
     public function getTemplate(): string
     {
-        throw new \BadMethodCallException('JsonApiViews do not support templates');
+        throw new \BadMethodCallException('JsonViews do not use templates');
     }
 
     public function getParameters(): array
@@ -68,11 +62,6 @@ class JsonApiView implements JsonApiViewInterface
     public function isCollection(): bool
     {
         return $this->isCollection;
-    }
-
-    public function getIncludes(): array
-    {
-        return $this->includes;
     }
 
     public function getData(): mixed

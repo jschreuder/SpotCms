@@ -40,7 +40,6 @@ class SpotCmsContainer implements
     AuthServiceProviderInterface
 {
     use ConfigTrait;
-    use HttpFactoryProvider;
     use DefaultServiceProvider;
     use SiteContentServiceProvider;
     use FileManagerServiceProvider;
