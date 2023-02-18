@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
@@ -40,6 +40,6 @@ class GetPageController implements RequestValidatorInterface, ControllerInterfac
             return new JsonApiErrorResponse(['PAGE_NOT_FOUND' => 'Page not found'], 404);
         }
 
-        return $this->renderer->render($request, new JsonApiView($page, false, ['pageBlocks']));
+        return $this->renderer->render($request, new JsonView($page));
     }
 }

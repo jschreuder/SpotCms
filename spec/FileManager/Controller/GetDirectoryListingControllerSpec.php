@@ -8,7 +8,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Controller\GetDirectoryListingController;
 use Spot\FileManager\Repository\FileRepository;
@@ -63,7 +63,7 @@ class GetDirectoryListingControllerSpec extends ObjectBehavior
         $this->fileRepository->getDirectoriesInPath($query['path'])->willReturn($directories);
         $this->fileRepository->getFileNamesInPath($query['path'])->willReturn($files);
 
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
 
         $this->execute($request)->shouldReturn($response);
     }

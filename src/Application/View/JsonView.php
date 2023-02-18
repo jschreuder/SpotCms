@@ -11,7 +11,7 @@ class JsonView implements JsonViewInterface
 
     public function __construct(
         mixed $data,
-        private bool $isCollection,
+        private bool $isCollection = false,
         array $metaData = [],
         int $statusCode = 200,
         array $headers = []

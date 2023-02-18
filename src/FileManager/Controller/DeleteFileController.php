@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Spot\Application\FilterService;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
@@ -50,6 +50,6 @@ class DeleteFileController implements RequestFilterInterface, RequestValidatorIn
         }
 
         $this->fileRepository->delete($file);
-        return $this->renderer->render($request, new JsonApiView($file));
+        return $this->renderer->render($request, new JsonView($file));
     }
 }

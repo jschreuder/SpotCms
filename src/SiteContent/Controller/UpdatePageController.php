@@ -21,7 +21,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\FilterService;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
@@ -78,7 +78,7 @@ class UpdatePageController implements RequestFilterInterface, RequestValidatorIn
         $this->applyRequestToPage($pageUpdates, $page);
         $this->pageRepository->update($page);
 
-        return $this->renderer->render($request, new JsonApiView($page));
+        return $this->renderer->render($request, new JsonView($page));
     }
 
     private function applyRequestToPage(array $requestBody, Page $page): void

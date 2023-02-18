@@ -9,7 +9,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Controller\UploadFileController;
@@ -79,7 +79,7 @@ class UploadFileControllerSpec extends ObjectBehavior
         $this->fileRepository->fromInput($name, $query['path'], $mime, $stream)->willReturn($fileEntity);
         $this->fileRepository->createFromUpload($fileEntity)->shouldBeCalled();
 
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
 
         $this->execute($request)->shouldReturn($response);
     }

@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Spot\Application\JsonOutput;
+namespace Spot\Application\JsonConverter;
 
 interface JsonConverterInterface
 {

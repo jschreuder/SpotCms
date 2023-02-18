@@ -2,7 +2,7 @@
 
 namespace Spot\Application\View;
 
-use Spot\Application\JsonOutput\JsonConverterInterface;
+use Spot\Application\JsonConverter\JsonConverterInterface;
 
 final class JsonConverterRenderer extends JsonRenderer
 {

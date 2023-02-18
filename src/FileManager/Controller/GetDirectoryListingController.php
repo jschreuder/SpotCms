@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Spot\Application\FilterService;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
 
@@ -43,7 +43,7 @@ class GetDirectoryListingController implements RequestFilterInterface, RequestVa
         $query = $request->getQueryParams();
         $directories = $this->fileRepository->getDirectoriesInPath($query['path']);
         $fileNames = $this->fileRepository->getFileNamesInPath($query['path']);
-        return $this->renderer->render($request, new JsonApiView([
+        return $this->renderer->render($request, new JsonView([
             'path' => $query['path'],
             'directories' => $directories,
             'files' => $fileNames

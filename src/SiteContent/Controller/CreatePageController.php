@@ -15,14 +15,14 @@ use Laminas\Validator\Identical;
 use Laminas\Validator\InArray;
 use Laminas\Validator\Regex;
 use Laminas\Validator\StringLength;
-use Laminas\Validator\Uuid as ValidatorUuid;
+use Laminas\Validator\Uuid as UuidValidator;
 use Laminas\Validator\ValidatorChain;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\FilterService;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Repository\PageRepository;
 use Spot\SiteContent\Value\PageStatusValue;
@@ -61,7 +61,7 @@ class CreatePageController implements RequestFilterInterface, RequestValidatorIn
                 ->attach(new StringLength(['min' => 1, 'max' => 48]))
                 ->attach(new Regex(['pattern' => '#^[a-z0-9\-]+$#'])),
             'data.attributes.short_title' => new StringLength(['min' => 1, 'max' => 48]),
-            'data.attributes.parent_uuid' => new ValidatorUuid(),
+            'data.attributes.parent_uuid' => new UuidValidator(),
             'data.attributes.sort_order' => new IsInt(),
             'data.attributes.status' => new InArray(['haystack' => PageStatusValue::getValidStatuses()]),
         ]);
@@ -80,6 +80,6 @@ class CreatePageController implements RequestFilterInterface, RequestValidatorIn
             PageStatusValue::get($data['status'])
         );
         $this->pageRepository->create($page);
-        return $this->renderer->render($request, new JsonApiView($page));
+        return $this->renderer->render($request, new JsonView($page, false, [], 201));
     }
 }

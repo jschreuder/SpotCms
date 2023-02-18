@@ -1,27 +1,22 @@
 <?php
 
-namespace spec\Spot\FileManager\Schema;
+namespace spec\Spot\FileManager\JsonConverter;
 
-use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use PhpSpec\ObjectBehavior;
 use Ramsey\Uuid\Uuid;
 use Spot\FileManager\Entity\File;
-use Spot\FileManager\Schema\FileSchema;
+use Spot\FileManager\JsonConverter\FileJsonConverter;
 use Spot\FileManager\Value\FileNameValue;
 use Spot\FileManager\Value\FilePathValue;
 use Spot\FileManager\Value\MimeTypeValue;
 
-/** @mixin  FileSchema */
-class FileSchemaSpec extends ObjectBehavior
+/** @mixin  FileJsonConverter */
+class FileJsonConverterSpec extends ObjectBehavior
 {
-    /** @var  FactoryInterface */
-    private $factory;
-
     /** @var  File */
     private $file;
 
-    public function let(FactoryInterface $factory)
+    public function let()
     {
         $this->file = (new File(
                 Uuid::uuid4(),
@@ -32,13 +27,11 @@ class FileSchemaSpec extends ObjectBehavior
             ))
             ->metaDataSetInsertTimestamp(new \DateTimeImmutable())
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
-        $this->factory = $factory;
-        $this->beConstructedWith($factory);
     }
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(FileSchema::class);
+        $this->shouldHaveType(FileJsonConverter::class);
     }
 
     public function it_can_give_its_entity_type()
@@ -56,9 +49,9 @@ class FileSchemaSpec extends ObjectBehavior
         $this->shouldThrow(\InvalidArgumentException::class)->duringGetId(new \stdClass());
     }
 
-    public function it_can_transform_file_to_array(ContextInterface $context)
+    public function it_can_transform_file_to_array()
     {
-        $attributes = $this->getAttributes($this->file, $context);
+        $attributes = $this->getAttributes($this->file);
         $attributes['name']->shouldBe($this->file->getName()->toString());
         $attributes['path']->shouldBe($this->file->getPath()->toString());
         $attributes['mime_type']->shouldBe($this->file->getMimeType()->toString());
@@ -68,18 +61,18 @@ class FileSchemaSpec extends ObjectBehavior
         ]);
     }
 
-    public function it_errors_when_get_attributes_given_non_file_entity(ContextInterface $context)
+    public function it_errors_when_get_attributes_given_non_file_entity()
     {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass(), $context);
+        $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass());
     }
 
-    public function it_has_no_relationships(ContextInterface $context)
+    public function it_has_no_relationships()
     {
-        $this->getRelationships($this->file, $context)->shouldReturn([]);
+        $this->getRelationships($this->file)->shouldReturn([]);
     }
 
-    public function it_errors_when_get_relationship_given_non_page_entity(ContextInterface $context)
+    public function it_errors_when_get_relationship_given_non_page_entity()
     {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationships(new \stdClass(), $context);
+        $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationships(new \stdClass());
     }
 }

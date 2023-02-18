@@ -9,7 +9,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Spot\Application\Http\JsonApiErrorResponse;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
@@ -80,7 +80,7 @@ class StoreEditedImageControllerSpec extends ObjectBehavior
         $this->imageEditor->output($file, $image)->willReturn('abcdefg');
         $this->imageRepository->createImage($file, new Argument\Token\TypeToken('resource'))->willReturn($newImage);
 
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
 
         $this->execute($request)->shouldReturn($response);
     }

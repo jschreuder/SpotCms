@@ -9,7 +9,7 @@ use jschreuder\Middle\View\RendererInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Spot\Application\Http\JsonApiErrorResponse;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\FileManagerHelper;
 use Spot\ImageEditor\ImageEditor;
@@ -44,7 +44,7 @@ class StoreEditedImageController implements RequestFilterInterface, RequestValid
             fwrite($contents, $this->imageEditor->output($file, $image));
 
             $newImage = $this->imageRepository->createImage($file, $contents);
-            return $this->renderer->render($request, new JsonApiView($newImage));
+            return $this->renderer->render($request, new JsonView($newImage));
         } catch (NoUniqueResultException $e) {
             return new JsonApiErrorResponse(['IMAGE_NOT_FOUND' => 'Image not found'], 404);
         }

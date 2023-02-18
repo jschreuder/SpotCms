@@ -2,7 +2,7 @@
 
 namespace Spot\SiteContent\JsonConverter;
 
-use Spot\Application\JsonOutput\JsonConverterInterface;
+use Spot\Application\JsonConverter\JsonConverterInterface;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 
@@ -36,7 +36,7 @@ class PageBlockJsonConverter implements JsonConverterInterface
             'status' => $pageBlock->getStatus()->toString(),
             'meta' => [
                 'created' => $pageBlock->metaDataGetCreatedTimestamp()->format('c'),
-                'updated' => $pageBlock->metaDataGetCreatedTimestamp()->format('c'),
+                'updated' => $pageBlock->metaDataGetUpdatedTimestamp()->format('c'),
             ],
         ];
     }

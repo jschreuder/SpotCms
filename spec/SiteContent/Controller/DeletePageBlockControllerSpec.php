@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\Http\JsonApiErrorResponse;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\SiteContent\Entity\Page;
@@ -68,7 +68,7 @@ class DeletePageBlockControllerSpec extends ObjectBehavior
         $page->getBlockByUuid($blockUuid)->willReturn($block);
         $this->pageRepository->deleteBlockFromPage($block, $page)->shouldBeCalled();
 
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
 
         $this->execute($request)->shouldReturn($response);
     }

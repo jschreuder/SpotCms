@@ -9,7 +9,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Spot\Application\Http\JsonApiErrorResponse;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\DataModel\Repository\NoUniqueResultException;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
@@ -66,7 +66,7 @@ class DeleteFileControllerSpec extends ObjectBehavior
         $this->fileRepository->getByFullPath($query['path'])->willReturn($file);
         $this->fileRepository->delete($file)->shouldBeCalled();
 
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
         $response = $this->execute($request);
     }
 

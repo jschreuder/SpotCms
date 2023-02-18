@@ -32,8 +32,7 @@ class FileManagerRoutingProvider implements RoutingProviderInterface
         $router->get('files.download', $this->uriSegment . '/f/{path:.+}', function () {
             return new DownloadFileController(
                 $this->container->getFileRepository(),
-                $this->container->getFileManagerHelper(),
-                $this->container->getFileRenderer()
+                $this->container->getFileManagerHelper()
             );
         });
         $router->get('files.getDirectory', $this->uriSegment . '/d/{path:.*}', function () {

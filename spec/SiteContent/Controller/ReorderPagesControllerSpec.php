@@ -10,7 +10,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\ReorderPagesController;
 use Spot\SiteContent\Repository\PageRepository;
@@ -105,7 +105,7 @@ class ReorderPagesControllerSpec extends ObjectBehavior
         $request->getParsedBody()->willReturn(['data' => ['ordered_pages' => $orderedPageUuids]]);
         $request->getQueryParams()->willReturn(['parent_uuid' => $parentUuid->toString()]);
 
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
 
         $this->execute($request)->shouldReturn($response);
     }
@@ -137,7 +137,7 @@ class ReorderPagesControllerSpec extends ObjectBehavior
         $request->getParsedBody()->willReturn(['data' => ['ordered_pages' => $orderedPageUuids]]);
         $request->getQueryParams()->willReturn(['parent_uuid' => $parentUuid]);
 
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
 
         $this->execute($request)->shouldReturn($response);
     }

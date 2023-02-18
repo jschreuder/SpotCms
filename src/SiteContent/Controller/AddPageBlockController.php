@@ -14,7 +14,7 @@ use Laminas\Validator\InArray;
 use Laminas\Validator\NotEmpty;
 use Laminas\Validator\Regex;
 use Laminas\Validator\StringLength;
-use Laminas\Validator\Uuid as ValidatorUuid;
+use Laminas\Validator\Uuid as UuidValidator;
 use Laminas\Validator\ValidatorChain;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -22,7 +22,7 @@ use Ramsey\Uuid\Uuid;
 use Spot\Application\FilterService;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\BlockType\BlockTypeContainerInterface;
 use Spot\SiteContent\Entity\Page;
@@ -55,7 +55,7 @@ class AddPageBlockController implements RequestFilterInterface, RequestValidator
     public function validateRequest(ServerRequestInterface $request): void
     {
         ValidationService::validateQuery($request, [
-            'page_uuid' => new ValidatorUuid(),
+            'page_uuid' => new UuidValidator(),
         ]);
         ValidationService::validate($request, [
             'data.type' => new Identical('pageBlocks'),
@@ -85,7 +85,7 @@ class AddPageBlockController implements RequestFilterInterface, RequestValidator
 
         $pageBlock = $this->createBlock($request->getParsedBody()['data']['attributes'], $page);
         $this->pageRepository->addBlockToPage($pageBlock, $page);
-        return $this->renderer->render($request, new JsonApiView($pageBlock, false, ['pages'], [], 201));
+        return $this->renderer->render($request, new JsonView($pageBlock, false, [], 201));
     }
 
     private function createBlock(array $requestBody, Page $page): PageBlock

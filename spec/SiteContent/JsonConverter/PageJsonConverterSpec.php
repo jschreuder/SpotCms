@@ -1,26 +1,21 @@
 <?php
 
-namespace spec\Spot\SiteContent\Schema;
+namespace spec\Spot\SiteContent\JsonConverter;
 
-use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use PhpSpec\ObjectBehavior;
 use Ramsey\Uuid\Uuid;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
-use Spot\SiteContent\Schema\PageSchema;
+use Spot\SiteContent\JsonConverter\PageJsonConverter;
 use Spot\SiteContent\Value\PageStatusValue;
 
-/** @mixin  PageSchema */
-class PageSchemaSpec extends ObjectBehavior
+/** @mixin  PageJsonConverter */
+class PageJsonConverterSpec extends ObjectBehavior
 {
-    /** @var  FactoryInterface */
-    private $factory;
-
     /** @var  Page */
     private $page;
 
-    public function let(FactoryInterface $factory)
+    public function let()
     {
         $this->page = (new Page(
                 Uuid::uuid4(),
@@ -33,13 +28,11 @@ class PageSchemaSpec extends ObjectBehavior
             ))
             ->metaDataSetInsertTimestamp(new \DateTimeImmutable())
             ->metaDataSetUpdateTimestamp(new \DateTimeImmutable());
-        $this->factory = $factory;
-        $this->beConstructedWith($factory);
     }
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(PageSchema::class);
+        $this->shouldHaveType(PageJsonConverter::class);
     }
 
     public function it_can_give_its_entity_type()
@@ -57,9 +50,9 @@ class PageSchemaSpec extends ObjectBehavior
         $this->shouldThrow(\InvalidArgumentException::class)->duringGetId(new \stdClass());
     }
 
-    public function it_can_transform_page_to_array(ContextInterface $context)
+    public function it_can_transform_page_to_array()
     {
-        $attributes = $this->getAttributes($this->page, $context);
+        $attributes = $this->getAttributes($this->page);
         $attributes['title']->shouldBe($this->page->getTitle());
         $attributes['slug']->shouldBe($this->page->getSlug());
         $attributes['short_title']->shouldBe($this->page->getShortTitle());
@@ -72,19 +65,19 @@ class PageSchemaSpec extends ObjectBehavior
         ]);
     }
 
-    public function it_errors_when_get_attributes_given_non_page_entity(ContextInterface $context)
+    public function it_errors_when_get_attributes_given_non_page_entity()
     {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass(), $context);
+        $this->shouldThrow(\InvalidArgumentException::class)->duringGetAttributes(new \stdClass());
     }
 
-    public function it_can_provide_blocks_relationship(ContextInterface $context)
+    public function it_can_provide_blocks_relationship()
     {
         $this->page->setBlocks([]);
-        $this->getRelationships($this->page, $context)->shouldBeArray();
+        $this->getRelationships($this->page)->shouldBeArray();
     }
 
-    public function it_errors_when_get_relationship_given_non_page_entity(ContextInterface $context)
+    public function it_errors_when_get_relationship_given_non_page_entity()
     {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationships(new \stdClass(), $context);
+        $this->shouldThrow(\InvalidArgumentException::class)->duringGetRelationships(new \stdClass());
     }
 }

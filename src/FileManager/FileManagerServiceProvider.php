@@ -12,7 +12,7 @@ use Spot\Application\View\JsonConverterRenderer;
 use Spot\Application\View\JsonRenderer;
 use Spot\DataModel\Repository\ObjectRepository;
 use Spot\FileManager\Repository\FileRepository;
-use Spot\FileManager\Schema\FileJsonConverter;
+use Spot\FileManager\JsonConverter\FileJsonConverter;
 
 trait FileManagerServiceProvider
 {

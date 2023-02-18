@@ -9,7 +9,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\UpdatePageController;
 use Spot\SiteContent\Repository\PageRepository;
@@ -104,7 +104,7 @@ class UpdatePageControllerSpec extends ObjectBehavior
 
         $this->pageRepository->update($page)->shouldBeCalled();
 
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
 
         $this->execute($request)->shouldReturn($response);
     }
@@ -131,7 +131,7 @@ class UpdatePageControllerSpec extends ObjectBehavior
 
         $this->pageRepository->update($page)->shouldBeCalled();
 
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
 
         $this->execute($request)->shouldReturn($response);
     }

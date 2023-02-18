@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
@@ -47,6 +47,6 @@ class GetPageBlockController implements RequestValidatorInterface, ControllerInt
             return new JsonApiErrorResponse(['PAGE_BLOCK_NOT_FOUND' => 'PageBlock not found'], 404);
         }
 
-        return $this->renderer->render($request, new JsonApiView($block, false, ['pages']));
+        return $this->renderer->render($request, new JsonView($block));
     }
 }

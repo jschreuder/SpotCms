@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\Http\JsonApiErrorResponse;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\DataModel\Repository\NoResultException;
 use Spot\SiteContent\Repository\PageRepository;
 
@@ -48,6 +48,6 @@ class DeletePageBlockController implements RequestValidatorInterface, Controller
         }
 
         $this->pageRepository->deleteBlockFromPage($pageBlock, $page);
-        return $this->renderer->render($request, new JsonApiView($pageBlock));
+        return $this->renderer->render($request, new JsonView($pageBlock));
     }
 }

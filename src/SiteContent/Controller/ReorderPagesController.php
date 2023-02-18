@@ -12,7 +12,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Spot\Application\ValidationService;
 use Spot\Application\Validator\IsListOf;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Repository\PageRepository;
 
@@ -51,7 +51,7 @@ class ReorderPagesController implements RequestValidatorInterface, ControllerInt
             $this->pageRepository->update($page);
         }
 
-        return $this->renderer->render($request, new JsonApiView($pages, true));
+        return $this->renderer->render($request, new JsonView($pages, true));
     }
 
     /**

@@ -3,13 +3,12 @@
 namespace Spot\Application\Http;
 
 use Laminas\Diactoros\Response\JsonResponse;
-use Spot\Application\View\JsonApiViewInterface;
 
 class JsonApiErrorResponse extends JsonResponse
 {
     public function __construct(array $errors, int $status, array $headers = [])
     {
-        $headers['Content-Type'] = JsonApiViewInterface::CONTENT_TYPE_JSON_API;
+        $headers['Content-Type'] = 'application/json';
         parent::__construct(['errors' => $this->formatErrors($errors)], $status, $headers);
     }
 

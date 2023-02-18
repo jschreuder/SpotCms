@@ -1,8 +1,8 @@
 <?php declare(strict_types = 1);
 
-namespace Spot\FileManager\Schema;
+namespace Spot\FileManager\JsonConverter;
 
-use Spot\Application\JsonOutput\JsonConverterInterface;
+use Spot\Application\JsonConverter\JsonConverterInterface;
 use Spot\FileManager\Entity\File;
 
 class FileJsonConverter implements JsonConverterInterface

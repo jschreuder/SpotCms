@@ -16,7 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\FilterService;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\SiteContent\BlockType\BlockTypeContainerInterface;
 use Spot\SiteContent\Entity\PageBlock;
 use Spot\SiteContent\Repository\PageRepository;
@@ -69,7 +69,7 @@ class UpdatePageBlockController implements RequestFilterInterface, RequestValida
         $this->applyRequestToBlock($pageBlockUpdates, $block);
         $this->pageRepository->updateBlockForPage($block, $page);
 
-        return $this->renderer->render($request, new JsonApiView($block));
+        return $this->renderer->render($request, new JsonView($block));
     }
 
     private function applyRequestToBlock(array $requestBody, PageBlock $block): void

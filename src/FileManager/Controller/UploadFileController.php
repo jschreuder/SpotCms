@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Spot\Application\FilterService;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\FileManager\Entity\File;
 use Spot\FileManager\FileManagerHelper;
 use Spot\FileManager\Repository\FileRepository;
@@ -46,7 +46,7 @@ class UploadFileController implements RequestFilterInterface, RequestValidatorIn
         $query = $request->getQueryParams();
         $file = $this->createFiles($uploadedFiles, $query['path']);
 
-        return $this->renderer->render($request, new JsonApiView($file));
+        return $this->renderer->render($request, new JsonView($file, false, [], 201));
     }
 
     /**

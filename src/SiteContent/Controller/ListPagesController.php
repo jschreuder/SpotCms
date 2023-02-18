@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Spot\Application\ValidationService;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\SiteContent\Repository\PageRepository;
 
 class ListPagesController implements RequestValidatorInterface, ControllerInterface
@@ -35,7 +35,7 @@ class ListPagesController implements RequestValidatorInterface, ControllerInterf
         $parentUuid = !empty($query['parent_uuid'])
             ? Uuid::fromString($query['parent_uuid']) : null;
 
-        return $this->renderer->render($request, new JsonApiView(
+        return $this->renderer->render($request, new JsonView(
             $this->pageRepository->getAllByParentUuid($parentUuid),
             true,
             ['pageBlocks']

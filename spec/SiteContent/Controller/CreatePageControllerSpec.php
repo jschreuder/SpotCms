@@ -8,7 +8,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\CreatePageController;
 use Spot\SiteContent\Repository\PageRepository;
@@ -93,7 +93,7 @@ class CreatePageControllerSpec extends ObjectBehavior
         $request->getParsedBody()->willReturn($post);
 
         $this->pageRepository->create(new Argument\Token\TypeToken(Page::class));
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
 
         $this->execute($request)->shouldReturn($response);
     }

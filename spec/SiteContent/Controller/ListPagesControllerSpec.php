@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Spot\Application\View\JsonApiView;
+use Spot\Application\View\JsonView;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Controller\ListPagesController;
 use Spot\SiteContent\Repository\PageRepository;
@@ -60,7 +60,7 @@ class ListPagesControllerSpec extends ObjectBehavior
 
         $this->pageRepository->getAllByParentUuid($parentUuid)->willReturn([$page]);
 
-        $this->renderer->render($request, Argument::type(JsonApiView::class))->willReturn($response);
+        $this->renderer->render($request, Argument::type(JsonView::class))->willReturn($response);
 
         $this->execute($request)->shouldReturn($response);
     }
