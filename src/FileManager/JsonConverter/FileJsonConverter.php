@@ -2,11 +2,10 @@
 
 namespace Spot\FileManager\Schema;
 
-use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
-use Neomerx\JsonApi\Schema\BaseSchema;
+use Spot\Application\JsonOutput\JsonConverterInterface;
 use Spot\FileManager\Entity\File;
 
-class FileSchema extends BaseSchema
+class FileJsonConverter implements JsonConverterInterface
 {
     public function getType(): string
     {
@@ -22,7 +21,7 @@ class FileSchema extends BaseSchema
         return $file->getUuid()->toString();
     }
 
-    public function getAttributes($file, ContextInterface $context): iterable
+    public function getAttributes($file): array
     {
         if (!$file instanceof File) {
             throw new \InvalidArgumentException('FileSchema can only work on files.');
@@ -39,7 +38,7 @@ class FileSchema extends BaseSchema
         ];
     }
 
-    public function getRelationships($file, ContextInterface $context): iterable
+    public function getRelationships($file): array
     {
         if (!$file instanceof File) {
             throw new \InvalidArgumentException('FileSchema can only work on files.');

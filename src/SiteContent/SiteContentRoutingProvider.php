@@ -5,6 +5,7 @@ namespace Spot\SiteContent;
 use jschreuder\Middle\Router\RouterInterface;
 use jschreuder\Middle\Router\RoutingProviderInterface;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Validator\GenericValidator;
 use Spot\SiteContent\Controller\AddPageBlockController;
 use Spot\SiteContent\Controller\CreatePageController;
 use Spot\SiteContent\Controller\DeletePageController;
@@ -27,62 +28,64 @@ class SiteContentRoutingProvider implements RoutingProviderInterface
 
     public function registerRoutes(RouterInterface $router): void
     {
+        $uuidPattern = (new GenericValidator())->getPattern();
+
         $router->post('pages.create', $this->uriSegment, function () {
-            return new CreatePageController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
+            return new CreatePageController($this->container->getPageRepository(), $this->container->getPageRenderer());
         });
         $router->get('pages.list', $this->uriSegment, function () {
-            return new ListPagesController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
+            return new ListPagesController($this->container->getPageRepository(), $this->container->getPageRenderer());
         });
         $router->get('pages.get', $this->uriSegment . '/{page_uuid}', function () {
-            return new GetPageController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
-        }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
+            return new GetPageController($this->container->getPageRepository(), $this->container->getPageRenderer());
+        }, [], ['page_uuid' => $uuidPattern]);
         $router->patch('pages.update', $this->uriSegment . '/{page_uuid}', function () {
-            return new UpdatePageController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
-        }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
+            return new UpdatePageController($this->container->getPageRepository(), $this->container->getPageRenderer());
+        }, [], ['page_uuid' => $uuidPattern]);
         $router->patch('pages.reorder', $this->uriSegment . '/{parent_uuid}/reorder', function () {
-            return new ReorderPagesController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
-        }, [], ['parent_uuid' => Uuid::VALID_PATTERN]);
+            return new ReorderPagesController($this->container->getPageRepository(), $this->container->getPageRenderer());
+        }, [], ['parent_uuid' => $uuidPattern]);
         $router->delete('pages.delete', $this->uriSegment . '/{page_uuid}', function () {
-            return new DeletePageController($this->container->getPageRepository(), $this->container->getSiteContentRenderer());
-        }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
+            return new DeletePageController($this->container->getPageRepository(), $this->container->getPageRenderer());
+        }, [], ['page_uuid' => $uuidPattern]);
 
         $router->post('pageBlocks.create', $this->uriSegment . '/{page_uuid}/blocks', function () {
             return new AddPageBlockController(
                 $this->container->getPageRepository(),
                 $this->container->config('siteContent.blockTypes'),
-                $this->container->getSiteContentRenderer()
+                $this->container->getPageBlockRenderer()
             );
-        }, [], ['page_uuid' => Uuid::VALID_PATTERN]);
+        }, [], ['page_uuid' => $uuidPattern]);
         $router->get('pageBlocks.get', $this->uriSegment . '/{page_uuid}/blocks/{page_block_uuid}',
             function () {
                 return new GetPageBlockController(
                     $this->container->getPageRepository(),
-                    $this->container->getSiteContentRenderer()
+                    $this->container->getPageBlockRenderer()
                 );
             },
             [],
-            ['page_uuid' => Uuid::VALID_PATTERN, 'page_block_uuid' => Uuid::VALID_PATTERN]
+            ['page_uuid' => $uuidPattern, 'page_block_uuid' => $uuidPattern]
         );
         $router->patch('pageBlocks.update', $this->uriSegment . '/{page_uuid}/blocks/{page_block_uuid}',
             function () {
                 return new UpdatePageBlockController(
                     $this->container->getPageRepository(),
                     $this->container->config('siteContent.blockTypes'),
-                    $this->container->getSiteContentRenderer()
+                    $this->container->getPageBlockRenderer()
                 );
             },
             [],
-            ['page_uuid' => Uuid::VALID_PATTERN, 'page_block_uuid' => Uuid::VALID_PATTERN]
+            ['page_uuid' => $uuidPattern, 'page_block_uuid' => $uuidPattern]
         );
         $router->delete('pageBlocks.delete', $this->uriSegment . '/{page_uuid}/blocks/{page_block_uuid}',
             function () {
                 return new DeletePageBlockController(
                     $this->container->getPageRepository(),
-                    $this->container->getSiteContentRenderer()
+                    $this->container->getPageBlockRenderer()
                 );
             },
             [],
-            ['page_uuid' => Uuid::VALID_PATTERN, 'page_block_uuid' => Uuid::VALID_PATTERN]
+            ['page_uuid' => $uuidPattern, 'page_block_uuid' => $uuidPattern]
         );
     }
 }

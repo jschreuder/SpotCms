@@ -32,7 +32,7 @@ class ImageEditorRoutingProvider implements RoutingProviderInterface
                 $this->container->getImageRepository(),
                 $this->container->getImageEditor(),
                 $this->container->config('imageEditor.operations'),
-                $this->container->getImageRenderer()
+                $this->container->getFileRenderer()
             );
         });
     }

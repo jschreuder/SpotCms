@@ -38,7 +38,9 @@ class FileManagerRoutingProvider implements RoutingProviderInterface
         });
         $router->get('files.getDirectory', $this->uriSegment . '/d/{path:.*}', function () {
             return new GetDirectoryListingController(
-                $this->container->getFileRepository(), $this->container->getFileManagerHelper()
+                $this->container->getFileRepository(),
+                $this->container->getFileManagerHelper(),
+                $this->container->getFileDirectoryRenderer()
             );
         });
         $router->delete('files.delete', $this->uriSegment . '/f/{path:.+}', function () {

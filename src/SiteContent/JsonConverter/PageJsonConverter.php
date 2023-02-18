@@ -1,13 +1,12 @@
 <?php declare(strict_types = 1);
 
-namespace Spot\SiteContent\Schema;
+namespace Spot\SiteContent\JsonConverter;
 
-use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
-use Neomerx\JsonApi\Schema\BaseSchema;
+use Spot\Application\JsonOutput\JsonConverterInterface;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 
-class PageSchema extends BaseSchema
+class PageJsonConverter implements JsonConverterInterface
 {
     public function getType(): string
     {
@@ -23,7 +22,7 @@ class PageSchema extends BaseSchema
         return $page->getUuid()->toString();
     }
 
-    public function getAttributes($page, ContextInterface $context): iterable
+    public function getAttributes($page): array
     {
         if (!$page instanceof Page) {
             throw new \InvalidArgumentException('PageSchema can only work on pages.');
@@ -43,18 +42,32 @@ class PageSchema extends BaseSchema
         ];
     }
 
-    public function getRelationships($page, ContextInterface $context): iterable
+    public function getRelationships($page): array
     {
         if (!$page instanceof Page) {
             throw new \InvalidArgumentException('PageSchema can only work on pages.');
         }
 
+        if (!$page->hasBlocks()) {
+            return [];
+        }
+
+        $pageBlocks = [];
+        foreach ($page->getBlocks() as $block) {
+            $pageBlocks[] = [
+                'page_block_id' => $block->getUuid()->toString(),
+                'type' => PageBlock::TYPE,
+                'attributes' => [
+                    'type' => $block->getType(),
+                    'parameters' => $block->getParameters(),
+                    'location' => $block->getLocation(),
+                    'sort_order' => $block->getSortOrder(),
+                    'status' => $block->getStatus()->toString(),
+                ],
+            ];
+        }
         return [
-            PageBlock::TYPE => [
-                self::RELATIONSHIP_LINKS_SELF    => true,
-                self::RELATIONSHIP_LINKS_RELATED => true,
-                self::RELATIONSHIP_DATA => $page->getBlocks(),
-            ],
+            PageBlock::TYPE => $pageBlocks,
         ];
     }
 }

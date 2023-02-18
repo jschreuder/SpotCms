@@ -110,10 +110,15 @@ class Page
         });
     }
 
+    public function hasBlocks(): bool
+    {
+        return isset($this->relatedBlocks);
+    }
+
     /** @return  PageBlock[] */
     public function getBlocks(): array
     {
-        if (!isset($this->relatedBlocks)) {
+        if (!$this->hasBlocks()) {
             throw new \RuntimeException('Page block were not yet loaded.');
         }
         return $this->relatedBlocks;
@@ -130,7 +135,7 @@ class Page
 
     public function addBlock(PageBlock $block): self
     {
-        if (!isset($this->relatedBlocks)) {
+        if (!$this->hasBlocks()) {
             throw new \RuntimeException('Page block were not yet loaded.');
         }
         $this->relatedBlocks[] = $block;

@@ -3,21 +3,16 @@
 namespace Spot\SiteContent;
 
 use jschreuder\Middle\View\RendererInterface;
-use Neomerx\JsonApi\Encoder\Encoder;
 use PDO;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Spot\Application\View\JsonApiRenderer;
+use Spot\Application\View\JsonConverterRenderer;
 use Spot\DataModel\Repository\ObjectRepository;
-use Spot\SiteContent\Entity\Page;
-use Spot\SiteContent\Entity\PageBlock;
+use Spot\SiteContent\JsonConverter\PageBlockJsonConverter;
+use Spot\SiteContent\JsonConverter\PageJsonConverter;
 use Spot\SiteContent\Repository\PageRepository;
-use Spot\SiteContent\Schema\PageBlockSchema;
-use Spot\SiteContent\Schema\PageSchema;
 
 trait SiteContentServiceProvider
 {
     abstract public function config(string $valueName): mixed;
-    abstract public function getHttpResponseFactory(): ResponseFactoryInterface;
     abstract public function getDatabase(): PDO;
     abstract public function getObjectRepository(): ObjectRepository;
 
@@ -29,12 +24,13 @@ trait SiteContentServiceProvider
         );
     }
 
-    public function getSiteContentRenderer(): RendererInterface
+    public function getPageRenderer(): RendererInterface
     {
-        return new JsonApiRenderer($this->getHttpResponseFactory(), Encoder::instance([
-                Page::class => PageSchema::class,
-                PageBlock::class => PageBlockSchema::class,
-            ])->withUrlPrefix($this->config('site.url'))
-        );
+        return new JsonConverterRenderer(new PageJsonConverter());
+    }
+
+    public function getPageBlockRenderer(): RendererInterface
+    {
+        return new JsonConverterRenderer(new PageBlockJsonConverter());
     }
 }

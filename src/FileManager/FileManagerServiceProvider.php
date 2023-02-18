@@ -7,19 +7,16 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\Local\LocalFilesystemAdapter;
-use Neomerx\JsonApi\Encoder\Encoder;
 use PDO;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Spot\Application\View\JsonApiRenderer;
+use Spot\Application\View\JsonConverterRenderer;
+use Spot\Application\View\JsonRenderer;
 use Spot\DataModel\Repository\ObjectRepository;
-use Spot\FileManager\Entity\File;
 use Spot\FileManager\Repository\FileRepository;
-use Spot\FileManager\Schema\FileSchema;
+use Spot\FileManager\Schema\FileJsonConverter;
 
 trait FileManagerServiceProvider
 {
     abstract public function config(string $valueName): mixed;
-    abstract public function getHttpResponseFactory(): ResponseFactoryInterface;
     abstract public function getDatabase(): PDO;
     abstract public function getObjectRepository(): ObjectRepository;
 
@@ -48,11 +45,13 @@ trait FileManagerServiceProvider
         return new FileRepository($this->getFileStorage(), $this->getDatabase(), $this->getObjectRepository());
     }
 
-    public function getFileManagerRenderer(): RendererInterface
+    public function getFileRenderer(): RendererInterface
     {
-        return new JsonApiRenderer($this->getHttpResponseFactory(), Encoder::instance([
-                File::class => FileSchema::class,
-            ])->withUrlPrefix($this->config('site.url'))
-        );
+        return new JsonConverterRenderer(new FileJsonConverter());
+    }
+
+    public function getFileDirectoryRenderer(): RendererInterface
+    {
+        return new JsonRenderer();
     }
 }

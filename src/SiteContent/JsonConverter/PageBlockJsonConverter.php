@@ -1,13 +1,12 @@
 <?php declare(strict_types = 1);
 
-namespace Spot\SiteContent\Schema;
+namespace Spot\SiteContent\JsonConverter;
 
-use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
-use Neomerx\JsonApi\Schema\BaseSchema;
+use Spot\Application\JsonOutput\JsonConverterInterface;
 use Spot\SiteContent\Entity\Page;
 use Spot\SiteContent\Entity\PageBlock;
 
-class PageBlockSchema extends BaseSchema
+class PageBlockJsonConverter implements JsonConverterInterface
 {
     public function getType(): string
     {
@@ -23,7 +22,7 @@ class PageBlockSchema extends BaseSchema
         return $pageBlock->getUuid()->toString();
     }
 
-    public function getAttributes($pageBlock, ContextInterface $context): iterable
+    public function getAttributes($pageBlock): array
     {
         if (!$pageBlock instanceof PageBlock) {
             throw new \InvalidArgumentException('PageBlockSchema can only work on pageBlocks.');
@@ -42,17 +41,24 @@ class PageBlockSchema extends BaseSchema
         ];
     }
 
-    public function getRelationships($pageBlock, ContextInterface $context): iterable
+    public function getRelationships($pageBlock): array
     {
         if (!$pageBlock instanceof PageBlock) {
             throw new \InvalidArgumentException('PageBlockSchema can only work on pageBlocks.');
         }
 
+        $page = $pageBlock->getPage();
         return [
             Page::TYPE => [
-                self::RELATIONSHIP_LINKS_SELF    => true,
-                self::RELATIONSHIP_LINKS_RELATED => true,
-                self::RELATIONSHIP_DATA => $pageBlock->getPage(),
+                'id' => $page->getUuid()->toString(),
+                'type' => Page::TYPE,
+                'attributes' => [
+                    'title' => $page->getTitle(),
+                    'slug' => $page->getSlug(),
+                    'short_title' => $page->getShortTitle(),
+                    'sort_order' => $page->getSortOrder(),
+                    'status' => $page->getStatus()->toString(),
+                ],
             ],
         ];
     }
