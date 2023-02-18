@@ -6,6 +6,10 @@ import { Component } from '@angular/core';
     styleUrls: ['./file-manager.component.css']
 })
 export class FileManagerComponent {
+    path = [
+        'Home',
+        'User',
+    ];
     folders = [
         {
             'name': 'Subdirectory',

@@ -1,6 +1,13 @@
 <div class="content-container">
     <h1 class="mat-h1">Site Content</h1>
 
+    <mat-card *ngIf="path.length > 0">
+        <mat-card-content>
+            <a href="#"><mat-icon class="path-icon">home</mat-icon></a>
+            <span *ngFor="let segment of path"> / {{ segment }}</span>
+        </mat-card-content>
+    </mat-card>
+
     <mat-nav-list>
         <div mat-subheader *ngIf="folders">Folders</div>
         <a mat-list-item *ngFor="let folder of folders">
@@ -13,7 +20,7 @@
 
         <div mat-subheader *ngIf="files">Files</div>
         <a mat-list-item *ngFor="let file of files">
-            <mat-icon matListItemIcon>note</mat-icon>
+            <mat-icon matListItemIcon>insert_drive_file</mat-icon>
             <div matListItemTitle>{{ file.name }}</div>
             <div matListItemLine>{{ file.updated | date }}</div>
         </a>
