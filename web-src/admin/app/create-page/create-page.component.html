@@ -1,4 +1,11 @@
 <div class="content-container">
+  <h1 class="mat-h1">
+    Create page
+    <button mat-raised-button class="header-button" color="primary" routerLink="/site-content">
+        <mat-icon>undo</mat-icon> Back
+    </button>
+  </h1>
+
   <form [formGroup]="addressForm" novalidate (ngSubmit)="onSubmit()">
     <mat-card class="shipping-card">
       <mat-card-header>
