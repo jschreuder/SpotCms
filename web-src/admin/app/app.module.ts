@@ -17,6 +17,11 @@ import { FileManagerComponent } from './file-manager/file-manager.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
+import { CreatePageComponent } from './create-page/create-page.component';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
     declarations: [
@@ -25,6 +30,7 @@ import { MatMenuModule } from '@angular/material/menu';
         DashboardComponent,
         SiteContentComponent,
         FileManagerComponent,
+        CreatePageComponent,
     ],
     imports: [
         BrowserModule,
@@ -40,6 +46,10 @@ import { MatMenuModule } from '@angular/material/menu';
         MatGridListModule,
         MatCardModule,
         MatMenuModule,
+        MatInputModule,
+        MatSelectModule,
+        MatRadioModule,
+        ReactiveFormsModule,
     ],
     providers: [],
     bootstrap: [AppComponent]
