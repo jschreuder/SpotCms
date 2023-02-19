@@ -1,3 +1,7 @@
 .menu-icon {
     vertical-align: middle;
 }
+
+a.active-list-item:link, a.active-list-item:visited {
+    background: #ddd;
+}
